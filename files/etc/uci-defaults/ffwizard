@@ -1,0 +1,20 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+
+if [ "$(uci get system.@system[0].hostname)" == "OpenWrt" ]; then
+	rand="$(echo -n $(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1-4))"
+	rand="$(printf "%d" "0x$rand")"
+	uci set system.@system[0].hostname="OpenWrt-$rand"
+	uci set ffwizard@ffwizard.hostname="OpenWrt-$rand"
+	uci commit
+	echo OpenWrt-$rand > /proc/sys/kernel/hostname
+fi
+
+[ "$(uci get ucitrack.@ffwizard[0] 2>/dev/null)" != "ffwizard" ] && \
+uci batch <<-EOF >/dev/null 2>/dev/null
+	add ucitrack ffwizard
+	set ucitrack.@ffwizard[-1].init="ffwizard"
+	commit ucitrack
+EOF

@@ -1,0 +1,11 @@
+{
+	"services": {
+		"title": "Services",
+		"index": 40
+	},
+	"services/ffwizard": {
+		"title": "ffwizard",
+		"acls": [ "ffwizard" ],
+		"view": "services/ffwizard"
+	}
+}

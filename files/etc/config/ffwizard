@@ -1,0 +1,29 @@
+iconfig ffwizard ffwizard
+	option hostname "OpenWRT"
+	option enabled 0
+	option vpn 0
+	option bbvpn 1
+
+config ffinterface lan
+	option enabled 0
+	option device "lan"
+	option olsr_mesh 1
+	option bat_mesh 0
+
+config ffinterface wan
+	option enabled 0
+	option device "wan"
+	option olsr_mesh 0
+	option bat_mesh 0
+
+config ffinterface wireless0
+	option enabled 0
+	option device "wlan0"
+	option olsr_mesh 1
+	option bat_mesh 0
+
+config ffinterface wireless1
+	option enabled 0
+	option device "wlan1"
+	option olsr_mesh 1
+	option bat_mesh 0

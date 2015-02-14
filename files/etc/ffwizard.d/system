@@ -1,0 +1,7 @@
+
+config_load ffwizard
+config_get hostname ffwizard hostname
+
+uci set system.@system[0].hostname="$hostname"
+uci commit
+echo $hostname > /proc/sys/kernel/hostname

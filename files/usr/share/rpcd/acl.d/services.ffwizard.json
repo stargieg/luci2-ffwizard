@@ -1,0 +1,15 @@
+{
+	"ffwizard": {
+		"description": "Freifunk Wizard",
+		"read": {
+			"uci": [
+				"ffwizard"
+			]
+		},
+		"write": {
+			"uci": [
+				"ffwizard"
+			]
+		}
+	}
+}

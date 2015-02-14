@@ -1,0 +1,11 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+
+cd /etc/ffwizard.d || return 0
+files="$(ls)"
+[ -z "$files" ] && return 0
+for file in $files; do
+    . "./$file"
+done

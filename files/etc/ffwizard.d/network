@@ -1,0 +1,12 @@
+
+setup_iface() {
+	local cfg=$1
+	config_get enabled $cfg enabled "0"
+	[ "$enabled" == "0" ] && return
+	config_get device $cfg device
+	echo "Setup $device"
+}
+
+ 
+config_load ffwizard
+config_foreach setup_iface ffinterface
