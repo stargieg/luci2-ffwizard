@@ -31,6 +31,16 @@ define Package/luci2-ffwizard/install
 
 	$(INSTALL_DIR) $(1)/www/luci2/view
 	$(INSTALL_DATA) ./files/www/luci2/view/services.ffwizard.js $(1)/www/luci2/view
+
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/ffwizard.d
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/sbin/ffwizard $(1)/usr/sbin/ffwizard
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/etc/ffwizard.d/* $(1)/etc/ffwizard.d/
+
+	$(INSTALL_DIR) $(1)/etc/init.d $(1)/etc/config $(1)/etc/uci-defaults
+	$(INSTALL_BIN) ./files/etc/uci-defaults/ffwizard $(1)/etc/uci-defaults/ffwizard
+	$(INSTALL_BIN) ./files/etc/init.d/ffwizard $(1)/etc/init.d/ffwizard
+	$(INSTALL_DATA) ./files/etc/config/ffwizard $(1)/etc/config/ffwizard
+
 endef
 
 $(eval $(call BuildPackage,luci2-ffwizard))
