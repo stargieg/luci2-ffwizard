@@ -1,4 +1,4 @@
-iconfig ffwizard ffwizard
+config ffwizard ffwizard
 	option hostname "OpenWRT"
 	option enabled 0
 	option vpn 0
