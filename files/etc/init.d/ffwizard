@@ -3,18 +3,18 @@
 
 START=99
 SERVER="ffwizard"
-SERVER_BIN="/usr/sbin/ffwizard"
+BIN="/usr/sbin/ffwizard"
 
 
 start() {
 	. /lib/functions/network.sh
 	config_load ffwizard
 	config_get enabled ffwizard enabled "0"
-	[ "$enable" == "0" ] && return
+	[ "$enabled" == "0" ] && return
 	start-stop-daemon -S -x $BIN \
 		-p /var/run/${SERVER}.pid \
 		-m -b --
-	uci set ffwizard.ffwizard.enabled "0"
+	uci set ffwizard.ffwizard.enabled=0
 	uci commit
 }
 
