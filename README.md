@@ -6,7 +6,7 @@ Freifunk Wizard für luci2 rpcd
 ether_ifaces="lan wan" #TODO
 for interface in $ether_ifaces;do
 uci batch <<-EOF >/dev/null 2>/dev/null
-	add ffwizard $interface=interface
+	add ffwizard $interface=ether
 	set ffwizard.$interface.enabled=0
 	set ffwizard.$interface.olsr_mesh=0
 	set ffwizard.$interface.bat_mesh=0
@@ -18,7 +18,7 @@ done
 wifi_ifaces="radio0 radio1" #TODO
 for interface in $wifi_ifaces;do
 uci batch <<-EOF >/dev/null 2>/dev/null
-	add ffwizard $interface=interface
+	add ffwizard $interface=wifi
 	set ffwizard.$interface.enabled=0
 	set ffwizard.$interface.olsr_mesh=0
 	set ffwizard.$interface.bat_mesh=0
