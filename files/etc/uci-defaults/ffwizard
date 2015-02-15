@@ -11,10 +11,3 @@ if [ "$(uci get system.@system[0].hostname)" == "OpenWrt" ]; then
 	uci commit
 	echo OpenWrt-$rand > /proc/sys/kernel/hostname
 fi
-
-[ "$(uci get ucitrack.@ffwizard[0] 2>/dev/null)" != "ffwizard" ] && \
-uci batch <<-EOF >/dev/null 2>/dev/null
-	add ucitrack ffwizard
-	set ucitrack.@ffwizard[-1].init="ffwizard"
-	commit ucitrack
-EOF

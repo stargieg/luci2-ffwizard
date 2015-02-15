@@ -33,7 +33,10 @@ done
  Auswahl der Funkfrequenz
  
 - Aufruf der Wizard scripte durch ucitrack
- Die Scripte in /etc/ffwizard.d werden Alphanumerisch ausgeführt wenn ucitrack eine veränderung an
+
+ Die Scripte in /etc/ffwizard.d werden Alphanumerisch ausgeführt
+ Start über ein init script.
+ via rpcd ```ubus call luci2.system "init_action" '{"name":"ffwizard","action":"restart"}'```
  ```/etc/config/ffwizard``` feststellt.
  Die eingaben aus dem Wizard werden von den Scripten aus uci ffwizard gelesen, verarbeitet
  und in die uci system config (system,wireless,network,olsr,...) geschrieben
