@@ -32,8 +32,8 @@ done
  Auswahl der Mesh Schnitstellen
  Auswahl der Funkfrequenz
  
-- Aufruf der Wizard  via rpcd ```ubus call luci2.system "init_action" '{"name":"ffwizard","action":"restart"}'```
+- Aufruf des Wizard  via rpcd ```ubus call luci2.system "init_action" '{"name":"ffwizard","action":"restart"}'```
 
- Die Scripte in /etc/ffwizard.d werden von ```/usr/sbin/ffwizard``` Alphanumerisch ausgeführt
+ Die Scripte in ```/etc/ffwizard.d werden von``` ```/usr/sbin/ffwizard``` Alphanumerisch ausgeführt
  Die eingaben aus dem Wizard werden von den Scripten aus uci ffwizard gelesen, verarbeitet
  und in die uci system config (system,wireless,network,olsr,...) geschrieben
