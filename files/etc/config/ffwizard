@@ -1,3 +1,7 @@
+config autoconf autoconf
+	option enabled 1
+	option boot 1
+
 config ffwizard ffwizard
 	option hostname "OpenWRT"
 	option enabled 0

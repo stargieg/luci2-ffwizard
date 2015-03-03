@@ -1,0 +1,23 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2015 Patrick Grimm
+
+START=99
+SERVER="ffwizard_autoconf"
+BIN="/usr/sbin/ffwizard_autoconf"
+
+
+start() {
+	config_load ffwizard
+	config_get enabled autoconf boot "0"
+	[ "$boot" == "0" ] && return
+	start-stop-daemon -S -x $BIN \
+		-p /var/run/${SERVER}.pid \
+		-m -b --
+
+	uci set ffwizard.autoconf.boot=0
+	uci commit
+}
+
+restart() {
+	start
+}

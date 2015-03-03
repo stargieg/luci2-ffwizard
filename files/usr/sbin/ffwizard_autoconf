@@ -1,0 +1,93 @@
+#!/bin/sh
+
+. /usr/share/libubox/jshn.sh
+
+wlan_devs=""
+wifi_restart=1
+
+echo "ubus call network.wireless status"
+wifi_data=`ubus call network.wireless status`
+json_load "$wifi_data"
+json_get_keys wifi_res
+for i in $wifi_res ; do
+	json_select $i
+	json_get_var wifi_disabled disabled
+	if [ $wifi_disabled == 1 ] ; then
+		uci set wireless.$i.disabled=0
+		uci set wireless.$i.country=00
+		#uci commit wireless
+	else
+		wifi_restart=0
+	fi
+	json_select ".."
+done
+
+json_cleanup
+
+if [ $wifi_restart == 1 ] ; then
+	echo "wifi restart and sleep 20s"
+	#FIXME do it with ubus call and list
+	/sbin/wifi restart
+	/bin/sleep 20
+	wifi_data=`ubus call network.wireless status`
+	json_load "$wifi_data"
+	json_get_keys wifi_res
+	for i in $wifi_res ; do
+		json_select $i
+		json_get_var wifi_disabled disabled
+		if [ $wifi_disabled == 0 ] ; then
+			json_select interfaces
+			json_get_keys wifi_ifc_res
+			for j in $wifi_ifc_res ; do
+				json_select $j
+				json_get_var wifi_ifc_name ifname
+				wlan_devs="$wlan_devs $wifi_ifc_name"
+				json_select ".."
+			done
+			json_select ".."
+		fi
+		json_select ".."
+	done
+fi
+
+json_cleanup
+
+echo "ubus call iwinfo scan"
+for dev in $wlan_devs ; do
+	scan_data=$(ubus call iwinfo scan '{ "device": "'$dev'" }')
+	json_load "$scan_data"
+	json_select results
+	json_get_keys scan_res
+	sel_quality=0
+	sel_ssid=""
+	sel_bssid=""
+	sel_channel=""
+	for i in $scan_res ; do
+		json_select $i
+		json_select encryption
+		json_get_var sta_encryption enabled
+		json_select ".."
+		if [ $sta_encryption == 0 ] ; then
+			json_get_var sta_mode mode
+			if [ $sta_mode == "Ad-Hoc" ] ; then
+				json_get_var sta_ssid ssid
+				if echo "$sta_ssid" | grep -q "freifunk\.net" ; then
+					json_get_var sta_quality quality
+					if [ $sta_quality -gt $sel_quality ] ; then
+						sel_quality=$sta_quality
+						json_get_var sta_bssid bssid
+						json_get_var sta_channel channel
+						json_get_var sta_signal signal
+						json_get_var sta_quality_max quality_max
+						sel_ssid=$sta_ssid
+						sel_bssid=$sta_bssid
+						sel_channel=$sta_channel
+					fi
+				fi
+			fi
+		fi
+		json_select ".."
+	done
+	#TODO
+	echo "TODO iw $dev ssid $sel_ssid bssid $sel_bssid mode Ad-Hoc channel $sel_channel"
+done
