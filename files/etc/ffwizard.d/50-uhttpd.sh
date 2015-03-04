@@ -3,7 +3,7 @@
 #remove https certs
 #set new common name
 #generate new certs with uhttpd restart
-hostname=$(uci set system.@system[0].hostname)
+hostname=$(uci get system.@system[0].hostname)
 config_load uhttpd
 config_get crtfile main cert
 config_get keyfile main key
