@@ -15,6 +15,18 @@ setup_ip() {
 	uci commit
 }
 
+setup_bridge() {
+	config_get ipaddr ffwizard br_ip
+	setup_ip fflandhcp $ipaddr
+	#for batman
+	uci set network.fflandhcp.mtu=1532
+	uci set network.fflandhcp.force_link=1
+	#TODO
+	#uci set network.fflandhcp.macaddr=$random?
+	uci set network.fflandhcp.type=bridge
+	uci commit
+}
+
 setup_iface() {
 	local cfg=$1
 	config_get enabled $cfg enabled "0"
@@ -32,9 +44,12 @@ setup_vap() {
 	[ "$vap" == "0" ] && return
 	logger -t "ffwizard_vap" "Setup $cfg"
 	config_get ipaddr $cfg vap_ip
+	config_get bridge $cfg vap_br "0"
 	if [ -n "$ipaddr" ] ; then
 		cfg_name="$cfg"_ap
 		setup_ip $cfg_name $ipaddr
+	elif [ "$bridge" == "1" ] ; then
+		setup_bridge
 	fi
 }
 

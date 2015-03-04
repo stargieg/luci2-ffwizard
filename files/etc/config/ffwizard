@@ -7,6 +7,7 @@ config ffwizard ffwizard
 	option enabled 0
 	option vpn 0
 	option bbvpn 1
+	option br_ip "192.168.112.1/28"
 
 config ether lan
 	option enabled 0
@@ -27,7 +28,7 @@ config wifi wireless0
 	option bat_mesh 0
 	option vap 1
 	option mesh_ip "104.1.1.1/8"
-	option vap_ip "192.168.111.1"
+	option vap_ip "192.168.111.1/28"
 
 config wifi wireless1
 	option enabled 0
@@ -36,4 +37,4 @@ config wifi wireless1
 	option bat_mesh 0
 	option mesh_ip "104.1.1.2/8"
 	option vap 1
-	option vap_br "mesh"
+	option vap_br 1
