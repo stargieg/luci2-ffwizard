@@ -35,3 +35,5 @@ config wifi wireless1
 	option olsr_mesh 1
 	option bat_mesh 0
 	option mesh_ip "104.1.1.2/8"
+	option vap 1
+	option vap_br "mesh"
