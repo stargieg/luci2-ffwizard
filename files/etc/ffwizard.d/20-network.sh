@@ -2,14 +2,15 @@
 setup_ip() {
 	local cfg=$1
 	local ipaddr=$2
-	[ -z "$ipaddr" ] && return
 	if ! uci -q get network.$cfg>/dev/null ; then
 		uci set network.$cfg=interface
 	fi
-	eval "$(ipcalc.sh $ipaddr)"
+	if [ -n "$ipaddr" ] ; then
+		eval "$(ipcalc.sh $ipaddr)"
+		uci set network.$cfg.ipaddr=$IP
+		uci set network.$cfg.netmask=$NETMASK
+	fi
 	uci set network.$cfg.proto=static
-	uci set network.$cfg.ipaddr=$IP
-	uci set network.$cfg.netmask=$NETMASK
 	uci set network.$cfg.ip6assign=64
 	uci commit
 }
@@ -31,8 +32,10 @@ setup_vap() {
 	[ "$vap" == "0" ] && return
 	logger -t "ffwizard_vap" "Setup $cfg"
 	config_get ipaddr $cfg vap_ip
-	cfg_name="$cfg"_ap
-	setup_ip $cfg $ipaddr
+	if [ -n "$ipaddr" ] ; then
+		cfg_name="$cfg"_ap
+		setup_ip $cfg_name $ipaddr
+	fi
 }
 
 setup_adhoc() {
@@ -42,7 +45,7 @@ setup_adhoc() {
 	logger -t "ffwizard_adhoc" "Setup $cfg"
 	config_get ipaddr $cfg mesh_ip
 	cfg_name="$cfg"_mesh
-	setup_ip $cfg $ipaddr
+	setup_ip $cfg_name $ipaddr
 }
 
 
