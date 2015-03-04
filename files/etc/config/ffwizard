@@ -8,26 +8,30 @@ config ffwizard ffwizard
 	option vpn 0
 	option bbvpn 1
 
-config ffinterface lan
+config ether lan
 	option enabled 0
 	option device "lan"
 	option olsr_mesh 1
 	option bat_mesh 0
 
-config ffinterface wan
+config ether wan
 	option enabled 0
 	option device "wan"
 	option olsr_mesh 0
 	option bat_mesh 0
 
-config ffinterface wireless0
+config wifi wireless0
 	option enabled 0
-	option device "wlan0"
+	option device "radio0"
 	option olsr_mesh 1
 	option bat_mesh 0
+	option vap 1
+	option mesh_ip "104.1.1.1/8"
+	option vap_ip "192.168.111.1"
 
-config ffinterface wireless1
+config wifi wireless1
 	option enabled 0
-	option device "wlan1"
+	option device "radio1"
 	option olsr_mesh 1
 	option bat_mesh 0
+	option mesh_ip "104.1.1.2/8"

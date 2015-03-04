@@ -10,7 +10,7 @@ if [ -z $hostname ] ; then
 	rand=$(echo -n $(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1-4))
 	hostname="OpenWrt-$rand"
 fi
-	
+
 uci set system.@system[0].hostname="$hostname"
 echo $hostname > /proc/sys/kernel/hostname
 
@@ -31,4 +31,3 @@ if [ -n $longitude ] ; then
 fi
 
 uci commit
-

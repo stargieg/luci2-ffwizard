@@ -41,13 +41,13 @@ L.ui.view.extend({
 		});
 
 
-		var isec = m.section(L.cbi.TypedSection, 'ffinterface', {
+		var ether_sec = m.section(L.cbi.TypedSection, 'ether', {
 			caption:      L.tr('Interface'),
 			addremove:    true,
 			add_caption:  L.tr('Add Interface …'),
 		});
 
-		isec.option(L.cbi.CheckboxValue, 'enabled', {
+		ether_sec.option(L.cbi.CheckboxValue, 'enabled', {
 			caption:     L.tr('Enabled'),
 			initial:     0,
 			enabled:     '1',
@@ -55,13 +55,13 @@ L.ui.view.extend({
 			optional:    false
 		});
 
-		isec.option(L.cbi.InputValue, 'device', {
+		ether_sec.option(L.cbi.InputValue, 'device', {
 			caption:     L.tr('Device'),
 			description: L.tr('Device Name'),
 			optional:    false
 		});
 
-		isec.option(L.cbi.CheckboxValue, 'olsr_mesh', {
+		ether_sec.option(L.cbi.CheckboxValue, 'olsr_mesh', {
 			caption:     L.tr('Olsr Mesh'),
 			description: L.tr('OLSR Mesh Protokol'),
 			initial:     1,
@@ -70,7 +70,45 @@ L.ui.view.extend({
 			optional:    false
 		});
 
-		isec.option(L.cbi.CheckboxValue, 'bat_mesh', {
+		ether_sec.option(L.cbi.CheckboxValue, 'bat_mesh', {
+			caption:     L.tr('Batman Mesh'),
+			description: L.tr('Batman Mesh Protokol'),
+			initial:     0,
+			enabled:     '1',
+			disabled:    '0',
+			optional:    false
+		});
+
+		var wifi_sec = m.section(L.cbi.TypedSection, 'wifi', {
+			caption:      L.tr('Interface'),
+			addremove:    true,
+			add_caption:  L.tr('Add Interface …'),
+		});
+
+		wifi_sec.option(L.cbi.CheckboxValue, 'enabled', {
+			caption:     L.tr('Enabled'),
+			initial:     0,
+			enabled:     '1',
+			disabled:    '0',
+			optional:    false
+		});
+
+		wifi_sec.option(L.cbi.InputValue, 'device', {
+			caption:     L.tr('Device'),
+			description: L.tr('Device Name'),
+			optional:    false
+		});
+
+		wifi_sec.option(L.cbi.CheckboxValue, 'olsr_mesh', {
+			caption:     L.tr('Olsr Mesh'),
+			description: L.tr('OLSR Mesh Protokol'),
+			initial:     1,
+			enabled:     '1',
+			disabled:    '0',
+			optional:    false
+		});
+
+		wifi_sec.option(L.cbi.CheckboxValue, 'bat_mesh', {
 			caption:     L.tr('Batman Mesh'),
 			description: L.tr('Batman Mesh Protokol'),
 			initial:     0,
