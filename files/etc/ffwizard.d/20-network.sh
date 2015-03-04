@@ -16,8 +16,9 @@ setup_ip() {
 }
 
 setup_bridge() {
-	config_get ipaddr ffwizard br_ip
-	setup_ip fflandhcp $ipaddr
+	local cfg=$1
+	local ipaddr=$2
+	setup_ip $cfg $ipaddr
 	#for batman
 	uci set network.fflandhcp.mtu=1532
 	uci set network.fflandhcp.force_link=1
@@ -44,12 +45,9 @@ setup_vap() {
 	[ "$vap" == "0" ] && return
 	logger -t "ffwizard_vap" "Setup $cfg"
 	config_get ipaddr $cfg vap_ip
-	config_get bridge $cfg vap_br "0"
 	if [ -n "$ipaddr" ] ; then
 		cfg_name="$cfg"_ap
 		setup_ip $cfg_name $ipaddr
-	elif [ "$bridge" == "1" ] ; then
-		setup_bridge
 	fi
 }
 
@@ -68,3 +66,10 @@ config_load ffwizard
 config_foreach setup_iface ether
 config_foreach setup_vap wifi
 config_foreach setup_adhoc wifi
+
+#Setup DHCP Batman Bridge
+config_get br ffwizard br "0"
+if [ "$enabled" == "1" ] ; then
+	config_get ipaddr ffwizard br_ip
+	setup_bridge fflandhcp $ipaddr
+fi
