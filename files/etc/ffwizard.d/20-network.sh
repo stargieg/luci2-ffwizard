@@ -61,11 +61,128 @@ setup_adhoc() {
 	setup_ip $cfg_name $ipaddr
 }
 
+setup_wifi() {
+	local cfg=$1
+	config_get enabled $cfg enabled "0"
+	[ "$enabled" == "0" ] && return
+	config_get device $cfg device "0"
+	[ "$device" == "0" ] && return
+	logger -t "ffwizard_wifi" "Setup $cfg"
+	#get valid hwmods
+	local hw_a
+	local hw_b
+	local hw_g
+	local hw_n
+	info_data=$(ubus call iwinfo info '{ "device": "'$device'" }')
+	json_load "$info_data"
+	json_select hwmodes
+	json_get_values hw_res
+	for i in hw_res ; do
+		case $i in
+			a) hw_a=1 ;;
+			b) hw_b=1 ;;
+			g) hw_g=1 ;;
+			n) hw_n=1 ;;
+		esac
+	done
+	#get valid channel list
+	local channels
+	local valid_channel
+	chan_data=$(ubus call iwinfo freqlist '{ "device": "'$device'" }')
+	json_load "$chan_data"
+	json_select results
+	json_get_keys chan_res
+	for i in $chan_res ; do
+		json_select $i
+		#check what channels are available
+		json_get_var restricted restricted
+		if [ $restricted == 0 ] ; then
+				json_get_var channel channel
+				channels="$channels $channel"
+		fi
+		json_select ".."
+	do
+	#get default channel depending on hw_mod
+	[ $hw_a == 1 ] && def_channel=36
+	[ $hw_b == 1 ] && def_channel=13
+	[ $hw_g == 1 ] && def_channel=13
+	config_get channel $cfg channel $def_channel
+	local valid_channel
+	for i in $channels ; do
+		[ -z $valid_channel ] && valid_channel=$i
+		if [ $channel == $i ] ; then
+			valid_channel=$i
+		fi
+	done
+	logger -t "ffwizard_wifi" "Channel $valid_channel"
+	uci set wireless.$device.channel=$valid_channel
+	uci set wireless.$device.disabled=0
+	[ $hw_g == 1 ] && [ $hw_n == 1 ] && uci set wireless.$device.noscan=1
+	[ $hw_n == 1 ] && uci set wireless.$device.htmode=HT40
+	uci set wireless.wireless.$device.country=00
+	[ $hw_a == 1 ] && wireless.$device.doth=0
+	#read from Luci_ui
+	uci set wireless.$device.distance=1000
+	#Reduce the Broadcast distance and save Airtime
+	[ $hw_n == 1 ] && uci set wireless.$device.basic_rate="5500 6000 9000 11000 12000 18000 24000 36000 48000 54000"
+	#Set Man or Auto?
+	#uci set wireless.$device.txpower=15
+	#Save Airtime max 1000
+	uci set wireless.$device.beacon_int=250
+	#wifi-iface
+	config_get olsr_mesh $cfg olsr_mesh "0"
+	config_get mesh $cfg bat_mesh $olsr_mesh
+	if [ mesh == 1 ] ; then
+		logger -t "ffwizard_wifi" "mesch"
+		cfg_mesh=$cfg"_mesh"
+		uci set wireless.$cfg_mesh=wifi-iface
+		uci set wireless.$cfg_mesh.device=$device
+		uci set wireless.$cfg_mesh.mode=adhoc
+		uci set wireless.$cfg_mesh.encryption=none
+		uci set wireless.$cfg_mesh.ssid="olsr.freifunk.net"
+		uci set wireless.$cfg_mesh.bssid="02:CA:FF:EE:BA:BE"
+		#uci set wireless.$cfg_mesh.doth
+		uci set wireless.$cfg_mesh.network=$cfg_mesh
+		uci set wireless.$cfg_mesh.mcast_rate=18000
+		config_get ipaddr $cfg mesh_ip
+		setup_ip $cfg_mesh $ipaddr
+	fi
+	config_get vap $cfg vap 0
+	if [ $vap == 1 ] ; then
+		logger -t "ffwizard_wifi" "Virtual AP"
+		cfg_mesh=$cfg"_vap"
+		uci set wireless.$cfg_vap=wifi-iface
+		uci set wireless.$cfg_vap.device=$device
+		uci set wireless.$cfg_vap.mode=ap
+		uci set wireless.$cfg_vap.mcast_rate=6000
+		#uci set wireless.$cfg_vap.isolate=1
+		uci set wireless.$cfg_vap.ssid=freifunk.net
+		config_get vap_br $cfg vap_br 0
+		if [ $vap_br == 1 ] ; then
+			uci set wireless.$cfg_vap.network=fflandhcp
+		else
+			config_get vap_ip $cfg vap_ip
+			uci set wireless.$cfg_vap.network=$cfg_vap
+			setup_ip $cfg_vap $ipaddr
+		fi
+	fi
+}
 
+remove_wifi() {
+	local cfg=$1
+	uci_remove wireless $cfg
+}
+
+#Remove wifi ifaces
+config_load wireless
+config_foreach remove_wifi wifi-iface
+
+#Setup ether and wifi
 config_load ffwizard
 config_foreach setup_iface ether
 config_foreach setup_vap wifi
 config_foreach setup_adhoc wifi
+config_foreach setup_wifi wifi
 
 #Setup DHCP Batman Bridge
 config_get br ffwizard br "0"
