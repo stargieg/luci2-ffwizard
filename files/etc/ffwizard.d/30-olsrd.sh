@@ -28,10 +28,3 @@ config_foreach remove_Interface Interface
 config_load ffwizard
 config_foreach setup_iface ether
 config_foreach setup_wifi wifi
-
-#Setup DHCP Batman Bridge
-config_get br ffwizard br "0"
-if [ "$enabled" == "1" ] ; then
-	config_get ipaddr ffwizard br_ip
-	setup_bridge fflandhcp $ipaddr
-fi
