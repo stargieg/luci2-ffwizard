@@ -37,30 +37,6 @@ setup_iface() {
 	setup_ip $cfg $ipaddr
 }
 
-setup_vap() {
-	local cfg=$1
-	config_get enabled $cfg enabled "0"
-	[ "$enabled" == "0" ] && return
-	config_get vap $cfg vap "0"
-	[ "$vap" == "0" ] && return
-	logger -t "ffwizard_vap" "Setup $cfg"
-	config_get ipaddr $cfg vap_ip
-	if [ -n "$ipaddr" ] ; then
-		cfg_name="$cfg"_ap
-		setup_ip $cfg_name $ipaddr
-	fi
-}
-
-setup_adhoc() {
-	local cfg=$1
-	config_get enabled $cfg enabled "0"
-	[ "$enabled" == "0" ] && return
-	logger -t "ffwizard_adhoc" "Setup $cfg"
-	config_get ipaddr $cfg mesh_ip
-	cfg_name="$cfg"_mesh
-	setup_ip $cfg_name $ipaddr
-}
-
 setup_wifi() {
 	local cfg=$1
 	config_get enabled $cfg enabled "0"
@@ -133,14 +109,26 @@ setup_wifi() {
 	config_get olsr_mesh $cfg olsr_mesh "0"
 	config_get mesh $cfg bat_mesh $olsr_mesh
 	if [ mesh == 1 ] ; then
+		local bssid
 		logger -t "ffwizard_wifi" "mesch"
 		cfg_mesh=$cfg"_mesh"
 		uci set wireless.$cfg_mesh=wifi-iface
 		uci set wireless.$cfg_mesh.device=$device
 		uci set wireless.$cfg_mesh.mode=adhoc
 		uci set wireless.$cfg_mesh.encryption=none
-		uci set wireless.$cfg_mesh.ssid="olsr.freifunk.net"
-		uci set wireless.$cfg_mesh.bssid="02:CA:FF:EE:BA:BE"
+		uci set wireless.$cfg_mesh.ssid="intern-ch"$valid_channel".freifunk.net"
+		if [ $valid_channel -gt 0 && $valid_channel -lt 10 ] ; then
+			bssid=$valid_channel"2:CA:FF:EE:BA:BE"
+		elif [ $valid_channel -eq 10 ] ; then
+			bssid="02:CA:FF:EE:BA:BE"
+		elif [ $valid_channel -gt 10 && $valid_channel -lt 15 ] ; then
+			bssid=$(printf "%X" "$valid_channel")"2:CA:FF:EE:BA:BE"
+		elif [ $valid_channel -gt 35 && $valid_channel -lt 100 ] ; then
+			bssid="02:"$valid_channel":CA:FF:EE:EE"
+		elif [ $valid_channel -gt 99 && $valid_channel -lt 199 ] ; then
+			bssid="12:"$(printf "%02d" "$(expr $valid_channel - 100)")":CA:FF:EE:EE"
+		fi
+		uci set wireless.$cfg_mesh.bssid="$bssid"
 		#uci set wireless.$cfg_mesh.doth
 		uci set wireless.$cfg_mesh.network=$cfg_mesh
 		uci set wireless.$cfg_mesh.mcast_rate=18000
@@ -180,8 +168,6 @@ config_foreach remove_wifi wifi-iface
 #Setup ether and wifi
 config_load ffwizard
 config_foreach setup_iface ether
-config_foreach setup_vap wifi
-config_foreach setup_adhoc wifi
 config_foreach setup_wifi wifi
 
 #Setup DHCP Batman Bridge
