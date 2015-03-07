@@ -110,8 +110,8 @@ if [ $olsr_enabled == "1" ] ; then
 	#Setup Plugin or disable
 	config_foreach setup_Plugins LoadPlugin
 	uci_commit olsrd
-	/etc/init.olsrd enable
+	/etc/init.d/olsrd enable
 else
 	/sbin/uci revert olsrd
-	/etc/init.olsrd disable
+	/etc/init.d/olsrd disable
 fi
