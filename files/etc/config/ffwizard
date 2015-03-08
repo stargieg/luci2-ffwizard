@@ -23,8 +23,8 @@ config ether wan
 	option olsr_mesh 0
 	option bat_mesh 0
 
-config wifi wireless0
-	option enabled 0
+config wifi radio0
+	option enabled 1
 	option device "radio0"
 	option olsr_mesh 1
 	option bat_mesh 0
@@ -32,8 +32,8 @@ config wifi wireless0
 	option mesh_ip "104.1.1.1/8"
 	option dhcp_ip "192.168.111.0/28"
 
-config wifi wireless1
-	option enabled 0
+config wifi radio1
+	option enabled 1
 	option device "radio1"
 	option olsr_mesh 1
 	option bat_mesh 0
