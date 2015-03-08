@@ -143,7 +143,7 @@ setup_wifi() {
 	config_get vap $cfg vap 0
 	if [ $vap == 1 ] ; then
 		logger -t "ffwizard_wifi" "Virtual AP"
-		cfg_mesh=$cfg"_vap"
+		cfg_vap=$cfg"_vap"
 		uci set wireless.$cfg_vap=wifi-iface
 		uci set wireless.$cfg_vap.device=$device
 		uci set wireless.$cfg_vap.mode=ap
