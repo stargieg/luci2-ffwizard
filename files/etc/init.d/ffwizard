@@ -7,15 +7,13 @@ BIN="/usr/sbin/ffwizard"
 
 
 start() {
-	. /lib/functions/network.sh
-	config_load ffwizard
-	config_get enabled ffwizard enabled "0"
+	enabled=$(uci_get ffwizard ffwizard enabled "0")
 	[ "$enabled" == "0" ] && return
 	start-stop-daemon -S -x $BIN \
 		-p /var/run/${SERVER}.pid \
 		-m -b --
-	uci set ffwizard.ffwizard.enabled=0
-	uci commit
+	uci_set ffwizard ffwizard enabled 0
+	uci_commit ffwizard
 }
 
 restart() {

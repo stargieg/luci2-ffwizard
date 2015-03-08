@@ -7,7 +7,8 @@ config_get longitude ffwizard longitude
 
 # Set Hostname
 if [ -z $hostname ] ; then
-	rand=$(echo -n $(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1-4))
+	rand="$(echo -n $(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1-4))"
+	rand="$(printf "%d" "0x$rand")"
 	hostname="OpenWrt-$rand"
 	uci_set ffwizard ffwizard hostname "$hostname"
 fi

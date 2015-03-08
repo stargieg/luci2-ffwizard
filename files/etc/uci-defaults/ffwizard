@@ -2,12 +2,20 @@
 
 . /lib/functions.sh
 
-
-if [ "$(uci get system.@system[0].hostname)" == "OpenWrt" ]; then
+# Set Hostname
+if [ "$(uci_get system @system[0] hostname)" == "OpenWrt" ]; then
 	rand="$(echo -n $(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1-4))"
 	rand="$(printf "%d" "0x$rand")"
-	uci set system.@system[0].hostname="OpenWrt-$rand"
-	uci set ffwizard@ffwizard.hostname="OpenWrt-$rand"
-	uci commit
-	echo OpenWrt-$rand > /proc/sys/kernel/hostname
+	hostname="OpenWrt-$rand"
+	uci_set system @system[0] hostname "$hostname"
+	uci_set ffwizard ffwizard hostname "$hostname"
+	uci_commit ffwizard
+	echo "$hostname" > /proc/sys/kernel/hostname
+	uci_set uhttpd px5g commonname "$hostname"
+	uci_commit uhttpd
+
+	uci_add dhcp domain frei_funk
+	uci_set dhcp frei_funk name "frei.funk"
+	uci_set dhcp frei_funk ip "192.168.1.1"
+	uci_commit dhcp
 fi
