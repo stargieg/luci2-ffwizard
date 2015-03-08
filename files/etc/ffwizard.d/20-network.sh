@@ -149,7 +149,7 @@ setup_wifi() {
 		if [ $vap_br == 1 ] ; then
 			uci set wireless.$cfg_vap.network=fflandhcp
 		else
-			config_get vap_ip $cfg vap_ip
+			config_get ipaddr $cfg dhcp_ip
 			uci set wireless.$cfg_vap.network=$cfg_vap
 			setup_ip $cfg_vap $ipaddr
 		fi
@@ -173,6 +173,6 @@ config_foreach setup_wifi wifi
 #Setup DHCP Batman Bridge
 config_get br ffwizard br "0"
 if [ "$enabled" == "1" ] ; then
-	config_get ipaddr ffwizard br_ip
+	config_get ipaddr ffwizard dhcp_ip
 	setup_bridge fflandhcp $ipaddr
 fi
