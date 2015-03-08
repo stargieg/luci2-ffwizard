@@ -58,12 +58,12 @@ setup_ether() {
 	[ "$device" == "0" ] && return
 	logger -t "ffwizard_olsrd_ether" "Setup $cfg"
 	uci_add olsrd Interface ; iface_sec="$CONFIG_SECTION"
-	uci_add olsrd "$iface_sec" interface "$device"
-	uci_add olsrd "$iface_sec" ignore "0"
+	uci_set olsrd "$iface_sec" interface "$device"
+	uci_set olsrd "$iface_sec" ignore "0"
 	# only with LinkQualityAlgorithm=etx_ffeth
 	#uci_add olsrd "$iface_sec" Mode "ether"
 	# only with LinkQualityAlgorithm=etx_ff
-	uci_add olsrd "$iface_sec" Mode "mesh"
+	uci_set olsrd "$iface_sec" Mode "mesh"
 	olsr_enabled=1
 }
 
@@ -79,11 +79,11 @@ setup_wifi() {
 	[ "$device" == "0" ] && return
 	logger -t "ffwizard_olsrd_wifi" "Setup $cfg"
 	uci_add olsrd Interface ; iface_sec="$CONFIG_SECTION"
-	uci_add olsrd "$iface_sec" interface "$device"
-	uci_add olsrd "$iface_sec" ignore "0"
+	uci_set olsrd "$iface_sec" interface "$device"
+	uci_set olsrd "$iface_sec" ignore "0"
 	#Shoud be mesh with LinkQualityAlgorithm=etx_ffeth
 	#and LinkQualityAlgorithm=etx_ff
-	uci_add olsrd "$iface_sec" Mode "mesh"
+	uci_set olsrd "$iface_sec" Mode "mesh"
 	olsr_enabled=1
 }
 
