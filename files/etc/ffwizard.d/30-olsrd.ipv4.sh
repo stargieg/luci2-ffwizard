@@ -65,6 +65,13 @@ setup_ether() {
 	# only with LinkQualityAlgorithm=etx_ff
 	uci_set olsrd "$iface_sec" Mode "mesh"
 	olsr_enabled=1
+	config_get ipaddr $cfg dhcp_ip 0
+	if [ $ipaddr != 0 ] ; then
+		eval "$(ipcalc.sh $ipaddr)"
+		uci_add olsrd Hna4 ; hna_sec="$CONFIG_SECTION"
+		uci_set olsrd "$hna_sec" netmask "$NETMASK"
+		uci_set olsrd "$hna_sec" netaddr "$NETWORK"
+	fi
 }
 
 setup_wifi() {
@@ -85,21 +92,41 @@ setup_wifi() {
 	#and LinkQualityAlgorithm=etx_ff
 	uci_set olsrd "$iface_sec" Mode "mesh"
 	olsr_enabled=1
+	config_get ipaddr $cfg dhcp_ip 0
+	if [ $ipaddr != 0 ] ; then
+		eval "$(ipcalc.sh $ipaddr)"
+		uci_add olsrd Hna4 ; hna_sec="$CONFIG_SECTION"
+		uci_set olsrd "$hna_sec" netmask "$NETMASK"
+		uci_set olsrd "$hna_sec" netaddr "$NETWORK"
+	fi
 }
 
-remove_Interface() {
+remove_section() {
 	local cfg=$1
 	uci_remove olsrd $cfg
 }
 
-#Remove wifi ifaces
 config_load olsrd
-config_foreach remove_Interface Interface
+#Remove wifi ifaces
+config_foreach remove_section Interface
+#Remove Hna's
+config_foreach remove_section Hna4
+
 local olsr_enabled=0
 #Setup ether and wifi
 config_load ffwizard
 config_foreach setup_iface ether
 config_foreach setup_wifi wifi
+config_get br ffwizard br "0"
+if [ "$enabled" == "1" ] ; then
+	config_get ipaddr ffwizard dhcp_ip 0
+	if [ $ipaddr != 0 ] ; then
+		eval "$(ipcalc.sh $ipaddr)"
+		uci_add olsrd Hna4 ; hna_sec="$CONFIG_SECTION"
+		uci_set olsrd "$hna_sec" netmask "$NETMASK"
+		uci_set olsrd "$hna_sec" netaddr "$NETWORK"
+	fi
+fi
 
 if [ $olsr_enabled == "1" ] ; then
 	#Setup olsrd

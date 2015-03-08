@@ -85,14 +85,17 @@ setup_wifi() {
 	olsr_enabled=1
 }
 
-remove_Interface() {
+remove_section() {
 	local cfg=$1
 	uci_remove olsrd6 $cfg
 }
 
-#Remove wifi ifaces
 config_load olsrd6
-config_foreach remove_Interface Interface
+#Remove wifi ifaces
+config_foreach remove_section Interface
+#Remove Hna's
+config_foreach remove_section Hna6
+
 local olsr_enabled=0
 #Setup ether and wifi
 config_load ffwizard
