@@ -102,6 +102,17 @@ config_load ffwizard
 config_foreach setup_iface ether
 config_foreach setup_wifi wifi
 
+ula_prefix="$(uci_get network globals ula_prefix 0)"
+if [ $ula_prefix != 0 ] ; then
+	NETMASK="${ula_prefix#*/}"
+	#BUG ON Fill with Zeros and :
+	NETWORK="${ip%:*}"
+	#BUG OFF
+	uci_add olsrd Hna6 ; hna_sec="$CONFIG_SECTION"
+	uci_set olsrd "$hna_sec" prefix "$NETMASK"
+	uci_set olsrd "$hna_sec" netaddr "$NETWORK"
+fi
+
 if [ $olsr_enabled == "1" ] ; then
 	#Setup olsrd6
 	config_load olsrd6
