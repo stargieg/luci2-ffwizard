@@ -41,7 +41,7 @@ setup_iface() {
 		eval "$(ipcalc.sh $ipaddr)"
 		OCTET_4="${NETWORK##*.}"
 		OCTET_1_3="${NETWORK%.*}"
-		OCTET_4="$((OCTET_4 + 1)"
+		OCTET_4="$((OCTET_4 + 1))"
 		ipaddr="$OCTET_1_3.$OCTET_4"
 		setup_ip $cfg_dhcp $ipaddr
 		uci_set network $cfg_dhcp ifname "@"$cfg
@@ -165,7 +165,7 @@ setup_wifi() {
 			eval "$(ipcalc.sh $ipaddr)"
 			OCTET_4="${NETWORK##*.}"
 			OCTET_1_3="${NETWORK%.*}"
-			OCTET_4="$((OCTET_4 + 1)"
+			OCTET_4="$((OCTET_4 + 1))"
 			ipaddr="$OCTET_1_3.$OCTET_4"
 			setup_ip $cfg_vap $ipaddr
 		fi
@@ -193,7 +193,7 @@ if [ "$enabled" == "1" ] ; then
 	eval "$(ipcalc.sh $ipaddr)"
 	OCTET_4="${NETWORK##*.}"
 	OCTET_1_3="${NETWORK%.*}"
-	OCTET_4="$((OCTET_4 + 1)"
+	OCTET_4="$((OCTET_4 + 1))"
 	ipaddr="$OCTET_1_3.$OCTET_4"
 	setup_bridge fflandhcp $ipaddr
 fi
