@@ -61,7 +61,7 @@ setup_ether() {
 	uci_set olsrd "$iface_sec" interface "$device"
 	uci_set olsrd "$iface_sec" ignore "0"
 	# only with LinkQualityAlgorithm=etx_ffeth
-	#uci_add olsrd "$iface_sec" Mode "ether"
+	#uci_set olsrd "$iface_sec" Mode "ether"
 	# only with LinkQualityAlgorithm=etx_ff
 	uci_set olsrd "$iface_sec" Mode "mesh"
 	olsr_enabled=1
