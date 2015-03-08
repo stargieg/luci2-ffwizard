@@ -9,25 +9,27 @@ config_get longitude ffwizard longitude
 if [ -z $hostname ] ; then
 	rand=$(echo -n $(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1-4))
 	hostname="OpenWrt-$rand"
+	uci_set ffwizard ffwizard hostname "$hostname"
 fi
 
-uci set system.@system[0].hostname="$hostname"
+uci_set system @system[0] hostname "$hostname"
 echo $hostname > /proc/sys/kernel/hostname
 
 # Set Timezone
-uci set system.@system[0].zonename="Europe/Berlin"
-uci set system.@system[0].timezone="CET-1CEST,M3.5.0,M10.5.0/3"
+uci_set system @system[0] zonename "Europe/Berlin"
+uci_set system @system[0] timezone "CET-1CEST,M3.5.0,M10.5.0/3"
 
 # Set Location
 if [ -n $location ] ; then
-	uci set system.@system[0].location=$location
+	uci_set system @system[0] location $location
 fi
 # Set Geo Location
 if [ -n $latitude ] ; then
-	uci set system.@system[0].latitude=$latitude
+	uci_set system @system[0] latitude $latitude
 fi
 if [ -n $longitude ] ; then
-	uci set system.@system[0].longitude=$longitude
+	uci set system @system[0] longitude $longitude
 fi
 
-uci commit
+uci_commit ffwizard
+uci_commit system
