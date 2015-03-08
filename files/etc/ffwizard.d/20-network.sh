@@ -2,17 +2,16 @@
 setup_ip() {
 	local cfg=$1
 	local ipaddr=$2
-	if ! uci -q get network.$cfg>/dev/null ; then
-		uci set network.$cfg=interface
+	if ! uci_get network $cfg >/dev/null ; then
+		uci_add network interface $cfg
 	fi
 	if [ -n "$ipaddr" ] ; then
 		eval "$(ipcalc.sh $ipaddr)"
-		uci set network.$cfg.ipaddr=$IP
-		uci set network.$cfg.netmask=$NETMASK
+		uci_set network $cfg ipaddr $IP
+		uci_set network $cfg netmask $NETMASK
 	fi
-	uci set network.$cfg.proto=static
-	uci set network.$cfg.ip6assign=64
-	uci commit
+	uci_set network $cfg proto static
+	uci_set network $cfg ip6assign 64
 }
 
 setup_bridge() {
@@ -20,12 +19,11 @@ setup_bridge() {
 	local ipaddr=$2
 	setup_ip $cfg $ipaddr
 	#for batman
-	uci set network.fflandhcp.mtu=1532
-	uci set network.fflandhcp.force_link=1
+	uci_set network fflandhcp mtu 1532
+	uci_set network fflandhcp force_link 1
 	#TODO
-	#uci set network.fflandhcp.macaddr=$random?
-	uci set network.fflandhcp.type=bridge
-	uci commit
+	#uci_set network fflandhcp macaddr $random?
+	uci_set network fflandhcp type bridge
 }
 
 setup_iface() {
@@ -102,20 +100,20 @@ setup_wifi() {
 		fi
 	done
 	logger -t "ffwizard_wifi" "Channel $valid_channel"
-	uci set wireless.$device.channel=$valid_channel
-	uci set wireless.$device.disabled=0
-	[ $hw_g == 1 ] && [ $hw_n == 1 ] && uci set wireless.$device.noscan=1
-	[ $hw_n == 1 ] && uci set wireless.$device.htmode=HT40
-	uci set wireless.wireless.$device.country=00
-	[ $hw_a == 1 ] && wireless.$device.doth=0
+	uci_set wireless $device channel $valid_channel
+	uci_set wireless $device disabled 0
+	[ $hw_g == 1 ] && [ $hw_n == 1 ] && uci_set wireless $device noscan 1
+	[ $hw_n == 1 ] && uci_set wireless $device htmode HT40
+	uci_set wireless wireless $device country 00
+	[ $hw_a == 1 ] && uci_set wireless $device doth 0
 	#read from Luci_ui
-	uci set wireless.$device.distance=1000
+	uci_set wireless $device distance 1000
 	#Reduce the Broadcast distance and save Airtime
-	[ $hw_n == 1 ] && uci set wireless.$device.basic_rate="5500 6000 9000 11000 12000 18000 24000 36000 48000 54000"
+	[ $hw_n == 1 ] && uci_set wireless $device basic_rate "5500 6000 9000 11000 12000 18000 24000 36000 48000 54000"
 	#Set Man or Auto?
-	#uci set wireless.$device.txpower=15
+	#uci_set wireless $device txpower 15
 	#Save Airtime max 1000
-	uci set wireless.$device.beacon_int=250
+	uci_set wireless $device beacon_int 250
 	#wifi-iface
 	config_get olsr_mesh $cfg olsr_mesh "0"
 	config_get mesh $cfg bat_mesh $olsr_mesh
@@ -123,11 +121,11 @@ setup_wifi() {
 		local bssid
 		logger -t "ffwizard_wifi" "mesch"
 		cfg_mesh=$cfg"_mesh"
-		uci set wireless.$cfg_mesh=wifi-iface
-		uci set wireless.$cfg_mesh.device=$device
-		uci set wireless.$cfg_mesh.mode=adhoc
-		uci set wireless.$cfg_mesh.encryption=none
-		uci set wireless.$cfg_mesh.ssid="intern-ch"$valid_channel".freifunk.net"
+		uci_add wireless wifi-iface ; sec="$CONFIG_SECTION"
+		uci_set wireless $sec device $device
+		uci_set wireless $sec mode adhoc
+		uci_set wireless $sec encryption none
+		uci_set wireless $sec ssid "intern-ch"$valid_channel".freifunk.net"
 		if [ $valid_channel -gt 0 && $valid_channel -lt 10 ] ; then
 			bssid=$valid_channel"2:CA:FF:EE:BA:BE"
 		elif [ $valid_channel -eq 10 ] ; then
@@ -139,10 +137,10 @@ setup_wifi() {
 		elif [ $valid_channel -gt 99 && $valid_channel -lt 199 ] ; then
 			bssid="12:"$(printf "%02d" "$(expr $valid_channel - 100)")":CA:FF:EE:EE"
 		fi
-		uci set wireless.$cfg_mesh.bssid="$bssid"
-		#uci set wireless.$cfg_mesh.doth
-		uci set wireless.$cfg_mesh.network=$cfg_mesh
-		uci set wireless.$cfg_mesh.mcast_rate=18000
+		uci_set wireless $sec bssid "$bssid"
+		#uci_set wireless $sec doth
+		uci_set wireless.$sec network $cfg_mesh
+		uci_set wireless $sec mcast_rate 18000
 		config_get ipaddr $cfg mesh_ip
 		setup_ip $cfg_mesh $ipaddr
 	fi
@@ -150,18 +148,18 @@ setup_wifi() {
 	if [ $vap == 1 ] ; then
 		logger -t "ffwizard_wifi" "Virtual AP"
 		cfg_vap=$cfg"_vap"
-		uci set wireless.$cfg_vap=wifi-iface
-		uci set wireless.$cfg_vap.device=$device
-		uci set wireless.$cfg_vap.mode=ap
-		uci set wireless.$cfg_vap.mcast_rate=6000
-		#uci set wireless.$cfg_vap.isolate=1
-		uci set wireless.$cfg_vap.ssid=freifunk.net
+		uci_add wireless wifi-iface ; sec="$CONFIG_SECTION"
+		uci_set wireless $sec device $device
+		uci_set wireless $sec mode ap
+		uci_set wireless $sec mcast_rate 6000
+		#uci_set wireless $sec isolate 1
+		uci_set wireless $sec ssid freifunk.net
 		config_get vap_br $cfg vap_br 0
 		if [ $vap_br == 1 ] ; then
-			uci set wireless.$cfg_vap.network=fflandhcp
+			uci_set wireless $cfg_vap network fflandhcp
 		else
 			config_get ipaddr $cfg dhcp_ip
-			uci set wireless.$cfg_vap.network=$cfg_vap
+			uci_set wireless $sec network $cfg_vap
 			eval "$(ipcalc.sh $ipaddr)"
 			OCTET_4="${NETWORK##*.}"
 			OCTET_1_3="${NETWORK%.*}"
