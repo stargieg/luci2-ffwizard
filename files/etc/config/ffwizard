@@ -15,6 +15,7 @@ config ether lan
 	option device "lan"
 	option olsr_mesh 1
 	option bat_mesh 0
+	option dhcp_ip "192.168.113.1/28"
 
 config ether wan
 	option enabled 0

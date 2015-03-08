@@ -35,6 +35,11 @@ setup_iface() {
 	logger -t "ffwizard_iface" "Setup $cfg"
 	config_get ipaddr $cfg mesh_ip
 	setup_ip $cfg $ipaddr
+	config_get ipaddr $cfg dhcp_ip "0"
+	[ "$ipaddr" == "0" ] && return
+	cfg_dhcp=$cfg"_dhcp"
+	setup_ip $cfg_dhcp $ipaddr
+	uci_set network $cfg_dhcp ifname "@"$cfg
 }
 
 setup_wifi() {
