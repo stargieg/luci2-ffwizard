@@ -36,10 +36,16 @@ setup_iface() {
 	config_get ipaddr $cfg mesh_ip
 	setup_ip $cfg $ipaddr
 	config_get ipaddr $cfg dhcp_ip "0"
-	[ "$ipaddr" == "0" ] && return
-	cfg_dhcp=$cfg"_dhcp"
-	setup_ip $cfg_dhcp $ipaddr
-	uci_set network $cfg_dhcp ifname "@"$cfg
+	if [ "$ipaddr" != "0" ] ; then
+		cfg_dhcp=$cfg"_dhcp"
+		eval "$(ipcalc.sh $ipaddr)"
+		OCTET_4="${NETWORK##*.}"
+		OCTET_1_3="${NETWORK%.*}"
+		OCTET_4="$((OCTET_4 + 1)"
+		ipaddr="$OCTET_1_3.$OCTET_4"
+		setup_ip $cfg_dhcp $ipaddr
+		uci_set network $cfg_dhcp ifname "@"$cfg
+	fi
 }
 
 setup_wifi() {
@@ -156,6 +162,11 @@ setup_wifi() {
 		else
 			config_get ipaddr $cfg dhcp_ip
 			uci set wireless.$cfg_vap.network=$cfg_vap
+			eval "$(ipcalc.sh $ipaddr)"
+			OCTET_4="${NETWORK##*.}"
+			OCTET_1_3="${NETWORK%.*}"
+			OCTET_4="$((OCTET_4 + 1)"
+			ipaddr="$OCTET_1_3.$OCTET_4"
 			setup_ip $cfg_vap $ipaddr
 		fi
 	fi
@@ -179,5 +190,10 @@ config_foreach setup_wifi wifi
 config_get br ffwizard br "0"
 if [ "$enabled" == "1" ] ; then
 	config_get ipaddr ffwizard dhcp_ip
+	eval "$(ipcalc.sh $ipaddr)"
+	OCTET_4="${NETWORK##*.}"
+	OCTET_1_3="${NETWORK%.*}"
+	OCTET_4="$((OCTET_4 + 1)"
+	ipaddr="$OCTET_1_3.$OCTET_4"
 	setup_bridge fflandhcp $ipaddr
 fi

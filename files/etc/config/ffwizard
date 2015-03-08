@@ -8,14 +8,14 @@ config ffwizard ffwizard
 	option vpn 0
 	option bbvpn 1
 	option br 1
-	option dhcp_ip "192.168.112.1/28"
+	option dhcp_ip "192.168.112.0/28"
 
 config ether lan
 	option enabled 0
 	option device "lan"
 	option olsr_mesh 1
 	option bat_mesh 0
-	option dhcp_ip "192.168.113.1/28"
+	option dhcp_ip "192.168.113.0/28"
 
 config ether wan
 	option enabled 0
@@ -30,7 +30,7 @@ config wifi wireless0
 	option bat_mesh 0
 	option vap 1
 	option mesh_ip "104.1.1.1/8"
-	option dhcp_ip "192.168.111.1/28"
+	option dhcp_ip "192.168.111.0/28"
 
 config wifi wireless1
 	option enabled 0
