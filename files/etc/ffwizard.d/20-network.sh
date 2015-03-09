@@ -19,11 +19,11 @@ setup_bridge() {
 	local ipaddr=$2
 	setup_ip $cfg $ipaddr
 	#for batman
-	uci_set network fflandhcp mtu 1532
-	uci_set network fflandhcp force_link 1
+	uci_set network $cfg mtu 1532
+	uci_set network $cfg force_link 1
 	#TODO
-	#uci_set network fflandhcp macaddr $random?
-	uci_set network fflandhcp type bridge
+	#uci_set network $cfg macaddr $random?
+	uci_set network $cfg type bridge
 }
 
 setup_iface() {
