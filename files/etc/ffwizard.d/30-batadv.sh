@@ -58,6 +58,11 @@ remove_section() {
 	uci_remove batman-adv $cfg
 }
 
+local br_ifaces
+local br_name="fflandhcp"
+local bat_br_name="mesh"
+local bat_iface="bat0"
+
 config_load batman-adv
 #Remove mesh sections
 config_foreach remove_section mesh
@@ -65,16 +70,37 @@ config_foreach remove_section mesh
 local bat_enabled=0
 #Setup ether and wifi
 config_load ffwizard
-config_foreach setup_iface ether bat0
-config_foreach setup_wifi wifi bat0
+config_foreach setup_iface ether $bat_iface
+config_foreach setup_wifi wifi $bat_iface
 
 if [ $bat_enabled == "1" ] ; then
 	#Setup batman-adv
-	config_load batman-adv
-	setup_bat_base bat0
+	setup_bat_base $bat_iface
+	config_get br ffwizard br "0"
+	if [ "$br" == "1" ] ; then
+		#Setup fflandhcp batman bridge
+		br_ifaces=$(uci_get network $br_name ifname)
+		#Add bat0 interface to fflandhcp bridge
+		br_ifaces="$br_ifaces $bat_iface"
+		uci_set network $br_name ifname "$br_ifaces"
+		#Remove batman mesh bridge
+		uci_remove network $bat_br_name
+	else
+		#Setup fflandhcp batman bridge
+		if ! uci_get network $bat_br_name >/dev/null ; then
+			uci_add network interface $bat_br_name
+			uci_set network $bat_br_name proto static
+			uci_set network $bat_br_name ip6assign 64
+			uci_set network $bat_br_name mtu 1532
+			uci_set network $bat_br_name force_link 1
+			uci_set network $bat_br_name type bridge
+		fi
+		#Set only bat0 interface to batman bridge
+		uci_set network $bat_br_name ifname "$bat_iface"
+	fi
 	uci_commit batman-adv
 	uci_commit network
-	#/etc/init.d/batman enable
+	/etc/init.d/network restart
 else
 	/sbin/uci revert batman-adv
 	/sbin/uci revert network
