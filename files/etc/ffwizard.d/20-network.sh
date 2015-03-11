@@ -17,6 +17,7 @@ setup_ip() {
 setup_bridge() {
 	local cfg=$1
 	local ipaddr=$2
+	local ifc=$3
 	setup_ip $cfg $ipaddr
 	#for batman
 	uci_set network $cfg mtu 1532
@@ -24,6 +25,7 @@ setup_bridge() {
 	#TODO
 	#uci_set network $cfg macaddr $random?
 	uci_set network $cfg type bridge
+	uci_set network $cfg ifname "$ifc"
 }
 
 setup_iface() {
@@ -31,23 +33,31 @@ setup_iface() {
 	config_get enabled $cfg enabled "0"
 	[ "$enabled" == "0" ] && return
 	logger -t "ffwizard_iface" "Setup $cfg"
-	config_get ipaddr $cfg mesh_ip
-	setup_ip $cfg $ipaddr
-	config_get ipaddr $cfg dhcp_ip "0"
-	if [ "$ipaddr" != "0" ] ; then
-		cfg_dhcp=$cfg"_dhcp"
-		eval "$(ipcalc.sh $ipaddr)"
-		OCTET_4="${NETWORK##*.}"
-		OCTET_1_3="${NETWORK%.*}"
-		OCTET_4="$((OCTET_4 + 1))"
-		ipaddr="$OCTET_1_3.$OCTET_4"
-		setup_ip $cfg_dhcp $ipaddr
-		uci_set network $cfg_dhcp ifname "@"$cfg
+	config_get dhcp_br $cfg dhcp_br "0"
+	if [ "$dhcp_br" == "1" ] ; then
+		br_ifaces="$br_ifaces $ifname"
+		uci_set network $cfg proto none
+		uci_remove network $cfg type
+	else
+		config_get mesh_ip $cfg mesh_ip
+		setup_ip $cfg $mesh_ip
+		config_get dhcp_ip $cfg dhcp_ip "0"
+		if [ "$dhcp_ip" != "0" ] ; then
+			cfg_dhcp=$cfg"_dhcp"
+			eval "$(ipcalc.sh $ipaddr)"
+			OCTET_4="${NETWORK##*.}"
+			OCTET_1_3="${NETWORK%.*}"
+			OCTET_4="$((OCTET_4 + 1))"
+			ipaddr="$OCTET_1_3.$OCTET_4"
+			setup_ip $cfg_dhcp $ipaddr
+			uci_set network $cfg_dhcp ifname "@"$cfg
+		fi
 	fi
 }
 
 setup_wifi() {
 	local cfg=$1
+	local br_name=$2
 	config_get enabled $cfg enabled "0"
 	[ "$enabled" == "0" ] && return
 	config_get device $cfg device "0"
@@ -156,7 +166,7 @@ setup_wifi() {
 		uci_set wireless $sec ssid freifunk.net
 		config_get vap_br $cfg vap_br 0
 		if [ $vap_br == 1 ] ; then
-			uci_set wireless $cfg_vap network fflandhcp
+			uci_set wireless $cfg_vap network $br_name
 		else
 			config_get ipaddr $cfg dhcp_ip
 			uci_set wireless $sec network $cfg_vap
@@ -175,6 +185,9 @@ remove_wifi() {
 	uci_remove wireless $cfg
 }
 
+local br_ifaces
+local br_name="fflandhcp"
+
 #Remove wifi ifaces
 config_load wireless
 config_foreach remove_wifi wifi-iface
@@ -182,16 +195,16 @@ config_foreach remove_wifi wifi-iface
 #Setup ether and wifi
 config_load ffwizard
 config_foreach setup_iface ether
-config_foreach setup_wifi wifi
+config_foreach setup_wifi wifi $br_name
 
 #Setup DHCP Batman Bridge
 config_get br ffwizard br "0"
-if [ "$enabled" == "1" ] ; then
+if [ "$br" == "1" ] ; then
 	config_get ipaddr ffwizard dhcp_ip
 	eval "$(ipcalc.sh $ipaddr)"
 	OCTET_4="${NETWORK##*.}"
 	OCTET_1_3="${NETWORK%.*}"
 	OCTET_4="$((OCTET_4 + 1))"
 	ipaddr="$OCTET_1_3.$OCTET_4"
-	setup_bridge fflandhcp $ipaddr
+	setup_bridge $br_name $ipaddr $br_ifaces
 fi
