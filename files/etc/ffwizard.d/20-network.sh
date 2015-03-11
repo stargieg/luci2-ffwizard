@@ -207,4 +207,10 @@ if [ "$br" == "1" ] ; then
 	OCTET_4="$((OCTET_4 + 1))"
 	ipaddr="$OCTET_1_3.$OCTET_4"
 	setup_bridge $br_name $ipaddr $br_ifaces
+else
+	uci_remove network $br_name
 fi
+
+uci_commit network
+
+/etc/init.d/network restart
