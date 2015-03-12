@@ -2,6 +2,9 @@
 setup_dhcp() {
 		local cfg_dhcp=$1
 		local ipaddr=$2
+		if uci_get dhcp $cfg_dhcp >/dev/null ; then
+			uci_remove dhcp $cfg_dhcp
+		fi
 		eval "$(ipcalc.sh $ipaddr)"
 		OCTET_4="${NETWORK##*.}"
 		OCTET_1_3="${NETWORK%.*}"
@@ -24,13 +27,10 @@ setup_iface() {
 	local cfg=$1
 	config_get enabled $cfg enabled "0"
 	[ "$enabled" == "0" ] && return
-	logger -t "ffwizard_iface" "Setup $cfg"
 	config_get dhcp_ip $cfg dhcp_ip "0"
 	if [ "$dhcp_ip" != "0" ] ; then
+		logger -t "ffwizard_dhcp_iface" "Setup $cfg"
 		cfg_dhcp=$cfg"_dhcp"
-		if uci_get dhcp $cfg_dhcp >/dev/null ; then
-			uci_remove dhcp $cfg_dhcp
-		fi
 		setup_dhcp $cfg_dhcp $ipaddr
 	fi
 }
@@ -39,13 +39,10 @@ setup_wifi() {
 	local cfg=$1
 	config_get enabled $cfg enabled "0"
 	[ "$enabled" == "0" ] && return
-	logger -t "ffwizard_iface" "Setup $cfg"
 	config_get dhcp_ip $cfg dhcp_ip "0"
 	if [ "$dhcp_ip" != "0" ] ; then
+		logger -t "ffwizard_dhcp_wifi" "Setup $cfg"
 		cfg_dhcp=$cfg"_dhcp"
-		if uci_get dhcp $cfg_dhcp >/dev/null ; then
-			uci_remove dhcp $cfg_dhcp
-		fi
 		setup_dhcp $cfg_dhcp $ipaddr
 	fi
 }
@@ -67,10 +64,8 @@ config_foreach setup_wifi wifi $br_name
 #Setup DHCP Batman Bridge
 config_get br ffwizard br "0"
 if [ "$br" == "1" ] ; then
+	logger -t "ffwizard_dhcp_iface" "Setup $br_name"
 	config_get ipaddr ffwizard dhcp_ip
-	if uci_get dhcp $br_name >/dev/null ; then
-		uci_remove dhcp $br_name
-	fi
 	setup_dhcp $br_name $ipaddr
 fi
 
