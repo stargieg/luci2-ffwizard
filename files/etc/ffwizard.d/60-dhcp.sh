@@ -53,8 +53,19 @@ setup_dhcpbase() {
 	uci_set dhcp $cfg domain 'olsr'
 }
 
+setup_odhcpbase() {
+	local cfg=$1
+	uci_set dhcp $cfg maindhcp 1
+}
 
 local br_name="fflandhcp"
+#Load dhcp config
+config_load dhcp
+#Setup dnsmasq
+config_foreach setup_dhcpbase dnsmasq
+
+#Setup odhcpd
+config_foreach setup_odhcpbase odhcpd
 
 #Setup ether and wifi
 config_load ffwizard
@@ -68,6 +79,7 @@ if [ "$br" == "1" ] ; then
 	config_get ipaddr ffwizard dhcp_ip
 	setup_dhcp $br_name $ipaddr
 fi
+
 
 uci_commit dhcp
 
