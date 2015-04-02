@@ -42,8 +42,9 @@ setup_wifi() {
 	local bat_ifc="$2"
 	config_get enabled $cfg enabled "0"
 	[ "$enabled" == "0" ] && return
-	config_get device $cfg device "0"
-	[ "$device" == "0" ] && return
+	config_get idx $cfg phy_idx "0"
+	[ "$idx" == "0" ] && return
+	local device="radio"$idx"_mesh"
 	config_get bat_mesh $cfg bat_mesh "0"
 	[ "$bat_mesh" == "0" ] && return
 	logger -t "ffwizard_bat_wifi" "Setup $cfg"
