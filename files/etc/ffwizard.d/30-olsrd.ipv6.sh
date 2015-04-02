@@ -1,6 +1,6 @@
 
 setup_olsrbase() {
-	local cfg=$1
+	local cfg="$1"
 	uci_set olsrd6 $cfg AllowNoInt "yes"
 	uci_set olsrd6 $cfg LinkQualityAlgorithm "etx_ffeth"
 	uci_set olsrd6 $cfg FIBMetric "flat"
@@ -9,7 +9,7 @@ setup_olsrbase() {
 }
 
 setup_InterfaceDefaults() {
-	local cfg=$1
+	local cfg="$1"
 	uci_set olsrd6 $cfg MidValidityTime "500.0"
 	uci_set olsrd6 $cfg TcInterval "2.0"
 	uci_set olsrd6 $cfg HnaValidityTime "125.0"
@@ -20,23 +20,42 @@ setup_InterfaceDefaults() {
 	uci_set olsrd6 $cfg HnaInterval "10.0"
 }
 
+setup_Plugin_json() {
+	local cfg="$1"
+	uci_set olsrd6 $cfg accept "::1"
+	uci_set olsrd6 $cfg ignore "0"
+}
+
+setup_Plugin_watchdog() {
+	local cfg="$1"
+	uci_set olsrd6 $cfg file "/var/run/olsrd.watchdog.ipv6"
+	uci_set olsrd6 $cfg interval "30"
+	uci_set olsrd $cfg ignore "0"
+}
+setup_Plugin_nameservice() {
+	local cfg="$1"
+	uci_set olsrd6 $cfg services_file "/var/etc/services.olsr.ipv6"
+	uci_set olsrd6 $cfg latlon_file "/var/run/latlon.js.ipv6"
+	uci_set olsrd6 $cfg hosts_file "/tmp/hosts/olsr.ipv6"
+	uci_set olsrd6 $cfg suffix ".olsr"
+	uci_set olsrd $cfg ignore "0"
+}
+
 setup_Plugins() {
-	local cfg=$1
+	local cfg="$1"
 	config_get library $cfg library
 	case $library in
 		*json* )
-			uci_set olsrd6 $cfg accept "::1"
-			uci_set olsrd6 $cfg ignore "0"
+			setup_Plugin_json $cfg
+			olsr_json=1
 		;;
 		*watchdog*)
-			uci_set olsrd6 $cfg file "/var/run/olsrd.watchdog.ipv6"
-			uci_set olsrd6 $cfg interval "30"
+			setup_Plugin_watchdog $cfg
+			olsr_watchdog=1
 		;;
 		*nameservice*)
-			uci_set olsrd6 $cfg services_file "/var/etc/services.olsr.ipv6"
-			uci_set olsrd6 $cfg latlon_file "/var/run/latlon.js.ipv6"
-			uci_set olsrd6 $cfg hosts_file "/tmp/hosts/olsr.ipv6"
-			uci_set olsrd6 $cfg suffix ".olsr"
+			setup_Plugin_nameservice $cfg
+			olsr_nameservice=1
 		;;
 		*)
 			uci_set olsrd6 $cfg ignore "1"
@@ -45,7 +64,7 @@ setup_Plugins() {
 }
 
 setup_ether() {
-	local cfg=$1
+	local cfg="$1"
 	config_get enabled $cfg enabled "0"
 	[ "$enabled" == "0" ] && return
 	config_get olsr_mesh $cfg olsr_mesh "0"
@@ -66,15 +85,16 @@ setup_ether() {
 }
 
 setup_wifi() {
-	local cfg=$1
+	local cfg="$1"
 	config_get enabled $cfg enabled "0"
 	[ "$enabled" == "0" ] && return
 	config_get olsr_mesh $cfg olsr_mesh "0"
 	[ "$olsr_mesh" == "0" ] && return
 	config_get mesh_ip $cfg mesh_ip "0"
 	[ "$mesh_ip" == "0" ] && return
-	config_get device $cfg device "0"
-	[ "$device" == "0" ] && return
+	config_get idx $cfg phy_idx "0"
+	[ "$idx" == "0" ] && return
+	local device="radio"$idx"_mesh"
 	logger -t "ffwizard_olsrd6_wifi" "Setup $cfg"
 	uci_add olsrd6 Interface ; iface_sec="$CONFIG_SECTION"
 	uci_set olsrd6 "$iface_sec" interface "$device"
@@ -86,34 +106,41 @@ setup_wifi() {
 }
 
 remove_section() {
-	local cfg=$1
+	local cfg="$1"
 	uci_remove olsrd6 $cfg
 }
 
+#Load olsrd6 config
 config_load olsrd6
+#Remove InterfaceDefaults
+config_foreach remove_section InterfaceDefaults
 #Remove wifi ifaces
 config_foreach remove_section Interface
 #Remove Hna's
 config_foreach remove_section Hna6
 
 local olsr_enabled=0
+local olsr_json=0
+local olsr_watchdog=0
+local olsr_nameservice=0
+
 #Setup ether and wifi
 config_load ffwizard
-config_foreach setup_iface ether
+config_foreach setup_ether ether
 config_foreach setup_wifi wifi
 
 ula_prefix="$(uci_get network globals ula_prefix 0)"
-if [ $ula_prefix != 0 ] ; then
+if [ "$ula_prefix" != 0 ] ; then
 	NETMASK="${ula_prefix#*/}"
 	#BUG ON Fill with Zeros and :
-	NETWORK="${ip%:*}"
+	NETWORK="${ula_prefix%:*}"":"
 	#BUG OFF
-	uci_add olsrd Hna6 ; hna_sec="$CONFIG_SECTION"
-	uci_set olsrd "$hna_sec" prefix "$NETMASK"
-	uci_set olsrd "$hna_sec" netaddr "$NETWORK"
+	uci_add olsrd6 Hna6 ; hna_sec="$CONFIG_SECTION"
+	uci_set olsrd6 "$hna_sec" prefix "$NETMASK"
+	uci_set olsrd6 "$hna_sec" netaddr "$NETWORK"
 fi
 
-if [ $olsr_enabled == "1" ] ; then
+if [ "$olsr_enabled" == "1" ] ; then
 	#Setup olsrd6
 	config_load olsrd6
 	config_foreach setup_olsrbase olsrd6
@@ -121,8 +148,27 @@ if [ $olsr_enabled == "1" ] ; then
 	config_foreach setup_InterfaceDefaults InterfaceDefaults
 	#Setup Plugin or disable
 	config_foreach setup_Plugins LoadPlugin
+	if [ "$olsr_json" == 0 -a -n "$(opkg status olsrd-mod-jsoninfo)" ] ; then
+		library="$(find /usr/lib/olsrd_jsoninfo.so* | cut -d '/' -f 4)"
+		uci_add olsrd6 LoadPlugin ; sec="$CONFIG_SECTION"
+		uci_set olsrd6 "$sec" library "$library"
+		setup_Plugin_json $sec
+	fi
+	if [ "$olsr_watchdog" == 0 -a -n "$(opkg status olsrd-mod-watchdog)" ] ; then
+		library="$(find /usr/lib/olsrd_watchdog.so* | cut -d '/' -f 4)"
+		uci_add olsrd6 LoadPlugin ; sec="$CONFIG_SECTION"
+		uci_set olsrd6 "$sec" library "$library"
+		setup_Plugin_watchdog $sec
+	fi
+	if [ "$olsr_nameservice" == 0 -a -n "$(opkg status olsrd-mod-nameservice)" ] ; then
+		library="$(find /usr/lib/olsrd_nameservice.so* | cut -d '/' -f 4)"
+		uci_add olsrd6 LoadPlugin ; sec="$CONFIG_SECTION"
+		uci_set olsrd6 "$sec" library "$library"
+		setup_Plugin_nameservice $sec
+	fi
 	uci_commit olsrd6
 	/etc/init.d/olsrd6 enable
+	/etc/init.d/olsrd6 restart
 else
 	/sbin/uci revert olsrd6
 	/etc/init.d/olsrd6 disable
