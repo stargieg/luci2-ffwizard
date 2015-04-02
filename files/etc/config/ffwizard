@@ -32,7 +32,7 @@ config ether lan1
 
 config wifi radio0
 	option enabled 1
-	option device "radio0"
+	option phy_idx '0'
 	option olsr_mesh 1
 	option bat_mesh 0
 	option vap 1
@@ -41,7 +41,7 @@ config wifi radio0
 
 config wifi radio1
 	option enabled 1
-	option device "radio1"
+	option phy_idx '1'
 	option olsr_mesh 1
 	option bat_mesh 0
 	option mesh_ip "104.1.1.2/8"
