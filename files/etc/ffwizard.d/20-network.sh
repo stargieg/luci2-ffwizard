@@ -66,6 +66,7 @@ setup_wifi() {
 	config_get enabled $cfg enabled "0"
 	[ "$enabled" == "0" ] && return
 	config_get idx $cfg phy_idx "0"
+	[ "$idx" == "0" ] && return
 	local device="radio$idx"
 	logger -t "ffwizard_wifi" "Setup $cfg"
 	#get valid hwmods
