@@ -19,3 +19,5 @@ if [ "$(uci_get system @system[0] hostname)" == "OpenWrt" ]; then
 	uci_set dhcp frei_funk ip "192.168.1.1"
 	uci_commit dhcp
 fi
+
+[ -s /www/index.html ] || ln -s /www/luci2.html /www/index.html
