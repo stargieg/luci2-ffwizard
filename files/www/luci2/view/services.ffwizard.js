@@ -42,7 +42,7 @@ L.ui.view.extend({
 
 
 		var ether_sec = m.section(L.cbi.TypedSection, 'ether', {
-			caption:      L.tr('Interface'),
+			caption:      L.tr('Ether Interface'),
 			addremove:    true,
 			add_caption:  L.tr('Add Interface …'),
 		});
@@ -80,7 +80,7 @@ L.ui.view.extend({
 		});
 
 		var wifi_sec = m.section(L.cbi.TypedSection, 'wifi', {
-			caption:      L.tr('Interface'),
+			caption:      L.tr('Wifi Interface'),
 			addremove:    true,
 			add_caption:  L.tr('Add Interface …'),
 		});
@@ -93,9 +93,9 @@ L.ui.view.extend({
 			optional:    false
 		});
 
-		wifi_sec.option(L.cbi.InputValue, 'device', {
-			caption:     L.tr('Device'),
-			description: L.tr('Device Name'),
+		wifi_sec.option(L.cbi.InputValue, 'phy_idx', {
+			caption:     L.tr('Index'),
+			description: L.tr('Wifi Physical Index'),
 			optional:    false
 		});
 
