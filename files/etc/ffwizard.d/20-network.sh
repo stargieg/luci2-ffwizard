@@ -65,8 +65,8 @@ setup_wifi() {
 	local br_name="$2"
 	config_get enabled $cfg enabled "0"
 	[ "$enabled" == "0" ] && return
-	config_get idx $cfg phy_idx "0"
-	[ "$idx" == "0" ] && return
+	config_get idx $cfg phy_idx "-1"
+	[ "$idx" == "-1" ] && return
 	local device="radio$idx"
 	logger -t "ffwizard_wifi" "Setup $cfg"
 	#get valid hwmods
@@ -232,7 +232,7 @@ if [ "$br" == "1" ] ; then
 	ipaddr="$OCTET_1_3.$OCTET_4"
 	setup_bridge "$br_name" "$ipaddr/$PREFIX" "$br_ifaces"
 else
-	uci_remove network "$br_name"
+	uci_remove network "$br_name" >/dev/null
 fi
 
 uci_commit network
