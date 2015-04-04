@@ -1,7 +1,7 @@
 #!/bin/sh
 
 . /lib/functions.sh
-
+. /usr/share/libubox/jshn.sh
 
 cd /etc/ffwizard.d || return 0
 files="$(ls)"
