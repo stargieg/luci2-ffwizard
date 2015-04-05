@@ -7,30 +7,30 @@ config ffwizard ffwizard
 	option enabled 0
 	option firstboot 1
 	option vpn 0
-	option bbvpn 1
+	option bbvpn 0
 	option br 1
-	option dhcp_ip "192.168.112.0/28"
+#	option dhcp_ip "192.168.112.0/28"
 
-config ether lan
-	option enabled 0
-	option device "lan"
-	option olsr_mesh 1
-	option bat_mesh 0
-	option dhcp_ip "192.168.113.0/28"
-
-config ether wan
-	option enabled 1
-	option device "wan"
-	option olsr_mesh 0
-	option bat_mesh 1
-
-config ether lan1
-	option enabled 1
-	option device "lan1"
-	option olsr_mesh 0
-	option bat_mesh 0
-	option dhcp_br 1
-
+#config ether lan
+#	option enabled 0
+#	option device "lan"
+#	option olsr_mesh 1
+#	option bat_mesh 0
+#	option dhcp_ip "192.168.113.0/28"
+#
+#config ether wan
+#	option enabled 1
+#	option device "wan"
+#	option olsr_mesh 0
+#	option bat_mesh 1
+#
+#config ether lan1
+#	option enabled 1
+#	option device "lan1"
+#	option olsr_mesh 0
+#	option bat_mesh 0
+#	option dhcp_br 1
+#
 #config wifi radio0
 #	option enabled 1
 #	option phy_idx '0'

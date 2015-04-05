@@ -8,13 +8,15 @@ BIN="/usr/sbin/ffwizard"
 
 setup_ether() {
 	local cfg="$1"
-	if ! uci_get ffwizard $cfg >/dev/null ; then
-		uci_add ffwizard interface "$cfg"
+	if [ "$cfg" == "lan" -o "$cfg" == "wan" ] ; then
+		if ! uci_get ffwizard $cfg >/dev/null ; then
+			uci_add ffwizard ether "$cfg"
+		fi
+		uci_set ffwizard $cfg enabled "0"
+		uci_set ffwizard $cfg device $cfg
+		uci_set ffwizard $cfg olsr_mesh "0"
+		uci_set ffwizard $cfg bat_mesh "0"
 	fi
-	uci_set ffwizard $cfg enabled "0"
-	uci_set ffwizard $cfg device $cfg
-	uci_set ffwizard $cfg olsr_mesh "0"
-	uci_set ffwizard $cfg bat_mesh "0"
 }
 
 setup_wifi() {
@@ -22,10 +24,10 @@ setup_wifi() {
 	#cut radio to get the phy index
 	local idx="$(echo $cfg | cut -c 6-)"
 	if ! uci_get ffwizard $cfg >/dev/null ; then
-		uci_add ffwizard interface "$cfg"
+		uci_add ffwizard wifi "$cfg"
 	fi
 	uci_set ffwizard $cfg enabled "1"
-	uci_set ffwizard $cfg phy_index $idx
+	uci_set ffwizard $cfg phy_idx $idx
 	uci_set ffwizard $cfg olsr_mesh "1"
 	uci_set ffwizard $cfg bat_mesh "0"
 	uci_set ffwizard $cfg vap "1"
@@ -39,6 +41,8 @@ start() {
 		uci show wireless > /tmp/ffwireless
 		config_load wireless
 		config_foreach setup_wifi wifi-device
+		config_load network
+		config_foreach setup_ether interface
 		uci_set ffwizard ffwizard firstboot 0
 		uci_commit ffwizard
 	fi
