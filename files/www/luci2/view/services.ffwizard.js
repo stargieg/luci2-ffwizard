@@ -1,6 +1,11 @@
 L.ui.view.extend({
+
 	execute: function() {
 		var self = this;
+
+		$('#run').click(function() {
+			L.system.initRestart('ffwizard');
+		})
 
 		var m = new L.cbi.Map('ffwizard', {
 			caption:     L.tr('Freifunk Wizard')
