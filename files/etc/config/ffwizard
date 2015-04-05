@@ -5,6 +5,7 @@ config autoconf autoconf
 config ffwizard ffwizard
 	option hostname "OpenWRT"
 	option enabled 0
+	option firstboot 1
 	option vpn 0
 	option bbvpn 1
 	option br 1
@@ -30,20 +31,20 @@ config ether lan1
 	option bat_mesh 0
 	option dhcp_br 1
 
-config wifi radio0
-	option enabled 1
-	option phy_idx '0'
-	option olsr_mesh 1
-	option bat_mesh 0
-	option vap 1
-	option mesh_ip "104.1.1.1/8"
-	option dhcp_ip "192.168.111.0/28"
-
-config wifi radio1
-	option enabled 1
-	option phy_idx '1'
-	option olsr_mesh 1
-	option bat_mesh 0
-	option mesh_ip "104.1.1.2/8"
-	option vap 1
-	option vap_br 1
+#config wifi radio0
+#	option enabled 1
+#	option phy_idx '0'
+#	option olsr_mesh 1
+#	option bat_mesh 0
+#	option vap 1
+#	option mesh_ip "104.1.1.1/8"
+#	option dhcp_ip "192.168.111.0/28"
+#
+#config wifi radio1
+#	option enabled 1
+#	option phy_idx '1'
+#	option olsr_mesh 1
+#	option bat_mesh 0
+#	option mesh_ip "104.1.1.2/8"
+#	option vap 1
+#	option vap_br 1
