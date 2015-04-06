@@ -101,8 +101,8 @@ setup_wifi() {
 	[ "$olsr_mesh" == "0" ] && return
 	config_get mesh_ip $cfg mesh_ip "0"
 	[ "$mesh_ip" == "0" ] && return
-	config_get idx $cfg phy_idx "0"
-	[ "$idx" == "0" ] && return
+	config_get idx $cfg phy_idx "-1"
+	[ "$idx" == "-1" ] && return
 	local device="radio"$idx"_mesh"
 	logger -t "ffwizard_olsrd_wifi" "Setup $cfg"
 	uci_add olsrd Interface ; iface_sec="$CONFIG_SECTION"

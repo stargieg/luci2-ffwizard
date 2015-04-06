@@ -70,8 +70,6 @@ setup_ether() {
 	config_get olsr_mesh $cfg olsr_mesh "0"
 	[ "$olsr_mesh" == "0" ] && return
 	config_get mesh_ip $cfg mesh_ip "0"
-	[ "$mesh_ip" == "0" ] && return
-	config_get device $cfg device "0"
 	[ "$device" == "0" ] && return
 	logger -t "ffwizard_olsrd6_ether" "Setup $cfg"
 	uci_add olsrd6 Interface ; iface_sec="$CONFIG_SECTION"
@@ -90,10 +88,8 @@ setup_wifi() {
 	[ "$enabled" == "0" ] && return
 	config_get olsr_mesh $cfg olsr_mesh "0"
 	[ "$olsr_mesh" == "0" ] && return
-	config_get mesh_ip $cfg mesh_ip "0"
-	[ "$mesh_ip" == "0" ] && return
-	config_get idx $cfg phy_idx "0"
-	[ "$idx" == "0" ] && return
+	config_get idx $cfg phy_idx "-1"
+	[ "$idx" == "-1" ] && return
 	local device="radio"$idx"_mesh"
 	logger -t "ffwizard_olsrd6_wifi" "Setup $cfg"
 	uci_add olsrd6 Interface ; iface_sec="$CONFIG_SECTION"
