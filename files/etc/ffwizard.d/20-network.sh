@@ -9,6 +9,9 @@ setup_ip() {
 		eval "$(ipcalc.sh $ipaddr)"
 		uci_set network $cfg ipaddr "$IP"
 		uci_set network $cfg netmask "$NETMASK"
+	else
+		uci_remove network $cfg ipaddr
+		uci_remove network $cfg netmask
 	fi
 	uci_set network $cfg proto "static"
 	uci_set network $cfg ip6assign "64"
@@ -225,12 +228,14 @@ config_foreach setup_wifi wifi "$br_name"
 config_get br ffwizard br "0"
 if [ "$br" == "1" ] ; then
 	config_get ipaddr ffwizard dhcp_ip
-	eval "$(ipcalc.sh $ipaddr)"
-	OCTET_4="${NETWORK##*.}"
-	OCTET_1_3="${NETWORK%.*}"
-	OCTET_4="$((OCTET_4 + 1))"
-	ipaddr="$OCTET_1_3.$OCTET_4"
-	setup_bridge "$br_name" "$ipaddr/$PREFIX" "$br_ifaces"
+	if [ -n "$ipaddr" ] ; then
+		eval "$(ipcalc.sh $ipaddr)"
+		OCTET_4="${NETWORK##*.}"
+		OCTET_1_3="${NETWORK%.*}"
+		OCTET_4="$((OCTET_4 + 1))"
+		ipaddr="$OCTET_1_3.$OCTET_4/$PREFIX"
+	fi
+	setup_bridge "$br_name" "$ipaddr" "$br_ifaces"
 else
 	uci_remove network "$br_name" >/dev/null
 fi
