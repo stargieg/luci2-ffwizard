@@ -9,7 +9,7 @@ setup_olsrbase() {
 }
 
 setup_InterfaceDefaults() {
-	local cfg="$1"
+	uci_add olsrd6 InterfaceDefaults ; cfg="$CONFIG_SECTION"
 	uci_set olsrd6 $cfg MidValidityTime "500.0"
 	uci_set olsrd6 $cfg TcInterval "2.0"
 	uci_set olsrd6 $cfg HnaValidityTime "125.0"
@@ -141,7 +141,7 @@ if [ "$olsr_enabled" == "1" ] ; then
 	config_load olsrd6
 	config_foreach setup_olsrbase olsrd6
 	#Setup InterfaceDefaults
-	config_foreach setup_InterfaceDefaults InterfaceDefaults
+	setup_InterfaceDefaults
 	#Setup Plugin or disable
 	config_foreach setup_Plugins LoadPlugin
 	if [ "$olsr_json" == 0 -a -n "$(opkg status olsrd-mod-jsoninfo)" ] ; then
