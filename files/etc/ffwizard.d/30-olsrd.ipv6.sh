@@ -30,7 +30,7 @@ setup_Plugin_watchdog() {
 	local cfg="$1"
 	uci_set olsrd6 $cfg file "/var/run/olsrd.watchdog.ipv6"
 	uci_set olsrd6 $cfg interval "30"
-	uci_set olsrd $cfg ignore "0"
+	uci_set olsrd6 $cfg ignore "0"
 }
 setup_Plugin_nameservice() {
 	local cfg="$1"
@@ -38,7 +38,7 @@ setup_Plugin_nameservice() {
 	uci_set olsrd6 $cfg latlon_file "/var/run/latlon.js.ipv6"
 	uci_set olsrd6 $cfg hosts_file "/tmp/hosts/olsr.ipv6"
 	uci_set olsrd6 $cfg suffix ".olsr"
-	uci_set olsrd $cfg ignore "0"
+	uci_set olsrd6 $cfg ignore "0"
 }
 
 setup_Plugins() {
@@ -139,7 +139,7 @@ fi
 if [ "$olsr_enabled" == "1" ] ; then
 	#Setup olsrd6
 	config_load olsrd6
-	config_foreach setup_olsrbase olsrd6
+	config_foreach setup_olsrbase olsrd
 	#Setup InterfaceDefaults
 	setup_InterfaceDefaults
 	#Setup Plugin or disable
