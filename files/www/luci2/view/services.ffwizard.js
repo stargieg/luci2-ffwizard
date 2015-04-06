@@ -103,7 +103,7 @@ L.ui.view.extend({
 			caption:     L.tr('Mesh IPv4 Adresse'),
 			datatype:    'cidr4',
 			optional:    true
-		}).depends('enabled', 'olsr_mesh');
+		}).depends('enabled');
 
 		ether_sec.option(L.cbi.InputValue, 'dhcp_ip', {
 			caption:     L.tr('DHCP Label IPv4 Netz'),
