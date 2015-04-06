@@ -64,8 +64,7 @@ L.ui.view.extend({
 		var ether_sec = m.section(L.cbi.TypedSection, 'ether', {
 			caption:      L.tr('Ether Interface'),
 			collabsible:  true,
-			addremove:    true,
-			add_caption:  L.tr('Add Interface …')
+			teasers:      [ 'device', 'olsr_mesh', 'bat_mesh' ]
 		});
 
 		ether_sec.option(L.cbi.CheckboxValue, 'enabled', {
@@ -115,8 +114,7 @@ L.ui.view.extend({
 		var wifi_sec = m.section(L.cbi.TypedSection, 'wifi', {
 			caption:      L.tr('Wifi Interface'),
 			collabsible:  true,
-			addremove:    true,
-			add_caption:  L.tr('Add Interface …')
+			teasers:      [ 'phy_idx', 'channel', 'olsr_mesh', 'bat_mesh' ]
 		});
 
 		wifi_sec.option(L.cbi.CheckboxValue, 'enabled', {
@@ -128,7 +126,7 @@ L.ui.view.extend({
 		});
 
 		wifi_sec.option(L.cbi.InputValue, 'phy_idx', {
-			caption:     L.tr('Index'),
+			caption:     L.tr('wifi'),
 			description: L.tr('Wifi Physical Index'),
 			datatype:    'range(0,255)',
 			placeholder: 0,
