@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=7
+PKG_RELEASE:=8
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -31,6 +31,9 @@ define Package/luci2-ffwizard/install
 
 	$(INSTALL_DIR) $(1)/www/luci2/view
 	$(INSTALL_DATA) ./files/www/luci2/view/services.ffwizard.js $(1)/www/luci2/view/
+
+	$(INSTALL_DIR) $(1)/www/luci2/proto
+	$(INSTALL_DATA) ./files/www/luci2/proto/batadv.js $(1)/www/luci2/proto/
 
 	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/ffwizard.d
 	$(INSTALL_BIN) ./files/usr/sbin/ffwizard $(1)/usr/sbin/
