@@ -49,11 +49,12 @@ start() {
 
 	enabled=$(uci_get ffwizard ffwizard enabled "0")
 	[ "$enabled" == "0" ] && return
+	uci_set ffwizard ffwizard enabled 0
+	uci_commit ffwizard
 	start-stop-daemon -S -x $BIN \
 		-p /var/run/${SERVER}.pid \
 		-m -b --
-	uci_set ffwizard ffwizard enabled 0
-	uci_commit ffwizard
+	sleep 5
 }
 
 restart() {
