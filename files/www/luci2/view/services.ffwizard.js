@@ -52,6 +52,7 @@ L.ui.view.extend({
 
 		s.option(L.cbi.InputValue, 'dhcp_ip', {
 			caption:     L.tr('DHCP IPv4 Netz'),
+			description: L.tr('IP Netz DHCP Netz Batman Gateway mode und olsr Hna4'),
 			datatype:    'cidr4',
 			optional:    true
 		}).depends('br');

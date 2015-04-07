@@ -1,17 +1,20 @@
 
 setup_bat_base() {
 	local cfg="$1"
+	local mode="$2"
 	uci_add batman-adv mesh "$cfg"
 	uci_set batman-adv $cfg aggregated_ogms
 	uci_set batman-adv $cfg ap_isolation
 	uci_set batman-adv $cfg bonding
 	uci_set batman-adv $cfg fragmentation
-	#TODO Select Client
-	uci_set batman-adv $cfg gw_mode "client"
-	uci_set batman-adv $cfg gw_bandwidth
-	#TODO Select Server
-	#uci_set batman-adv $cfg gw_mode "server"
-	#uci_set batman-adv $cfg gw_bandwidth "50mbit/50mbit"
+	uci_set batman-adv $cfg gw_mode "$mode"
+	if [ $mode == "client" ] ; then
+		uci_set batman-adv $cfg gw_mode "client"
+		uci_remove batman-adv $cfg gw_bandwidth
+	elif [ $mode == "server" ]
+		uci_set batman-adv $cfg gw_mode "server"
+		uci_set batman-adv $cfg gw_bandwidth "50mbit/50mbit"
+	fi
 	uci_set batman-adv $cfg gw_sel_class
 	uci_set batman-adv $cfg log_level
 	uci_set batman-adv $cfg orig_interval
@@ -63,6 +66,7 @@ local br_ifaces
 local br_name="fflandhcp"
 local bat_br_name="mesh"
 local bat_iface="bat0"
+local bat_mode="client"
 
 touch /etc/config/batman-adv
 
@@ -78,7 +82,6 @@ config_foreach setup_wifi wifi "$bat_iface"
 
 if [ "$bat_enabled" == "1" ] ; then
 	#Setup batman-adv
-	setup_bat_base "$bat_iface"
 	config_get br ffwizard br "0"
 	if [ "$br" == "1" ] ; then
 		#Setup fflandhcp batman bridge
@@ -88,6 +91,10 @@ if [ "$bat_enabled" == "1" ] ; then
 		uci_set network $br_name ifname "$br_ifaces"
 		#Remove batman mesh bridge
 		uci_remove network "$bat_br_name" 2>/dev/null
+		config_get ipaddr ffwizard dhcp_ip "0"
+		if [ "$ipaddr" != 0 ] ; then
+			bat_mode="server"
+		fi
 	else
 		#Setup fflandhcp batman bridge
 		if ! uci_get network "$bat_br_name" >/dev/null ; then
@@ -101,6 +108,7 @@ if [ "$bat_enabled" == "1" ] ; then
 		#Set only bat0 interface to batman bridge
 		uci_set network $bat_br_name ifname "$bat_iface"
 	fi
+	setup_bat_base "$bat_iface" "$bat_mode"
 	uci_commit batman-adv
 	uci_commit network
 	/etc/init.d/network restart
