@@ -3,10 +3,6 @@ L.ui.view.extend({
 	execute: function() {
 		var self = this;
 
-		$('#run').click(function() {
-			L.system.initRestart('ffwizard');
-		})
-
 		var m = new L.cbi.Map('ffwizard', {
 			caption:     L.tr('Freifunk Wizard')
 		});
@@ -178,6 +174,18 @@ L.ui.view.extend({
 			datatype:    'cidr4',
 			optional:    true
 		}).depends('enabled');
+
+		$('#run').click(function() {
+			L.ui.saveScrollTop();
+			L.ui.loading(true);
+
+			return m.apply().then(function() {
+				return L.system.initRestart('ffwizard');
+			}).then(function() {
+				L.ui.loading(false);
+				L.ui.restoreScrollTop();
+			});
+		})
 
 		return m.insertInto('#map');
 	}
