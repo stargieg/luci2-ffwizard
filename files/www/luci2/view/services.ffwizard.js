@@ -9,7 +9,7 @@ L.ui.view.extend({
 
 		var s = m.section(L.cbi.TypedSection, 'ffwizard', {
 			caption:      L.tr('FF Wizard'),
-			collabsible:  true
+			collabsible:  false
 		});
 
 		s.option(L.cbi.CheckboxValue, 'enabled', {
@@ -61,6 +61,7 @@ L.ui.view.extend({
 		var ether_sec = m.section(L.cbi.TypedSection, 'ether', {
 			caption:      L.tr('Ether Interface'),
 			collabsible:  true,
+			addremove: false,
 			teasers:      [ 'device', 'olsr_mesh', 'bat_mesh' ]
 		});
 
@@ -111,6 +112,7 @@ L.ui.view.extend({
 		var wifi_sec = m.section(L.cbi.TypedSection, 'wifi', {
 			caption:      L.tr('Wifi Interface'),
 			collabsible:  true,
+			addremove: false,
 			teasers:      [ 'phy_idx', 'channel', 'olsr_mesh', 'bat_mesh' ]
 		});
 
