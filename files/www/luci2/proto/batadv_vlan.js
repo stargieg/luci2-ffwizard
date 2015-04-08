@@ -1,6 +1,6 @@
 L.network.Protocol.extend({
 	protocol:    'batadv_vlan',
-	description: L.tr('bataman-adv vlan'),
+	description: L.tr('B.A.T.M.A.N. Advanced VLAN'),
 	tunnel:      false,
 	virtual:     false,
 
@@ -15,9 +15,9 @@ L.network.Protocol.extend({
 			placeholder: 'eth0.1'
 		});
 
-		section.taboption('general', L.cbi.InputValue, 'ap_isolation', {
+		section.taboption('general', L.cbi.CheckboxValue, 'ap_isolation', {
 			caption:  L.tr('Mesh AP isolated Interface'),
-			optional: false
+			optional: true
 		});
 	}
 });
