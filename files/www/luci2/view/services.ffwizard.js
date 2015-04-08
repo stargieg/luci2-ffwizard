@@ -77,7 +77,16 @@ L.ui.view.extend({
 			caption:     L.tr('Device'),
 			description: L.tr('Device Name'),
 			optional:    false
-		}).depends('enabled');
+		}).depends({enabled: 1});
+
+		ether_sec.option(L.cbi.CheckboxValue, 'dhcp_br', {
+			caption:     L.tr('Freifunk Netzwerkbrücke'),
+			description: L.tr('Netzwerkbrücke für DHCP und Batman'),
+			initial:     1,
+			enabled:     '1',
+			disabled:    '0',
+			optional:    true
+		}).depends({enabled: 1});
 
 		ether_sec.option(L.cbi.CheckboxValue, 'olsr_mesh', {
 			caption:     L.tr('Olsr Mesh'),
@@ -85,8 +94,8 @@ L.ui.view.extend({
 			initial:     1,
 			enabled:     '1',
 			disabled:    '0',
-			optional:    false
-		}).depends('enabled');
+			optional:    true
+		}).depends({enabled: 1, dhcp_br: 0});
 
 		ether_sec.option(L.cbi.CheckboxValue, 'bat_mesh', {
 			caption:     L.tr('Batman Mesh'),
@@ -94,20 +103,20 @@ L.ui.view.extend({
 			initial:     0,
 			enabled:     '1',
 			disabled:    '0',
-			optional:    false
-		}).depends('enabled');
+			optional:    true
+		}).depends({enabled: 1, dhcp_br: 0, olsr_mesh: 0});
 
 		ether_sec.option(L.cbi.InputValue, 'mesh_ip', {
 			caption:     L.tr('Mesh IPv4 Adresse'),
 			datatype:    'cidr4',
 			optional:    true
-		}).depends('enabled');
+		}).depends({enabled: 1, dhcp_br: 0, olsr_mesh: 1});
 
 		ether_sec.option(L.cbi.InputValue, 'dhcp_ip', {
 			caption:     L.tr('DHCP Label IPv4 Netz'),
 			datatype:    'cidr4',
 			optional:    true
-		}).depends('enabled');
+		}).depends({enabled: 1, dhcp_br: 0, olsr_mesh: 1});
 
 		var wifi_sec = m.section(L.cbi.TypedSection, 'wifi', {
 			caption:      L.tr('Wifi Interface'),
@@ -130,14 +139,14 @@ L.ui.view.extend({
 			datatype:    'range(0,255)',
 			placeholder: 0,
 			optional:    false
-		}).depends('enabled');
+		}).depends({enabled: 1});
 
 		wifi_sec.option(L.cbi.InputValue, 'channel', {
 			caption:     L.tr('Funk Kanal'),
 			description: L.tr('Der Funkkanal oder die Funk Kanalliste sind abhängieg von dem Gerät'),
 			placeholder: 100,
 			optional:    true
-		}).depends('enabled');
+		}).depends({enabled: 1});
 
 		wifi_sec.option(L.cbi.CheckboxValue, 'olsr_mesh', {
 			caption:     L.tr('Olsr Mesh'),
@@ -146,7 +155,7 @@ L.ui.view.extend({
 			enabled:     '1',
 			disabled:    '0',
 			optional:    false
-		}).depends('enabled');
+		}).depends({enabled: 1});
 
 		wifi_sec.option(L.cbi.CheckboxValue, 'bat_mesh', {
 			caption:     L.tr('Batman Mesh'),
@@ -155,13 +164,13 @@ L.ui.view.extend({
 			enabled:     '1',
 			disabled:    '0',
 			optional:    false
-		}).depends('enabled');
+		}).depends({enabled: 1, olsr_mesh: 0});
 
 		wifi_sec.option(L.cbi.InputValue, 'mesh_ip', {
 			caption:     L.tr('Mesh IPv4 Adresse'),
 			datatype:    'cidr4',
 			optional:    true
-		}).depends('enabled');
+		}).depends({enabled: 1, olsr_mesh: 1});
 
 		wifi_sec.option(L.cbi.CheckboxValue, 'vap', {
 			caption:     L.tr('AP für Mobilgeräte'),
@@ -170,13 +179,13 @@ L.ui.view.extend({
 			enabled:     '1',
 			disabled:    '0',
 			optional:    false
-		}).depends('enabled');
+		}).depends({enabled: 1});
 
 		wifi_sec.option(L.cbi.InputValue, 'dhcp_ip', {
 			caption:     L.tr('VAP DHCP IPv4 Netz'),
 			datatype:    'cidr4',
 			optional:    true
-		}).depends('enabled');
+		}).depends({enabled: 1, olsr_mesh: 1});
 
 		$('#run').click(function() {
 			L.ui.saveScrollTop();
