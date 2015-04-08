@@ -20,8 +20,9 @@ setup_dhcp() {
 		#uci_set dhcp $cfg_dhcp list dhcp_option "119,olsr"
 		/sbin/uci add_list dhcp.$cfg_dhcp.dhcp_option="119,olsr"
 		/sbin/uci add_list dhcp.$cfg_dhcp.dhcp_option="119,lan"
-		uci_set dhcp $cfg_dhcp ra "server"
 		uci_set dhcp $cfg_dhcp dhcpv6 "server"
+		uci_set dhcp $cfg_dhcp ra "server"
+		uci_set dhcp $cfg_dhcp ra_preference "low"
 }
 
 setup_iface() {
