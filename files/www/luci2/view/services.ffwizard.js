@@ -185,7 +185,7 @@ L.ui.view.extend({
 			caption:     L.tr('VAP DHCP IPv4 Netz'),
 			datatype:    'cidr4',
 			optional:    true
-		}).depends({enabled: 1, olsr_mesh: 1});
+		}).depends({enabled: 1, olsr_mesh: 1, vap: 1});
 
 		$('#run').click(function() {
 			L.ui.saveScrollTop();
