@@ -11,7 +11,7 @@ setup_bat_base() {
 	if [ $mode == "client" ] ; then
 		uci_set batman-adv $cfg gw_mode "client"
 		uci_remove batman-adv $cfg gw_bandwidth
-	elif [ $mode == "server" ]
+	elif [ $mode == "server" ] ; then
 		uci_set batman-adv $cfg gw_mode "server"
 		uci_set batman-adv $cfg gw_bandwidth "50mbit/50mbit"
 	fi
