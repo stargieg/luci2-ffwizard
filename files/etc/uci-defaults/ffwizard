@@ -16,8 +16,11 @@ if [ "$(uci_get system @system[0] hostname)" == "OpenWrt" ]; then
 
 	uci_add dhcp domain frei_funk
 	uci_set dhcp frei_funk name "frei.funk"
-	uci_set dhcp frei_funk ip "192.168.1.1"
+	uci_set dhcp frei_funk ip "192.168.42.1"
 	uci_commit dhcp
+
+	uci_set network lan ipaddr "192.168.42.1"
+	uci_commit network
 fi
 
 [ -s /www/index.html ] || ln -s /www/luci2.html /www/index.html
