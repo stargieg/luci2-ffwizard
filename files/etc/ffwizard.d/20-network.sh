@@ -31,7 +31,7 @@ setup_bridge() {
 	uci_set network $cfg ifname "$ifc"
 }
 
-setup_iface() {
+setup_ether() {
 	local cfg="$1"
 	config_get enabled $cfg enabled "0"
 	[ "$enabled" == "0" ] && return
@@ -221,7 +221,7 @@ uci_commit wireless
 
 #Setup ether and wifi
 config_load ffwizard
-config_foreach setup_iface ether
+config_foreach setup_ether ether
 config_foreach setup_wifi wifi "$br_name"
 
 #Setup DHCP Batman Bridge
