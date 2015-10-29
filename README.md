@@ -12,3 +12,9 @@ Freifunk Wizard für luci2 rpcd
  Die Eingaben aus dem luci2 Wizard werden von den Scripten aus uci ffwizard gelesen, verarbeitet
  und in die uci system config (system,wireless,network,olsr,...) zurück geschrieben.
  Anschliesend werden die geänderten Dinste neugeladen oder Router neugestartet.
+
+- OpenWRT Feed
+ ``ècho 'src-git luci2_ffwizard git://github.com/stargieg/luci2-ffwizard.git' >> feeds.conf```
+ ```scripts/feeds update luci2_ffwizard```
+ ```scripts/feeds install luci2-ffwizard```
+ 
