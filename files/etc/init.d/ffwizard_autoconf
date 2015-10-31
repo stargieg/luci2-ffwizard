@@ -7,7 +7,7 @@ BIN="/usr/sbin/ffwizard_autoconf"
 
 
 start() {
-	boot=$(uci_get ffwizard ffwizard boot "0")
+	boot=$(uci_get ffwizard autoconf boot "0")
 	[ "$boot" == "0" ] && return
 	start-stop-daemon -S -x $BIN \
 		-p /var/run/${SERVER}.pid \
