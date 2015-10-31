@@ -2,10 +2,33 @@
 
 . /usr/share/libubox/jshn.sh
 
-wlan_devs=""
+
+#set_wizard_device wifi-iface cfg section, wifi ifname, SSID, BSSID, Channel
+set_wizard_device() {
+	local cfg="$1"
+	local ifc="$2"
+	local ssid="$3"
+	local bssid="$4"
+	local channel="$5"
+	config_get ifname $cfg ifname
+	if [ $ifname == $ifc ]; then
+		config_get device $cfg device
+		if ! uci_get ffwizard $cfg >/dev/null ; then
+			uci_add ffwizard wifi "$device"
+		fi
+		phy_idx=$(echo $dev | cut -b6)
+		uci_set ffwizard "$device" phy_idx $phy_idx
+		uci_set ffwizard "$device" ssid $ssid
+		uci_set ffwizard "$device" bssid $bssid
+		uci_set ffwizard "$device" channel $channel
+		uci_set ffwizard "$device" olsr_mesh 1
+	fi
+}
+
+wlan_ifc=""
 wifi_restart=1
 
-echo "ubus call network.wireless status"
+logger -t "ffwizard_autoconf" "ubus call network.wireless status"
 wifi_data=`ubus call network.wireless status`
 json_load "$wifi_data"
 json_get_keys wifi_res
@@ -25,7 +48,7 @@ done
 json_cleanup
 
 if [ $wifi_restart == 1 ] ; then
-	echo "wifi restart and sleep 20s"
+	logger -t "ffwizard_autoconf" "wifi restart and sleep 20s"
 	#FIXME do it with ubus call and list
 	/sbin/wifi restart
 	/bin/sleep 20
@@ -41,7 +64,7 @@ if [ $wifi_restart == 1 ] ; then
 			for j in $wifi_ifc_res ; do
 				json_select $j
 				json_get_var wifi_ifc_name ifname
-				wlan_devs="$wlan_devs $wifi_ifc_name"
+				wlan_ifc="$wlan_ifc $wifi_ifc_name"
 				json_select ".."
 			done
 			json_select ".."
@@ -52,9 +75,9 @@ fi
 
 json_cleanup
 
-echo "ubus call iwinfo scan"
-for dev in $wlan_devs ; do
-	scan_data=$(ubus call iwinfo scan '{ "device": "'$dev'" }')
+for ifc in $wlan_ifc ; do
+	logger -t "ffwizard_autoconf" "ubus call iwinfo $ifc scan"
+	scan_data=$(ubus call iwinfo scan '{ "device": "'$ifc'" }')
 	json_load "$scan_data"
 	json_select results
 	json_get_keys scan_res
@@ -89,5 +112,7 @@ for dev in $wlan_devs ; do
 		json_select ".."
 	done
 	#TODO
-	echo "TODO iw $dev ssid $sel_ssid bssid $sel_bssid mode Ad-Hoc channel $sel_channel"
+	logger -t "ffwizard_autoconf" "scan result for $ifc ssid: $sel_ssid bssid: $sel_bssid channel: $sel_channel"
+	config_load wireless
+	config_foreach set_wizard_device wifi-iface $ifc $sel_ssid $sel_bssid $sel_channel
 done

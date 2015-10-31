@@ -40,6 +40,10 @@ define Package/luci2-ffwizard/install
 	$(INSTALL_BIN) ../files/usr/sbin/ffwizard $(1)/usr/sbin/
 	$(INSTALL_BIN) ../files/etc/ffwizard.d/* $(1)/etc/ffwizard.d/
 
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d
+	$(INSTALL_BIN) ../files/usr/sbin/ffwizard_autoconf $(1)/usr/sbin/
+	$(INSTALL_BIN) ../files/etc/init.d/ffwizard_autoconf $(1)/etc/init.d/
+
 	$(INSTALL_DIR) $(1)/etc/init.d $(1)/etc/config $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ../files/etc/uci-defaults/ffwizard $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) ../files/etc/init.d/ffwizard $(1)/etc/init.d/
