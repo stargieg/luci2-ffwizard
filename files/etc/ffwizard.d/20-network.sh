@@ -133,7 +133,8 @@ setup_wifi() {
 	#read from Luci_ui
 	uci_set wireless $device distance "1000"
 	#Reduce the Broadcast distance and save Airtime
-	[ $hw_n == 1 ] && uci_set wireless $device basic_rate "5500 6000 9000 11000 12000 18000 24000 36000 48000 54000"
+	#Not working on wdr4300 with AP and ad-hoc
+	#[ $hw_n == 1 ] && uci_set wireless $device basic_rate "5500 6000 9000 11000 12000 18000 24000 36000 48000 54000"
 	#Set Man or Auto?
 	#uci_set wireless $device txpower 15
 	#Save Airtime max 1000
