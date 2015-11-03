@@ -6,16 +6,18 @@ setup_dhcp() {
 		if uci_get dhcp $cfg_dhcp >/dev/null ; then
 			uci_remove dhcp $cfg_dhcp
 		fi
-		eval "$(ipcalc.sh $ipaddr)"
-		OCTET_4="${NETWORK##*.}"
-		OCTET_1_3="${NETWORK%.*}"
-		OCTET_4="$((OCTET_4 + 2))"
-		ipaddr="$OCTET_1_3.$OCTET_4"
 		uci_add dhcp dhcp $cfg_dhcp
 		uci_set dhcp $cfg_dhcp interface "$cfg_dhcp"
-		uci_set dhcp $cfg_dhcp start "$ipaddr"
-		limit=$(($((2**$((32-$PREFIX))))-2))
-		uci_set dhcp $cfg_dhcp limit "$limit"
+		if [ -n "$ipaddr" ] ; then
+			eval "$(ipcalc.sh $ipaddr)"
+			OCTET_4="${NETWORK##*.}"
+			OCTET_1_3="${NETWORK%.*}"
+			OCTET_4="$((OCTET_4 + 2))"
+			ipaddr="$OCTET_1_3.$OCTET_4"
+			uci_set dhcp $cfg_dhcp start "$ipaddr"
+			limit=$(($((2**$((32-$PREFIX))))-2))
+			uci_set dhcp $cfg_dhcp limit "$limit"
+		fi
 		uci_set dhcp $cfg_dhcp leasetime "15m"
 		#uci_set dhcp $cfg_dhcp list dhcp_option "119,olsr"
 		/sbin/uci add_list dhcp.$cfg_dhcp.dhcp_option="119,olsr"
