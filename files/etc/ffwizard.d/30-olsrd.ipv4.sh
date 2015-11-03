@@ -1,6 +1,7 @@
 
 setup_olsrbase() {
 	local cfg="$1"
+	uci_set olsrd $cfg IpVersion "4"
 	uci_set olsrd $cfg AllowNoInt "yes"
 	uci_set olsrd $cfg NatThreshold "0.75"
 	uci_set olsrd $cfg LinkQualityAlgorithm "etx_ff"

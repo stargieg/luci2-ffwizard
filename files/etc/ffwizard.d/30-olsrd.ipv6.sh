@@ -1,6 +1,7 @@
 
 setup_olsrbase() {
 	local cfg="$1"
+	uci_set olsrd6 $cfg IpVersion "6"
 	uci_set olsrd6 $cfg AllowNoInt "yes"
 	uci_set olsrd6 $cfg LinkQualityAlgorithm "etx_ffeth"
 	uci_set olsrd6 $cfg FIBMetric "flat"
@@ -23,6 +24,7 @@ setup_InterfaceDefaults() {
 setup_Plugin_json() {
 	local cfg="$1"
 	uci_set olsrd6 $cfg accept "::1"
+	uci_set olsrd6 $cfg ipv6only "true"
 	uci_set olsrd6 $cfg ignore "0"
 }
 
