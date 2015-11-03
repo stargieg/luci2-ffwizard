@@ -5,48 +5,7 @@ START=99
 SERVER="ffwizard"
 BIN="/usr/sbin/ffwizard"
 
-
-setup_ether() {
-	local cfg="$1"
-	if [ "$cfg" == "lan" -o "$cfg" == "wan" ] ; then
-		if ! uci_get ffwizard $cfg >/dev/null ; then
-			uci_add ffwizard ether "$cfg"
-		fi
-		uci_set ffwizard $cfg enabled "0"
-		uci_set ffwizard $cfg device $cfg
-		uci_set ffwizard $cfg olsr_mesh "0"
-		uci_set ffwizard $cfg bat_mesh "0"
-	fi
-}
-
-setup_wifi() {
-	local cfg="$1"
-	#cut radio to get the phy index
-	local idx="$(echo $cfg | cut -c 6-)"
-	if ! uci_get ffwizard $cfg >/dev/null ; then
-		uci_add ffwizard wifi "$cfg"
-	fi
-	uci_set ffwizard $cfg enabled "1"
-	uci_set ffwizard $cfg phy_idx $idx
-	uci_set ffwizard $cfg olsr_mesh "1"
-	uci_set ffwizard $cfg bat_mesh "0"
-	uci_set ffwizard $cfg vap "1"
-	uci_set ffwizard $cfg vap_br "1"
-}
-
-
 start() {
-	firstboot=$(uci_get ffwizard ffwizard firstboot "0")
-	if [ "$firstboot" == "1" ] ; then
-		uci show wireless > /tmp/ffwireless
-		config_load wireless
-		config_foreach setup_wifi wifi-device
-		config_load network
-		config_foreach setup_ether interface
-		uci_set ffwizard ffwizard firstboot 0
-		uci_commit ffwizard
-	fi
-
 	enabled=$(uci_get ffwizard ffwizard enabled "0")
 	[ "$enabled" == "0" ] && return
 	uci_set ffwizard ffwizard enabled 0

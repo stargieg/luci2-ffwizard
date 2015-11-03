@@ -82,7 +82,7 @@ setup_wifi() {
 	json_select hwmodes
 	json_get_values hw_res
 	[ -z "$hw_res" ] && return
-	for i in "$hw_res" ; do
+	for i in $hw_res ; do
 		case $i in
 			a) hw_a=1 ;;
 			b) hw_b=1 ;;
@@ -90,6 +90,10 @@ setup_wifi() {
 			n) hw_n=1 ;;
 		esac
 	done
+	[ "$hw_a" == 1 ] && logger -t "ffwizard_wifi" "HWmode a"
+	[ "$hw_b" == 1 ] && logger -t "ffwizard_wifi" "HWmode b"
+	[ "$hw_g" == 1 ] && logger -t "ffwizard_wifi" "HWmode g"
+	[ "$hw_n" == 1 ] && logger -t "ffwizard_wifi" "HWmode n"
 	#get valid channel list
 	local channels
 	local valid_channel

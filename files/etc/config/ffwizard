@@ -4,7 +4,6 @@ config autoconf autoconf
 config ffwizard ffwizard
 	option hostname "OpenWRT"
 	option enabled 0
-	option firstboot 1
 	option vpn 0
 	option bbvpn 0
 	option br 1
