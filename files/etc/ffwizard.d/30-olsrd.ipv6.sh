@@ -1,4 +1,9 @@
 
+log_olsr6() {
+	logger -s -t ffwizard_olsrd6 $@
+}
+
+
 setup_olsrbase() {
 	local cfg="$1"
 	uci_set olsrd6 $cfg IpVersion "6"
@@ -73,7 +78,7 @@ setup_ether() {
 	[ "$olsr_mesh" == "0" ] && return
 	config_get mesh_ip $cfg mesh_ip "0"
 	[ "$device" == "0" ] && return
-	logger -t "ffwizard_olsrd6_ether" "Setup $cfg"
+	log_olsr6 "Setup ether $cfg"
 	uci_add olsrd6 Interface ; iface_sec="$CONFIG_SECTION"
 	uci_set olsrd6 "$iface_sec" interface "$device"
 	uci_set olsrd6 "$iface_sec" ignore "0"
@@ -93,7 +98,7 @@ setup_wifi() {
 	config_get idx $cfg phy_idx "-1"
 	[ "$idx" == "-1" ] && return
 	local device="radio"$idx"_mesh"
-	logger -t "ffwizard_olsrd6_wifi" "Setup $cfg"
+	log_olsr6 "Setup wifi $cfg"
 	uci_add olsrd6 Interface ; iface_sec="$CONFIG_SECTION"
 	uci_set olsrd6 "$iface_sec" interface "$device"
 	uci_set olsrd6 "$iface_sec" ignore "0"
@@ -165,6 +170,8 @@ if [ "$olsr_enabled" == "1" ] ; then
 		setup_Plugin_nameservice $sec
 	fi
 	uci_commit olsrd6
+	#BUG https://github.com/openwrt-routing/packages/issues/141
+	sleep 3
 	/etc/init.d/olsrd6 enable
 	/etc/init.d/olsrd6 restart
 else

@@ -3,10 +3,14 @@
 . /lib/functions.sh
 . /usr/share/libubox/jshn.sh
 
+log() {
+	logger -s -t ffwizard_autoconf $@
+}
+
 wlan_ifc=""
 wifi_restart=1
 
-logger -t "ffwizard_autoconf" "ubus call network.wireless status"
+log "ubus call network.wireless status"
 wifi_data=`ubus call network.wireless status`
 json_load "$wifi_data"
 json_get_keys wifi_res
@@ -14,12 +18,12 @@ for i in $wifi_res ; do
 	json_select $i
 	json_get_var wifi_disabled disabled
 	if [ $wifi_disabled == 1 ] ; then
-		logger -t "ffwizard_autoconf" "wifi $i is disabled. set enable"
+		log "wifi $i is disabled. set enable"
 		uci set wireless.$i.disabled=0
 		uci set wireless.$i.country=00
 		#uci commit wireless
 	else
-		logger -t "ffwizard_autoconf" "wifi $i allready enabled leave it untouch"
+		log "wifi $i allready enabled leave it untouch"
 		wifi_restart=0
 	fi
 	json_select ".."
@@ -28,11 +32,11 @@ done
 json_cleanup
 
 if [ $wifi_restart == 1 ] ; then
-	logger -t "ffwizard_autoconf" "wifi restart and sleep 20s"
+	log "wifi restart and sleep 20s"
 	#FIXME do it with ubus call and list
 	/sbin/wifi restart
 	/bin/sleep 20
-	logger -t "ffwizard_autoconf" "ubus call network.wireless status"
+	log "ubus call network.wireless status"
 	wifi_data=`ubus call network.wireless status`
 	json_load "$wifi_data"
 	json_get_keys wifi_res
@@ -49,7 +53,7 @@ fi
 json_cleanup
 
 for ifc in $wlan_ifc ; do
-	logger -t "ffwizard_autoconf" "ubus call iwinfo $ifc scan"
+	log "ubus call iwinfo $ifc scan"
 	scan_data=$(ubus call iwinfo scan '{ "device": "'$ifc'" }')
 	json_load "$scan_data"
 	json_select results
@@ -85,7 +89,7 @@ for ifc in $wlan_ifc ; do
 		json_select ".."
 	done
 	json_cleanup
-	logger -t "ffwizard_autoconf" "scan result for $ifc ssid: $ssid bssid: $bssid channel: $channel"
+	log "scan result for $ifc ssid: $ssid bssid: $bssid channel: $channel"
 	if ! uci_get ffwizard $ifc >/dev/null ; then
 		uci_add ffwizard wifi "$ifc"
 	fi

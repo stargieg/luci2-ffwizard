@@ -1,4 +1,7 @@
 
+log_dhcp() {
+	logger -s -t ffwizard_dhcp $@
+}
 
 setup_dhcp() {
 		local cfg_dhcp="$1"
@@ -79,7 +82,7 @@ config_foreach setup_wifi wifi $br_name
 #Setup DHCP Batman Bridge
 config_get br ffwizard br "0"
 if [ "$br" == "1" ] ; then
-	logger -t "ffwizard_dhcp_iface" "Setup $br_name"
+	log_dhcp "Setup iface $br_name"
 	config_get ipaddr ffwizard dhcp_ip
 	setup_dhcp $br_name $ipaddr
 fi
