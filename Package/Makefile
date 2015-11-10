@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=14
+PKG_RELEASE:=15
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -50,8 +50,8 @@ define Package/luci2-ffwizard/install
 	$(INSTALL_DATA) ../files/etc/config/ffwizard $(1)/etc/config/
 
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) ../files/usr/sbin/olsr-dyn-hna6.sh $(1)/usr/sbin/
-	$(INSTALL_BIN) ../files/usr/sbin/olsr-dyn-addr.sh $(1)/usr/sbin/
+	$(INSTALL_BIN) ../files/usr/sbin/olsrd-dyn-hna6.sh $(1)/usr/sbin/
+	$(INSTALL_BIN) ../files/usr/sbin/olsrd-dyn-addr.sh $(1)/usr/sbin/
 endef
 
 $(eval $(call BuildPackage,luci2-ffwizard))
