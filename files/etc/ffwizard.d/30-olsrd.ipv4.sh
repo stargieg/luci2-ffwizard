@@ -185,6 +185,7 @@ if [ "$olsr_enabled" == "1" ] ; then
 		uci_add olsrd LoadPlugin ; sec="$CONFIG_SECTION"
 		uci_set olsrd "$sec" library "$library"
 		setup_Plugin_nameservice $sec
+		grep -q 'dnsmasq' /etc/crontabs/root || echo '* * * * * killall -HUP dnsmasq' >> /etc/crontabs/root
 	fi
 	uci_commit olsrd
 	/etc/init.d/olsrd enable
