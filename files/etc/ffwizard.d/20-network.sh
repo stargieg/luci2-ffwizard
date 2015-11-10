@@ -1,4 +1,12 @@
 
+log_net() {
+	logger -s -t ffwizard_net $@
+}
+
+log_wifi() {
+	logger -s -t ffwizard_wifi $@
+}
+
 setup_ip() {
 	local cfg="$1"
 	local ipaddr="$2"
@@ -35,7 +43,7 @@ setup_ether() {
 	local cfg="$1"
 	config_get enabled $cfg enabled "0"
 	[ "$enabled" == "0" ] && return
-	logger -t "ffwizard_iface" "Setup $cfg"
+	log_net "Setup $cfg"
 	config_get dhcp_br $cfg dhcp_br "0"
 	if [ "$dhcp_br" == "1" ] ; then
 		if uci_get network $cfg >/dev/null ; then
@@ -71,7 +79,7 @@ setup_wifi() {
 	config_get idx $cfg phy_idx "-1"
 	[ "$idx" == "-1" ] && return
 	local device="radio$idx"
-	logger -t "ffwizard_wifi" "Setup $cfg"
+	log_wifi "Setup $cfg"
 	#get valid hwmods
 	local hw_a=0
 	local hw_b=0
@@ -90,10 +98,10 @@ setup_wifi() {
 			n) hw_n=1 ;;
 		esac
 	done
-	[ "$hw_a" == 1 ] && logger -t "ffwizard_wifi" "HWmode a"
-	[ "$hw_b" == 1 ] && logger -t "ffwizard_wifi" "HWmode b"
-	[ "$hw_g" == 1 ] && logger -t "ffwizard_wifi" "HWmode g"
-	[ "$hw_n" == 1 ] && logger -t "ffwizard_wifi" "HWmode n"
+	[ "$hw_a" == 1 ] && log_wifi "HWmode a"
+	[ "$hw_b" == 1 ] && log_wifi "HWmode b"
+	[ "$hw_g" == 1 ] && log_wifi "HWmode g"
+	[ "$hw_n" == 1 ] && log_wifi "HWmode n"
 	#get valid channel list
 	local channels
 	local valid_channel
@@ -123,7 +131,7 @@ setup_wifi() {
 			valid_channel="$i"
 		fi
 	done
-	logger -t "ffwizard_wifi" "Channel $valid_channel"
+	log_wifi "Channel $valid_channel"
 	uci_set wireless $device channel "$valid_channel"
 	uci_set wireless $device disabled "0"
 	[ $hw_g == 1 ] && [ $hw_n == 1 ] && uci_set wireless $device noscan "1"
@@ -144,7 +152,7 @@ setup_wifi() {
 	config_get bat_mesh $cfg bat_mesh "0"
 	if [ "$olsr_mesh" == "1" -o "$bat_mesh" == "1" ] ; then
 		local bssid
-		logger -t "ffwizard_wifi" "mesch"
+		log_wifi "mesh"
 		cfg_mesh=$cfg"_mesh"
 		uci_add wireless wifi-iface ; sec="$CONFIG_SECTION"
 		uci_set wireless $sec device "$device"
@@ -171,7 +179,7 @@ setup_wifi() {
 	fi
 	config_get vap $cfg vap "0"
 	if [ "$vap" == "1" ] ; then
-		logger -t "ffwizard_wifi" "Virtual AP"
+		log_wifi "Virtual AP"
 		cfg_vap=$cfg"_vap"
 		uci_add wireless wifi-iface ; sec="$CONFIG_SECTION"
 		uci_set wireless $sec device "$device"

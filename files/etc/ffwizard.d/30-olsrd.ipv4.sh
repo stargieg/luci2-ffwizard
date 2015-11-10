@@ -1,4 +1,8 @@
 
+log_olsr4() {
+	logger -s -t ffwizard_olsrd $@
+}
+
 setup_olsrbase() {
 	local cfg="$1"
 	uci_set olsrd $cfg IpVersion "4"
@@ -76,7 +80,7 @@ setup_ether() {
 	[ "$mesh_ip" == "0" ] && return
 	config_get device $cfg device "0"
 	[ "$device" == "0" ] && return
-	logger -t "ffwizard_olsrd_ether" "Setup $cfg"
+	log_olsr4 "Setup ether $cfg"
 	uci_add olsrd Interface ; iface_sec="$CONFIG_SECTION"
 	uci_set olsrd "$iface_sec" interface "$device"
 	uci_set olsrd "$iface_sec" ignore "0"
@@ -105,7 +109,7 @@ setup_wifi() {
 	config_get idx $cfg phy_idx "-1"
 	[ "$idx" == "-1" ] && return
 	local device="radio"$idx"_mesh"
-	logger -t "ffwizard_olsrd_wifi" "Setup $cfg"
+	log_olsr4 "Setup wifi $cfg"
 	uci_add olsrd Interface ; iface_sec="$CONFIG_SECTION"
 	uci_set olsrd "$iface_sec" interface "$device"
 	uci_set olsrd "$iface_sec" ignore "0"

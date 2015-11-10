@@ -1,4 +1,8 @@
 
+log_batadv() {
+	logger -s -t ffwizard_batadv $@
+}
+
 setup_bat_base() {
 	local cfg="$1"
 	local mode="$2"
@@ -34,7 +38,7 @@ setup_ether() {
 	[ "$device" == "0" ] && return
 	config_get bat_mesh $cfg bat_mesh "0"
 	[ "$bat_mesh" == "0" ] && return
-	logger -t "ffwizard_bat_ether_mesh" "Setup $cfg"
+	log_batadv "Setup ether mesh $cfg"
 	uci_set network $cfg proto "batadv"
 	uci_set network $cfg mesh "$bat_ifc"
 	bat_enabled=1
@@ -50,7 +54,7 @@ setup_wifi() {
 	local device="radio"$idx"_mesh"
 	config_get bat_mesh $cfg bat_mesh "0"
 	[ "$bat_mesh" == "0" ] && return
-	logger -t "ffwizard_bat_wifi" "Setup $cfg"
+	log_batadv "Setup wifi $cfg"
 	uci_set network $device proto "batadv"
 	uci_set network $device mesh "$bat_ifc"
 	uci_set network $device mtu "1532"
