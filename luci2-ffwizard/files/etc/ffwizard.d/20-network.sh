@@ -178,6 +178,15 @@ setup_wifi() {
 		setup_ip "$cfg_mesh" "$ipaddr"
 	fi
 	config_get vap $cfg vap "0"
+	#TODO check valid interface combinations
+	#iw phy$idx info | grep -A6 "valid interface combinations"
+	#iw phy$idx info | grep "interface combinations are not supported"
+	if [ "$vap" == "1" ] && \
+		[ -n "$(iw phy$idx info | grep 'interface combinations are not supported')" ]  ; then
+		vap="0"
+		log_wifi "Virtual AP Not Supported"
+		#uci_set ffwizard $cfg vap "0"
+	fi
 	if [ "$vap" == "1" ] ; then
 		log_wifi "Virtual AP"
 		cfg_vap=$cfg"_vap"
