@@ -33,8 +33,7 @@ json_cleanup
 
 if [ $wifi_restart == 1 ] ; then
 	log "wifi restart and sleep 20s"
-	#FIXME do it with ubus call and list
-	/sbin/wifi restart
+	/etc/init.d/network reload
 	/bin/sleep 20
 	log "ubus call network.wireless status"
 	wifi_data=`ubus call network.wireless status`
