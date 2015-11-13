@@ -398,12 +398,12 @@ if [ "$ip6prefix_new" != "$ip6prefix" ] ; then
 		uci_add_list network $cfg_ip6prefix ip6prefix $i
 	done
 	uci_commit network
+	uci_commit olsrd6
 	/etc/init.d/network reload
 	#TODO is there a call back
-	sleep 3
-	uci_commit olsrd6
+	#sleep 3
 	#BUG https://github.com/openwrt-routing/packages/issues/141
-	sleep 3
+	#sleep 3
 	/etc/init.d/olsrd6 restart
 else
 	log "Revert changes on olsrd6"
