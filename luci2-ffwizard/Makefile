@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=16
+PKG_RELEASE:=17
 
 include $(INCLUDE_DIR)/package.mk
 
