@@ -20,6 +20,7 @@ if [ "$(uci_get system @system[0] hostname)" == "OpenWrt" ]; then
 	uci_commit dhcp
 
 	uci_set network lan ipaddr "192.168.42.1"
+	uci_set network lan dns "85.214.20.141 213.73.91.35 194.150.168.168 2001:4ce8::53 2001:910:800::12"
 	uci_commit network
 fi
 
