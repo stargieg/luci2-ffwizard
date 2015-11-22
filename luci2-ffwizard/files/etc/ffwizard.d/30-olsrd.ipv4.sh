@@ -189,7 +189,8 @@ if [ "$olsr_enabled" == "1" ] ; then
 	fi
 	uci_commit olsrd
 	/etc/init.d/olsrd enable
-	/etc/init.d/olsrd restart
+	/etc/init.d/olsrd reload
+	/etc/init.d/cron restart
 else
 	/sbin/uci revert olsrd
 	/etc/init.d/olsrd disable

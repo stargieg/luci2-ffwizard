@@ -181,7 +181,7 @@ if [ "$olsr_enabled" == "1" ] ; then
 	#PATCH from boo https://github.com/openwrt-routing/packages/pull/78 works for me
 	/etc/init.d/olsrd6 enable
 	/etc/init.d/olsrd6 reload
-	/etc/init.d/cron reload
+	/etc/init.d/cron restart
 else
 	/sbin/uci revert olsrd6
 	/etc/init.d/olsrd6 disable
