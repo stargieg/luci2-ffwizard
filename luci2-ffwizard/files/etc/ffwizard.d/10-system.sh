@@ -30,6 +30,7 @@ if [ -z "$hostname" ] ; then
 	rand="$(printf "%d" "0x$rand")"
 	hostname="OpenWrt-$rand"
 	uci_set ffwizard ffwizard hostname "$hostname"
+	uci_commit ffwizard
 fi
 
 # Set lat lon
@@ -43,9 +44,7 @@ config_load system
 #Setup system hostname,timezone,location,latlon
 config_foreach setup_system system
 
-
-
-uci_commit ffwizard
+#Save
 uci_commit system
 
 #Reload, set Hostname and Timezone
