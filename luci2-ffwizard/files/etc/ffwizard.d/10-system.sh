@@ -2,7 +2,6 @@
 setup_system() {
 	local cfg=$1
 	uci_set system $cfg hostname "$hostname"
-	echo $hostname > /proc/sys/kernel/hostname
 
 	# Set Timezone
 	uci_set system $cfg zonename "Europe/Berlin"
@@ -41,10 +40,13 @@ config_get longitude ffwizard longitude
 
 #Load dhcp config
 config_load system
-#Setup dnsmasq
+#Setup system hostname,timezone,location,latlon
 config_foreach setup_system system
 
 
 
 uci_commit ffwizard
 uci_commit system
+
+#Reload, set Hostname and Timezone
+/etc/init.d/system reload
