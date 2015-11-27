@@ -1,7 +1,24 @@
 
+log_system() {
+	logger -s -t ffwizard_system $@
+}
+
 setup_system() {
 	local cfg=$1
-	uci_set system $cfg hostname "$hostname"
+	
+	if [ -z "$hostname" ] || [ "$hostname" == "OpenWrt" ] ; then
+		config_get hostname $cfg hostname "$hostname"
+		log_system "No custom Hostname! Get sys Hostname $hostname"
+	fi
+	if [ -z "$hostname" ] || [ "$hostname" == "OpenWrt" ] ; then
+		rand="$(echo -n $(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1-4))"
+		rand="$(printf "%d" "0x$rand")"
+		hostname="$hostname-$rand"
+		log_system "No valid Hostname! Set rand Hostname $hostname"
+		uci_set system $cfg hostname "$hostname"
+	else
+		log_system "Set Hostname $hostname"
+	fi
 
 	# Set Timezone
 	uci_set system $cfg zonename "Europe/Berlin"
@@ -24,14 +41,7 @@ setup_system() {
 config_load ffwizard
 
 # Set Hostname
-config_get hostname ffwizard hostname
-if [ -z "$hostname" ] ; then
-	rand="$(echo -n $(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1-4))"
-	rand="$(printf "%d" "0x$rand")"
-	hostname="OpenWrt-$rand"
-	uci_set ffwizard ffwizard hostname "$hostname"
-	uci_commit ffwizard
-fi
+config_get hostname ffwizard hostname "OpenWrt"
 
 # Set lat lon
 config_get location ffwizard location
@@ -46,6 +56,3 @@ config_foreach setup_system system
 
 #Save
 uci_commit system
-
-#Reload, set Hostname and Timezone
-/etc/init.d/system reload
