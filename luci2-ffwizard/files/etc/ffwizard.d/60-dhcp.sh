@@ -87,8 +87,4 @@ if [ "$br" == "1" ] ; then
 	setup_dhcp $br_name $ipaddr
 fi
 
-
 uci_commit dhcp
-
-/etc/init.d/dnsmasq restart
-/etc/init.d/odhcpd restart

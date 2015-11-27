@@ -18,8 +18,8 @@ setup_ip() {
 		uci_set network $cfg ipaddr "$IP"
 		uci_set network $cfg netmask "$NETMASK"
 	else
-		uci_remove network $cfg ipaddr
-		uci_remove network $cfg netmask
+		uci_remove network $cfg ipaddr 2>/dev/null
+		uci_remove network $cfg netmask 2>/dev/null
 	fi
 	uci_set network $cfg proto "static"
 	uci_set network $cfg ip6assign "64"
@@ -264,5 +264,3 @@ fi
 
 uci_commit network
 uci_commit wireless
-
-/etc/init.d/network restart

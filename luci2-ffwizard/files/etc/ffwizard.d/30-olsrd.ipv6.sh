@@ -144,6 +144,12 @@ if [ "$ula_prefix" != 0 ] ; then
 fi
 
 if [ "$olsr_enabled" == "1" ] ; then
+	#If olsrd is disabled then start olsrd before write config
+	#read new olsrd config via ubus call uci "reload_config" in ffwizard
+	if ! [ -s /etc/rc.d/S*olsrd6 ] ; then
+		/etc/init.d/olsrd6 enable
+		/etc/init.d/olsrd6 restart
+	fi
 	#Setup olsrd6
 	config_load olsrd6
 	config_foreach setup_olsrbase olsrd
@@ -177,12 +183,10 @@ if [ "$olsr_enabled" == "1" ] ; then
 	#	grep -q 'olsrd-dyn-hna6' /etc/crontabs/root || echo '*/8 * * * * /usr/sbin/olsrd-dyn-hna6.sh' >> /etc/crontabs/root
 	#fi
 	uci_commit olsrd6
-	#BUG https://github.com/openwrt-routing/packages/issues/141
-	#PATCH from boo https://github.com/openwrt-routing/packages/pull/78 works for me
-	/etc/init.d/olsrd6 enable
-	/etc/init.d/olsrd6 reload
-	/etc/init.d/cron restart
 else
 	/sbin/uci revert olsrd6
-	/etc/init.d/olsrd6 disable
+	if [ -s /etc/rc.d/S*olsrd6 ] ; then
+		/etc/init.d/olsrd6 stop
+		/etc/init.d/olsrd6 disable
+	fi
 fi

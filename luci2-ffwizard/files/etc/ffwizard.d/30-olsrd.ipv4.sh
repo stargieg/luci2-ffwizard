@@ -161,6 +161,12 @@ if [ "$br" == "1" ] ; then
 fi
 
 if [ "$olsr_enabled" == "1" ] ; then
+	#If olsrd is disabled then start olsrd before write config
+	#read new olsrd config via ubus call uci "reload_config" in ffwizard
+	if ! [ -s /etc/rc.d/S*olsrd ] ; then
+		/etc/init.d/olsrd enable
+		/etc/init.d/olsrd restart
+	fi
 	#Setup olsrd
 	config_load olsrd
 	config_foreach setup_olsrbase olsrd
@@ -188,10 +194,10 @@ if [ "$olsr_enabled" == "1" ] ; then
 		grep -q 'dnsmasq' /etc/crontabs/root || echo '* * * * * killall -HUP dnsmasq' >> /etc/crontabs/root
 	fi
 	uci_commit olsrd
-	/etc/init.d/olsrd enable
-	/etc/init.d/olsrd reload
-	/etc/init.d/cron restart
 else
 	/sbin/uci revert olsrd
-	/etc/init.d/olsrd disable
+	if [ -s /etc/rc.d/S*olsrd ] ; then
+		/etc/init.d/olsrd stop
+		/etc/init.d/olsrd disable
+	fi
 fi

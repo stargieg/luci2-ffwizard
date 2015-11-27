@@ -3,9 +3,17 @@
 . /lib/functions.sh
 . /usr/share/libubox/jshn.sh
 
-cd /etc/ffwizard.d || return 0
-files="$(ls)"
-[ -z "$files" ] && return 0
+log_ffwizard() {
+	logger -s -t ffwizard $@
+}
+
+wdir="/etc/ffwizard.d"
+[ -d $wdir ] || return 0
+files="$(ls $wdir)"
+[ -z "$wdir/$files" ] && return 0
 for file in $files; do
-    . "./$file"
+	log_ffwizard "procesing $file"
+	. "$wdir/$file"
 done
+
+ubus call uci "reload_config"

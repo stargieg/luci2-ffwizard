@@ -52,6 +52,3 @@ uci_commit uhttpd
 
 #
 [ -s /www/index.html ] || ln -s /www/luci2.html /www/index.html
-
-#restart
-/etc/init.d/uhttpd restart

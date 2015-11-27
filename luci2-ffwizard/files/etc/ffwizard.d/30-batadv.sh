@@ -72,7 +72,9 @@ local bat_br_name="mesh"
 local bat_iface="bat0"
 local bat_mode="client"
 
-touch /etc/config/batman-adv
+if ! [ -f /etc/config/batman-adv ] ; then
+	touch /etc/config/batman-adv
+fi
 
 config_load batman-adv
 #Remove mesh sections
@@ -115,9 +117,7 @@ if [ "$bat_enabled" == "1" ] ; then
 	setup_bat_base "$bat_iface" "$bat_mode"
 	uci_commit batman-adv
 	uci_commit network
-	/etc/init.d/network restart
 else
 	/sbin/uci revert batman-adv
 	/sbin/uci revert network
-	/etc/init.d/batman disable
 fi
