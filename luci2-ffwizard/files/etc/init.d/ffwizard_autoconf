@@ -13,6 +13,7 @@ setup_ether() {
 		fi
 		uci_set ffwizard $cfg enabled "0"
 		uci_set ffwizard $cfg device $cfg
+		uci_set ffwizard $cfg dhcp_br "0"
 		uci_set ffwizard $cfg olsr_mesh "0"
 		uci_set ffwizard $cfg bat_mesh "0"
 	fi
