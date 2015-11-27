@@ -18,6 +18,7 @@ setup_system() {
 		uci_set system $cfg hostname "$hostname"
 	else
 		log_system "Set Hostname $hostname"
+		uci_set system $cfg hostname "$hostname"
 	fi
 
 	# Set Timezone
