@@ -43,9 +43,9 @@ setup_ether() {
 	local cfg="$1"
 	config_get enabled $cfg enabled "0"
 	[ "$enabled" == "0" ] && return
-	log_net "Setup $cfg"
 	config_get dhcp_br $cfg dhcp_br "0"
 	if [ "$dhcp_br" == "1" ] ; then
+		log_net "Setup $cfg as DHCP Bridge member"
 		if uci_get network $cfg >/dev/null ; then
 			ifname="$(uci_get network $cfg ifname)"
 			if [ -n "$ifname" ] ; then
@@ -55,6 +55,7 @@ setup_ether() {
 			uci_remove network $cfg type
 		fi
 	else
+		log_net "Setup $cfg IP"
 		config_get mesh_ip $cfg mesh_ip
 		setup_ip "$cfg" "$mesh_ip"
 		config_get dhcp_ip $cfg dhcp_ip "0"
@@ -85,7 +86,11 @@ setup_wifi() {
 	local hw_b=0
 	local hw_g=0
 	local hw_n=0
-	info_data=$(ubus call iwinfo info '{ "device": "wlan'$idx'" }')
+	info_data=$(ubus call iwinfo info '{ "device": "wlan'$idx'" }' 2>/dev/null)
+	[ -z $info_data ] && {
+		log_wifi "ERR No iwinfo hwmodes for wlan$idx"
+		return 1
+	}
 	json_load "$info_data"
 	json_select hwmodes
 	json_get_values hw_res
@@ -105,7 +110,11 @@ setup_wifi() {
 	#get valid channel list
 	local channels
 	local valid_channel
-	chan_data=$(ubus call iwinfo freqlist '{ "device": "wlan'$idx'" }')
+	chan_data=$(ubus call iwinfo freqlist '{ "device": "wlan'$idx'" }' 2>/dev/null)
+	[ -z $chan_data ] && {
+		log_wifi "ERR No iwinfo freqlist for wlan$idx"
+		return 1
+	}
 	json_load "$chan_data"
 	json_select results
 	json_get_keys chan_res
@@ -114,8 +123,8 @@ setup_wifi() {
 		#check what channels are available
 		json_get_var restricted restricted
 		if [ "$restricted" == 0 ] ; then
-				json_get_var channel channel
-				channels="$channels $channel"
+			json_get_var channel channel
+			channels="$channels $channel"
 		fi
 		json_select ".."
 	done
@@ -233,6 +242,7 @@ rm /etc/config/wireless
 #Set regdomain
 config_load wireless
 config_foreach regdomain wifi-device
+uci_commit wireless
 /sbin/wifi reload
 sleep 5
 
