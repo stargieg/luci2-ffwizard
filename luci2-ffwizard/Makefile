@@ -63,10 +63,10 @@ define Package/luci2-ffwizard/install
 
 	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/ffwizard.d
 	$(INSTALL_BIN) files/usr/sbin/ffwizard $(1)/usr/sbin/
-	$(INSTALL_BIN) files/etc/ffwizard.d/*system.sh $(1)/etc/ffwizard.d/
-	$(INSTALL_BIN) files/etc/ffwizard.d/*network.sh $(1)/etc/ffwizard.d/
-	$(INSTALL_BIN) files/etc/ffwizard.d/*uhttpd.sh $(1)/etc/ffwizard.d/
-	$(INSTALL_BIN) files/etc/ffwizard.d/*dhcpd.sh $(1)/etc/ffwizard.d/
+	$(INSTALL_BIN) files/etc/ffwizard.d/10-system.sh $(1)/etc/ffwizard.d/
+	$(INSTALL_BIN) files/etc/ffwizard.d/20-network.sh $(1)/etc/ffwizard.d/
+	$(INSTALL_BIN) files/etc/ffwizard.d/50-uhttpd.sh $(1)/etc/ffwizard.d/
+	$(INSTALL_BIN) files/etc/ffwizard.d/60-dhcpd.sh $(1)/etc/ffwizard.d/
 
 	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d
 	$(INSTALL_BIN) files/usr/sbin/ffwizard_autoconf $(1)/usr/sbin/
@@ -80,12 +80,12 @@ endef
 
 define Package/luci2-ffwizard-olsrd-ipv4/install
 	$(INSTALL_DIR) $(1)/etc/ffwizard.d
-	$(INSTALL_BIN) files/etc/ffwizard.d/*olsrd.ipv4.sh $(1)/etc/ffwizard.d/
+	$(INSTALL_BIN) files/etc/ffwizard.d/30-olsrd.ipv4.sh $(1)/etc/ffwizard.d/
 endef
 
 define Package/luci2-ffwizard-olsrd-ipv6/install
 	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/usr/sbin
-	$(INSTALL_BIN) files/etc/ffwizard.d/*olsrd.ipv6.sh $(1)/etc/ffwizard.d/
+	$(INSTALL_BIN) files/etc/ffwizard.d/30-olsrd.ipv6.sh $(1)/etc/ffwizard.d/
 	$(INSTALL_BIN) files/usr/sbin/olsrd-dyn-hna6.sh $(1)/usr/sbin/
 	$(INSTALL_BIN) files/usr/sbin/olsrd-dyn-addr.sh $(1)/usr/sbin/
 endef
@@ -96,7 +96,7 @@ define Package/luci2-ffwizard-batadv/install
 	$(INSTALL_DATA) files/www/luci2/proto/batadv_vlan.js $(1)/www/luci2/proto/
 
 	$(INSTALL_DIR) $(1)/etc/ffwizard.d
-	$(INSTALL_BIN) files/etc/ffwizard.d/*batadv.sh $(1)/etc/ffwizard.d/
+	$(INSTALL_BIN) files/etc/ffwizard.d/30-batadv.sh $(1)/etc/ffwizard.d/
 endef
 
 $(eval $(call BuildPackage,luci2-ffwizard))
