@@ -20,6 +20,7 @@ validate_ether_section()
 	uci_validate_section ffwizard ether "${1}" \
 		'enabled:bool' \
 		'device:string' \
+		'dhcp_br:bool' \
 		'olsr_mesh:bool' \
 		'bat_mesh:bool' \
 		'dhcp_ip:cidr4' \
