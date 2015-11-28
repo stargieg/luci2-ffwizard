@@ -18,7 +18,8 @@ endef
 define Package/luci2-ffwizard
   $(call Package/luci2-ffwizard/template)
   MENU:=1
-  DEPENDS:=+luci2 +uhttpd +uhttpd-mod-tls +uhttpd-mod-ubus +odhcpd +dnsmasq
+  DEPENDS:=+luci2 +px5g +uhttpd +uhttpd-mod-tls +uhttpd-mod-ubus +odhcpd \
+  +dnsmasq +rpcd +rpcd-mod-file +rpcd-mod-iwinfo +rpcd-mod-rpcsys +iwinfo
 endef
 
 define Package/luci2-ffwizard/conffiles
@@ -33,13 +34,14 @@ endef
 
 define Package/luci2-ffwizard-olsrd-ipv6
   $(call Package/luci2-ffwizard/template)
-  DEPENDS:=luci2-ffwizard +olsrd +olsrd-mod-jsoninfo +olsrd-mod-nameservice
+  DEPENDS:=luci2-ffwizard +olsrd +olsrd-mod-jsoninfo +olsrd-mod-nameservice \
+  +kmod-ipv6
   TITLE:=olsrd ipv6 config
 endef
 
 define Package/luci2-ffwizard-batadv
   $(call Package/luci2-ffwizard/template)
-  DEPENDS:=luci2-ffwizard +kmod-batman-adv
+  DEPENDS:=luci2-ffwizard +kmod-batman-adv +batctl +kmod-ipv6
   TITLE:=Batman advanced config
 endef
 
