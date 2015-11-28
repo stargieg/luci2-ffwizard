@@ -14,7 +14,6 @@ L.ui.view.extend({
 
 		s.option(L.cbi.CheckboxValue, 'enabled', {
 			caption:     L.tr('Enabled'),
-			initial:     0,
 			enabled:     '1',
 			disabled:    '0',
 			optional:    false
@@ -67,7 +66,6 @@ L.ui.view.extend({
 
 		ether_sec.option(L.cbi.CheckboxValue, 'enabled', {
 			caption:     L.tr('Enabled'),
-			initial:     0,
 			enabled:     '1',
 			disabled:    '0',
 			optional:    false
@@ -77,12 +75,11 @@ L.ui.view.extend({
 			caption:     L.tr('Device'),
 			description: L.tr('Device Name'),
 			optional:    false
-		}).depends({enabled: 1});
+		});
 
 		ether_sec.option(L.cbi.CheckboxValue, 'dhcp_br', {
 			caption:     L.tr('Freifunk Netzwerkbrücke'),
 			description: L.tr('Netzwerkbrücke für DHCP und Batman'),
-			initial:     1,
 			enabled:     '1',
 			disabled:    '0',
 			optional:    true
@@ -91,7 +88,6 @@ L.ui.view.extend({
 		ether_sec.option(L.cbi.CheckboxValue, 'olsr_mesh', {
 			caption:     L.tr('Olsr Mesh'),
 			description: L.tr('OLSR Mesh Protokol'),
-			initial:     1,
 			enabled:     '1',
 			disabled:    '0',
 			optional:    true
@@ -100,7 +96,6 @@ L.ui.view.extend({
 		ether_sec.option(L.cbi.CheckboxValue, 'bat_mesh', {
 			caption:     L.tr('Batman Mesh'),
 			description: L.tr('Batman Mesh Protokol'),
-			initial:     0,
 			enabled:     '1',
 			disabled:    '0',
 			optional:    true
@@ -127,7 +122,6 @@ L.ui.view.extend({
 
 		wifi_sec.option(L.cbi.CheckboxValue, 'enabled', {
 			caption:     L.tr('Enabled'),
-			initial:     0,
 			enabled:     '1',
 			disabled:    '0',
 			optional:    false
@@ -151,7 +145,6 @@ L.ui.view.extend({
 		wifi_sec.option(L.cbi.CheckboxValue, 'olsr_mesh', {
 			caption:     L.tr('Olsr Mesh'),
 			description: L.tr('OLSR Mesh Protokol'),
-			initial:     1,
 			enabled:     '1',
 			disabled:    '0',
 			optional:    false
@@ -160,7 +153,6 @@ L.ui.view.extend({
 		wifi_sec.option(L.cbi.CheckboxValue, 'bat_mesh', {
 			caption:     L.tr('Batman Mesh'),
 			description: L.tr('Batman Mesh Protokol'),
-			initial:     0,
 			enabled:     '1',
 			disabled:    '0',
 			optional:    false
@@ -175,7 +167,6 @@ L.ui.view.extend({
 		wifi_sec.option(L.cbi.CheckboxValue, 'vap', {
 			caption:     L.tr('AP für Mobilgeräte'),
 			description: L.tr('Acces Point für Mobil Geräte'),
-			initial:     1,
 			enabled:     '1',
 			disabled:    '0',
 			optional:    false
