@@ -18,8 +18,13 @@ setup_ip() {
 		uci_set network $cfg ipaddr "$IP"
 		uci_set network $cfg netmask "$NETMASK"
 	else
-		uci_remove network $cfg ipaddr 2>/dev/null
-		uci_remove network $cfg netmask 2>/dev/null
+		if [ "$cfg" == "lan" ] ; then
+			uci_set network $cfg ipaddr "192.168.42.1"
+			uci_set network $cfg netmask "255.255.255.0"
+		else
+			uci_remove network $cfg ipaddr 2>/dev/null
+			uci_remove network $cfg netmask 2>/dev/null
+		fi
 	fi
 	uci_set network $cfg proto "static"
 	uci_set network $cfg ip6assign "64"
