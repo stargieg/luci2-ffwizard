@@ -26,12 +26,14 @@ if [ "$(uci_get system @system[0] hostname)" == "OpenWrt" ]; then
 	uci_set uhttpd px5g commonname "$hostname"
 	uci_commit uhttpd
 
+	# add dns entry frei.funk
 	uci_add dhcp domain frei_funk
 	uci_set dhcp frei_funk name "frei.funk"
 	uci_set dhcp frei_funk ip "192.168.42.1"
-	uci_add dhcp domain frei_funk_ula
-	uci_set dhcp frei_funk_ula name "frei.funk"
-	uci_set dhcp frei_funk_ula ip "$(uci get network.globals.ula_prefix | cut -d '/' -f 1)1"
+	# add dns entry frei.funk for ipv6
+	uci_add dhcp domain frei_funk_ipv6
+	uci_set dhcp frei_funk_ipv6 name "frei.funk"
+	uci_set dhcp frei_funk_ipv6 ip "$(uci get network.globals.ula_prefix | cut -d '/' -f 1)1"
 	uci_add_list dhcp @dnsmasq[0] server '/p2p/127.0.0.1#3535'
 	uci_commit dhcp
 
