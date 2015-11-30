@@ -74,6 +74,8 @@ setup_ether() {
 	local cfg="$1"
 	config_get enabled $cfg enabled "0"
 	[ "$enabled" == "0" ] && return
+	config_get dhcp_br $cfg dhcp_br "0"
+	[ "$dhcp_br" == "0" ] || return
 	config_get olsr_mesh $cfg olsr_mesh "0"
 	[ "$olsr_mesh" == "0" ] && return
 	config_get mesh_ip $cfg mesh_ip "0"
