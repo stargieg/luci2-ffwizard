@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=25
+PKG_RELEASE:=26
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -25,6 +25,12 @@ endef
 
 define Package/luci2-ffwizard/conffiles
 /etc/config/ffwizard
+endef
+
+define Package/luci2-ffwizard-fw
+  $(call Package/luci2-ffwizard/template)
+  DEPENDS:=luci2-ffwizard +firewall
+  TITLE:=olsrd firewall config
 endef
 
 define Package/luci2-ffwizard-olsrd-ipv4
@@ -79,6 +85,12 @@ define Package/luci2-ffwizard/install
 	$(INSTALL_DATA) files/etc/config/ffwizard $(1)/etc/config/
 endef
 
+define Package/luci2-ffwizard-fw/install
+	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/etc/uci-defaults/
+	$(INSTALL_BIN) files/etc/uci-defaults/ffwizard_fw $(1)/etc/uci-defaults/
+	$(INSTALL_BIN) files/etc/ffwizard.d/25-fw.sh $(1)/etc/ffwizard.d/
+endef
+
 define Package/luci2-ffwizard-olsrd-ipv4/install
 	$(INSTALL_DIR) $(1)/etc/ffwizard.d
 	$(INSTALL_BIN) files/etc/ffwizard.d/30-olsrd.ipv4.sh $(1)/etc/ffwizard.d/
@@ -104,3 +116,4 @@ $(eval $(call BuildPackage,luci2-ffwizard))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrd-ipv4))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrd-ipv6))
 $(eval $(call BuildPackage,luci2-ffwizard-batadv))
+$(eval $(call BuildPackage,luci2-ffwizard-fw))

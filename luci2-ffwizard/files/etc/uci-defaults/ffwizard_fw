@@ -1,0 +1,150 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+uci_add_list() {
+	local PACKAGE "$1"
+	local CONFIG "$2"
+	local OPTION "$3"
+	local VALUE "$4"
+
+	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} add_list "$PACKAGE.$CONFIG.$OPTION $VALUE"
+}
+
+uci_reset() {
+	local PACKAGE "$1"
+
+	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} import "$PACKAGE" <<EOF
+EOF
+}
+
+# reset firewall config
+uci_reset firewall
+
+# Set defaults
+uci_add firewall defaults ; sec="$CONFIG_SECTION"
+uci_set firewall $sec syn_flood 1
+uci_set firewall $sec input ACCEPT
+uci_set firewall $sec output ACCEPT
+uci_set firewall $sec forward REJECT
+uci_set firewall $sec drop_invalid 0
+
+# Set Zone WAN
+uci_add firewall zone ; sec="$CONFIG_SECTION"
+uci_set firewall $sec name wan
+uci_set firewall $sec masq 1
+uci_set firewall $sec network wan
+uci_set firewall $sec forward REJECT
+uci_set firewall $sec output ACCEPT
+uci_set firewall $sec local_restrict 1
+uci_set firewall $sec input ACCEPT
+
+uci_add firewall rule ; sec="$CONFIG_SECTION"
+uci_set firewall $sec name Allow-DHCP-Renew
+uci_set firewall $sec src wan
+uci_set firewall $sec proto udp
+uci_set firewall $sec dest_port 68
+uci_set firewall $sec target ACCEPT
+uci_set firewall $sec family ipv4
+
+uci_add firewall rule ; sec="$CONFIG_SECTION"
+uci_set firewall $sec name Allow-Ping
+uci_set firewall $sec src wan
+uci_set firewall $sec proto icmp
+uci_set firewall $sec icmp_type echo-request
+uci_set firewall $sec family ipv4
+uci_set firewall $sec target ACCEPT
+
+uci_add firewall rule ; sec="$CONFIG_SECTION"
+uci_set firewall $sec name Allow-DHCPv6
+uci_set firewall $sec src wan
+uci_set firewall $sec proto udp
+uci_set firewall $sec src_ip fe80::/10
+uci_set firewall $sec src_port 547
+uci_set firewall $sec dest_ip fe80::/10
+uci_set firewall $sec dest_port 546
+uci_set firewall $sec family ipv6
+uci_set firewall $sec target ACCEPT
+
+uci_add firewall rule ; sec="$CONFIG_SECTION"
+uci_set firewall $sec name Allow-ICMPv6-Input
+uci_set firewall $sec src wan
+uci_set firewall $sec proto icmp
+uci_set firewall $sec icmp_type "echo-request echo-reply destination-unreachable packet-too-big time-exceeded bad-header unknown-header-type router-solicitation neighbour-solicitation router-advertisement neighbour-advertisement"
+uci_set firewall $sec limit 1000/sec
+uci_set firewall $sec family ipv6
+uci_set firewall $sec target ACCEPT
+
+uci_add firewall rule ; sec="$CONFIG_SECTION"
+uci_set firewall $sec name Allow-ICMPv6-Forward
+uci_set firewall $sec src wan
+uci_set firewall $sec dest *
+uci_set firewall $sec proto icmp
+uci_set firewall $sec icmp_type "echo-request echo-reply destination-unreachable packet-too-big time-exceeded bad-header unknown-header-type"
+uci_set firewall $sec limit 1000/sec
+uci_set firewall $sec family ipv6
+uci_set firewall $sec target ACCEPT
+
+# Set Zone Freifunk
+uci_add firewall zone ; sec="$CONFIG_SECTION"
+uci_set firewall $sec input ACCEPT
+uci_set firewall $sec forward REJECT
+uci_set firewall $sec name freifunk
+uci_set firewall $sec output ACCEPT
+
+uci_add firewall forwarding ; sec="$CONFIG_SECTION"
+uci_set firewall $sec dest freifunk
+uci_set firewall $sec src freifunk
+
+uci_add firewall rule ; sec="$CONFIG_SECTION"
+uci_set firewall $sec proto icmp
+uci_set firewall $sec target ACCEPT
+uci_set firewall $sec src freifunk
+
+uci_add firewall rule ; sec="$CONFIG_SECTION"
+uci_set firewall $sec dest_port 80
+uci_set firewall $sec proto tcp
+uci_set firewall $sec target ACCEPT
+uci_set firewall $sec src freifunk
+
+uci_add firewall rule ; sec="$CONFIG_SECTION"
+uci_set firewall $sec dest_port 443
+uci_set firewall $sec proto tcp
+uci_set firewall $sec target ACCEPT
+uci_set firewall $sec src freifunk
+
+uci_add firewall rule ; sec="$CONFIG_SECTION"
+uci_set firewall $sec dest_port 22
+uci_set firewall $sec proto tcp
+uci_set firewall $sec target ACCEPT
+uci_set firewall $sec src freifunk
+
+uci_add firewall advanced ; sec="$CONFIG_SECTION"
+uci_set firewall $sec tcp_westwood 1
+uci_set firewall $sec tcp_ecn 0
+uci_set firewall $sec ip_conntrack_max 8192
+
+uci_add firewall forwarding ; sec="$CONFIG_SECTION"
+uci_set firewall $sec dest wan
+uci_set firewall $sec src freifunk
+
+uci_add firewall forwarding ; sec="$CONFIG_SECTION"
+uci_set firewall $sec dest freifunk
+uci_set firewall $sec src wan
+
+# Set Include custom rules. Not needed normaly
+uci_add firewall include ; sec="$CONFIG_SECTION"
+uci_set firewall $sec path "/etc/firewall.user"
+
+uci_commit firewall
+
+# Todo convert to uci firewall
+# create network sg_tnl
+# add to fw zone freifunk
+# SmartGateway - set client rules (no nat, just forward)
+# see http://wiki.freifunk.net/OLSR/SmartGateway#.22Client.22
+# FORWARD_TNL="iptables -I FORWARD -o tnl_+ -j ACCEPT"
+# grep -q "$FORWARD_TNL" /etc/firewall.user || echo $FORWARD_TNL >> /etc/firewall.user
+# MASQUERADE_TNL="iptables -t nat -I POSTROUTING -o tnl_+ -j MASQUERADE"
+
+
