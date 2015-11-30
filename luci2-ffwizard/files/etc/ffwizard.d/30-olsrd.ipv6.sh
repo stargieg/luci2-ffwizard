@@ -76,7 +76,7 @@ setup_ether() {
 	[ "$enabled" == "0" ] && return
 	config_get olsr_mesh $cfg olsr_mesh "0"
 	[ "$olsr_mesh" == "0" ] && return
-	config_get mesh_ip $cfg mesh_ip "0"
+	config_get device $cfg device "0"
 	[ "$device" == "0" ] && return
 	log_olsr6 "Setup ether $cfg"
 	uci_add olsrd6 Interface ; iface_sec="$CONFIG_SECTION"
