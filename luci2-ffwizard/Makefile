@@ -88,7 +88,7 @@ endef
 define Package/luci2-ffwizard-fw/install
 	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/uci-defaults/ffwizard_fw $(1)/etc/uci-defaults/
-	$(INSTALL_BIN) files/etc/ffwizard.d/25-fw.sh $(1)/etc/ffwizard.d/
+	$(INSTALL_BIN) files/etc/ffwizard.d/40-firewall.sh $(1)/etc/ffwizard.d/
 endef
 
 define Package/luci2-ffwizard-olsrd-ipv4/install
