@@ -91,7 +91,7 @@ if [ $address != 0 -a $mask != 0 ] ; then
 		local reload=1
 	fi
 	
-	#if [ $reload != 0 ] ; then
-	#	/etc/init.d/olsrd6 restart
-	#fi
+	if [ $reload != 0 ] ; then
+		ubus call uci "reload_config"
+	fi
 fi
