@@ -19,15 +19,21 @@ setup_ip() {
 		uci_set network $cfg netmask "$NETMASK"
 	else
 		if [ "$cfg" == "lan" ] ; then
+			#Magemant Access via lan ipv4
 			uci_set network $cfg ipaddr "192.168.42.1"
 			uci_set network $cfg netmask "255.255.255.0"
 		else
+			#ipv6 only via ip6assign
 			uci_remove network $cfg ipaddr 2>/dev/null
 			uci_remove network $cfg netmask 2>/dev/null
 		fi
 	fi
 	uci_set network $cfg proto "static"
 	uci_set network $cfg ip6assign "64"
+	if [ "$cfg" == "wan" ] ; then
+		#Disable dhcpv6 if wan a freifunk interface
+		uci_set network wan6 proto "none"
+	fi
 }
 
 setup_bridge() {
@@ -75,6 +81,10 @@ setup_ether() {
 			uci_set network $cfg_dhcp ifname "@$cfg"
 		fi
 	fi
+	case $cfg in
+		lan) lan_iface="";;
+		wan) wan_iface="";;
+	esac
 }
 
 setup_wifi() {
@@ -239,6 +249,8 @@ remove_wifi() {
 
 local br_ifaces
 local br_name="fflandhcp"
+local lan_iface="lan"
+local wan_iface="wan wan6"
 
 #Remove wireless config
 rm /etc/config/wireless
@@ -275,6 +287,23 @@ if [ "$br" == "1" ] ; then
 	setup_bridge "$br_name" "$ipaddr" "$br_ifaces"
 else
 	uci_remove network "$br_name" >/dev/null
+fi
+
+#Add interface lan to Zone lan if not an freifunk interface
+if [ -n "$lan_iface" ] ; then
+	uci_set network $cfg type "bridge"
+	uci_set network $cfg proto "static"
+	uci_set network $cfg ipaddr "192.168.42.1"
+	uci_set network $cfg netmask "255.255.255.0"
+fi
+
+#Add interface wan to Zone wan if not an freifunk interface
+if [ -n "$wan_iface" ] ; then
+	uci_remove network wan ipaddr
+	uci_remove network wan netmask
+	uci_remove network wan ip6assign
+	uci_set network wan proto "dhcp"
+	uci_set network wan6 proto "dhcpv6"
 fi
 
 uci_commit network

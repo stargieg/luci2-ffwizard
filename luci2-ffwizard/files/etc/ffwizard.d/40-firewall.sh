@@ -7,12 +7,18 @@ setup_ether() {
 	local cfg="$1"
 	config_get enabled $cfg enabled "0"
 	[ "$enabled" == "0" ] && return
+	config_get dhcp_br $cfg dhcp_br "0"
+	[ "$dhcp_br" == "0" ] || return
 	config_get olsr_mesh $cfg olsr_mesh "0"
 	[ "$olsr_mesh" == "0" ] && return
 	config_get device $cfg device "0"
 	[ "$device" == "0" ] && return
 	log_fw "Setup ether $cfg"
 	ff_ifaces="$device $ff_ifaces"
+	case $cfg in
+		lan) lan_iface="";;
+		wan) wan_iface="";;
+	esac
 }
 
 setup_wifi() {
@@ -31,16 +37,31 @@ setup_wifi() {
 zone_iface_add() {
 	local cfg="$1"
 	local zone="$2"
-	local network="$1"
+	local networks="$1"
 	config_get name $cfg name
+
 	if [ "$name" == "$zone" ] ; then
-		uci_set firewall "$cfg" network "$network"
+		for network in $networks ; do
+			uci_add_list firewall "$cfg" network $network
+		done
 	fi
 }
 
+zone_iface_del() {
+	local cfg="$1"
+	local zone="$2"
+	local network="$1"
+	config_get name $cfg name
+
+	if [ "$name" == "$zone" ] ; then
+		uci_remove firewall "$cfg" network
+	fi
+}
 
 local br_name="fflandhcp"
 local ff_ifaces=""
+local lan_iface="lan"
+local wan_iface="wan wan6"
 
 #Setup ether and wifi
 config_load ffwizard
@@ -55,6 +76,19 @@ fi
 
 #Add interfaces to Zone freifunk
 config_load firewall
-config_foreach zone_iface_set zone "freifunk" "$ff_ifaces"
+config_foreach zone_iface_add zone "freifunk" "$ff_ifaces"
+#Add interface lan to Zone lan if not an freifunk interface
+if [ -n "$lan_iface" ] ; then
+	config_foreach zone_iface_add zone "lan" "$lan_iface"
+else
+	config_foreach zone_iface_del zone "lan"
+fi
+
+#Add interface wan to Zone wan if not an freifunk interface
+if [ -n "$wan_iface" ] ; then
+	config_foreach zone_iface_add zone "wan" "$wan_iface"
+else
+	config_foreach zone_iface_del zone "wan"
+fi
 
 uci_commit firewall
