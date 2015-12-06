@@ -193,10 +193,10 @@ if [ "$olsr_enabled" == "1" ] ; then
 		uci_add olsrd LoadPlugin ; sec="$CONFIG_SECTION"
 		uci_set olsrd "$sec" library "$library"
 		setup_Plugin_nameservice $sec
-		grep -q 'dnsmasq' /etc/crontabs/root || echo '* * * * * killall -HUP dnsmasq' >> /etc/crontabs/root
+		crontab -l | grep -q 'dnsmasq' || crontab -l | { cat; echo '* * * * * killall -HUP dnsmasq'; } | crontab -
 	fi
 	#TODO remove it from freifunk-common luci package
-	grep -q 'ff_olsr_watchdog' /etc/crontabs/root && sed -i /etc/crontabs/root -e '/.*ff_olsr_watchdog.*/d'
+	crontab -l | grep -q 'ff_olsr_watchdog' || crontab -l | sed -e '/.*ff_olsr_watchdog.*/d' | crontab -
 	uci_commit olsrd
 else
 	/sbin/uci revert olsrd

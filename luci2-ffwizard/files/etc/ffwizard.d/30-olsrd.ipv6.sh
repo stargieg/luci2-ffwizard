@@ -164,7 +164,7 @@ if [ "$olsr_enabled" == "1" ] ; then
 		uci_add olsrd6 LoadPlugin ; sec="$CONFIG_SECTION"
 		uci_set olsrd6 "$sec" library "$library"
 		setup_Plugin_json $sec
-		grep -q 'olsrd-dyn-addr' /etc/crontabs/root || echo '*/4 * * * * /usr/sbin/olsrd-dyn-addr.sh' >> /etc/crontabs/root
+		crontab -l | grep -q 'olsrd-dyn-addr' || crontab -l | { cat; echo '*/4 * * * * /usr/sbin/olsrd-dyn-addr.sh'; } | crontab -
 	fi
 	if [ "$olsr_watchdog" == 0 -a -n "$(opkg status olsrd-mod-watchdog)" ] ; then
 		library="$(find /usr/lib/olsrd_watchdog.so* | cut -d '/' -f 4)"
@@ -178,10 +178,10 @@ if [ "$olsr_enabled" == "1" ] ; then
 		uci_set olsrd6 "$sec" library "$library"
 		setup_Plugin_nameservice $sec
 		#add cron entry
-		grep -q 'dnsmasq' /etc/crontabs/root || echo '* * * * * killall -HUP dnsmasq' >> /etc/crontabs/root
+		crontab -l | grep -q 'dnsmasq' || crontab -l | { cat; echo '* * * * * killall -HUP dnsmasq'; } | crontab -
 	fi
 	#TODO remove it from freifunk-common luci package
-	grep -q 'ff_olsr_watchdog' /etc/crontabs/root && sed -i /etc/crontabs/root -e '/.*ff_olsr_watchdog.*/d'
+	crontab -l | grep -q 'ff_olsr_watchdog' || crontab -l | sed -e '/.*ff_olsr_watchdog.*/d' | crontab -
 	#TODO
 	#if ipv6 internet gateway then
 	#	grep -q 'olsrd-dyn-hna6' /etc/crontabs/root || echo '*/8 * * * * /usr/sbin/olsrd-dyn-hna6.sh' >> /etc/crontabs/root
