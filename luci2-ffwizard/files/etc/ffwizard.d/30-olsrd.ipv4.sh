@@ -37,7 +37,7 @@ setup_Plugin_watchdog() {
 	local cfg="$1"
 	uci_set olsrd $cfg file "/var/run/olsrd.watchdog.ipv4"
 	uci_set olsrd $cfg interval "30"
-	uci_set olsrd $cfg ignore "0"
+	uci_set olsrd $cfg ignore "1"
 }
 setup_Plugin_nameservice() {
 	local cfg="$1"
@@ -195,6 +195,8 @@ if [ "$olsr_enabled" == "1" ] ; then
 		setup_Plugin_nameservice $sec
 		grep -q 'dnsmasq' /etc/crontabs/root || echo '* * * * * killall -HUP dnsmasq' >> /etc/crontabs/root
 	fi
+	#TODO remove it from freifunk-common luci package
+	grep -q 'ff_olsr_watchdog' /etc/crontabs/root && sed -i /etc/crontabs/root -e '/.*ff_olsr_watchdog.*/d'
 	uci_commit olsrd
 else
 	/sbin/uci revert olsrd

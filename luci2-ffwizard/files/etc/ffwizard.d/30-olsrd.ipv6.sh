@@ -37,7 +37,7 @@ setup_Plugin_watchdog() {
 	local cfg="$1"
 	uci_set olsrd6 $cfg file "/var/run/olsrd.watchdog.ipv6"
 	uci_set olsrd6 $cfg interval "30"
-	uci_set olsrd6 $cfg ignore "0"
+	uci_set olsrd6 $cfg ignore "1"
 }
 setup_Plugin_nameservice() {
 	local cfg="$1"
@@ -180,6 +180,8 @@ if [ "$olsr_enabled" == "1" ] ; then
 		#add cron entry
 		grep -q 'dnsmasq' /etc/crontabs/root || echo '* * * * * killall -HUP dnsmasq' >> /etc/crontabs/root
 	fi
+	#TODO remove it from freifunk-common luci package
+	grep -q 'ff_olsr_watchdog' /etc/crontabs/root && sed -i /etc/crontabs/root -e '/.*ff_olsr_watchdog.*/d'
 	#TODO
 	#if ipv6 internet gateway then
 	#	grep -q 'olsrd-dyn-hna6' /etc/crontabs/root || echo '*/8 * * * * /usr/sbin/olsrd-dyn-hna6.sh' >> /etc/crontabs/root
