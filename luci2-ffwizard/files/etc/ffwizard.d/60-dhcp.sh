@@ -30,13 +30,13 @@ setup_dhcp() {
 		uci_set dhcp $cfg_dhcp ra_preference "low"
 }
 
-setup_iface() {
+setup_ether() {
 	local cfg="$1"
 	config_get enabled $cfg enabled "0"
 	[ "$enabled" == "0" ] && return
 	config_get dhcp_ip $cfg dhcp_ip "0"
 	if [ "$dhcp_ip" != "0" ] ; then
-		logger -t "ffwizard_dhcp_iface" "Setup $cfg"
+		logger -t "ffwizard_dhcp_ether" "Setup $cfg"
 		cfg_dhcp=$cfg"_dhcp"
 		setup_dhcp $cfg_dhcp "$ipaddr"
 	fi
@@ -76,7 +76,7 @@ config_foreach setup_odhcpbase odhcpd
 
 #Setup ether and wifi
 config_load ffwizard
-config_foreach setup_iface ether
+config_foreach setup_ether ether
 config_foreach setup_wifi wifi $br_name
 
 #Setup DHCP Batman Bridge
