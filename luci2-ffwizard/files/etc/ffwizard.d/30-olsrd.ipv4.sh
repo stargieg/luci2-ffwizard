@@ -196,7 +196,7 @@ if [ "$olsr_enabled" == "1" ] ; then
 		crontab -l | grep -q 'dnsmasq' || crontab -l | { cat; echo '* * * * * killall -HUP dnsmasq'; } | crontab -
 	fi
 	#TODO remove it from freifunk-common luci package
-	crontab -l | grep -q 'ff_olsr_watchdog' || crontab -l | sed -e '/.*ff_olsr_watchdog.*/d' | crontab -
+	crontab -l | grep -q 'ff_olsr_watchdog' && crontab -l | sed -e '/.*ff_olsr_watchdog.*/d' | crontab -
 	uci_commit olsrd
 else
 	/sbin/uci revert olsrd

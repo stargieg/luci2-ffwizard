@@ -181,7 +181,7 @@ if [ "$olsr_enabled" == "1" ] ; then
 		crontab -l | grep -q 'dnsmasq' || crontab -l | { cat; echo '* * * * * killall -HUP dnsmasq'; } | crontab -
 	fi
 	#TODO remove it from freifunk-common luci package
-	crontab -l | grep -q 'ff_olsr_watchdog' || crontab -l | sed -e '/.*ff_olsr_watchdog.*/d' | crontab -
+	crontab -l | grep -q 'ff_olsr_watchdog' && crontab -l | sed -e '/.*ff_olsr_watchdog.*/d' | crontab -
 	#TODO
 	#if ipv6 internet gateway then
 	#	grep -q 'olsrd-dyn-hna6' /etc/crontabs/root || echo '*/8 * * * * /usr/sbin/olsrd-dyn-hna6.sh' >> /etc/crontabs/root
