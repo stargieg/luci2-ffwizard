@@ -63,7 +63,7 @@ setup_ether() {
 				br_ifaces="$br_ifaces $ifname"
 			fi
 			uci_set network $cfg proto "none"
-			uci_remove network $cfg type
+			uci_remove network $cfg type 2>/dev/null
 		fi
 	else
 		log_net "Setup $cfg IP"
@@ -101,15 +101,19 @@ setup_wifi() {
 	local hw_b=0
 	local hw_g=0
 	local hw_n=0
+	local info_data
 	info_data=$(ubus call iwinfo info '{ "device": "wlan'$idx'" }' 2>/dev/null)
-	[ -z $info_data ] && {
-		log_wifi "ERR No iwinfo hwmodes for wlan$idx"
+	[ -z "$info_data" ] && {
+		log_wifi "ERR No iwinfo data for wlan$idx"
 		return 1
 	}
 	json_load "$info_data"
 	json_select hwmodes
 	json_get_values hw_res
-	[ -z "$hw_res" ] && return
+	[ -z "$hw_res" ] && {
+		log_wifi "ERR No iwinfo hwmodes for wlan$idx"
+		return 1
+	}
 	for i in $hw_res ; do
 		case $i in
 			a) hw_a=1 ;;
@@ -125,8 +129,9 @@ setup_wifi() {
 	#get valid channel list
 	local channels
 	local valid_channel
+	local chan_data
 	chan_data=$(ubus call iwinfo freqlist '{ "device": "wlan'$idx'" }' 2>/dev/null)
-	[ -z $chan_data ] && {
+	[ -z "$chan_data" ] && {
 		log_wifi "ERR No iwinfo freqlist for wlan$idx"
 		return 1
 	}
