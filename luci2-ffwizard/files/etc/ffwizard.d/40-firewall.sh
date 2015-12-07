@@ -1,4 +1,13 @@
 
+uci_add_list() {
+	local PACKAGE="$1"
+	local CONFIG="$2"
+	local OPTION="$3"
+	local VALUE="$4"
+
+	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} add_list "$PACKAGE.$CONFIG.$OPTION=$VALUE"
+}
+
 log_fw() {
 	logger -s -t ffwizard_fw $@
 }
@@ -54,7 +63,7 @@ zone_iface_del() {
 	config_get name $cfg name
 
 	if [ "$name" == "$zone" ] ; then
-		uci_remove firewall "$cfg" network
+		uci_remove firewall "$cfg" network 2>/dev/null
 	fi
 }
 
