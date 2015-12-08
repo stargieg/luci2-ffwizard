@@ -48,7 +48,7 @@ endef
 
 define Package/luci2-ffwizard-batadv
   $(call Package/luci2-ffwizard/template)
-  DEPENDS:=luci2-ffwizard +kmod-batman-adv +batctl +kmod-ipv6
+  DEPENDS:=luci2-ffwizard +kmod-batman-adv +batctl 
   TITLE:=Batman advanced config
 endef
 
