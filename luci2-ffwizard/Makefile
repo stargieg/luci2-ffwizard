@@ -41,7 +41,7 @@ endef
 
 define Package/luci2-ffwizard-olsrd-ipv6
   $(call Package/luci2-ffwizard/template)
-  DEPENDS:=luci2-ffwizard +olsrd +olsrd-mod-jsoninfo +olsrd-mod-nameservice \
+  DEPENDS:=luci2-ffwizard +olsrd +olsrd-mod-jsoninfo +olsrd-mod-nameservice
   TITLE:=olsrd ipv6 config
 endef
 
