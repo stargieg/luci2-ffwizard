@@ -20,7 +20,7 @@ define Package/luci2-ffwizard
   MENU:=1
   DEPENDS:=+luci2 +px5g +uhttpd +uhttpd-mod-tls +uhttpd-mod-ubus +odhcpd \
   +dnsmasq +rpcd +rpcd-mod-file +rpcd-mod-iwinfo +rpcd-mod-rpcsys +iwinfo \
-  +kadnode
+  +kadnode @IPV6
 endef
 
 define Package/luci2-ffwizard/conffiles
@@ -42,7 +42,6 @@ endef
 define Package/luci2-ffwizard-olsrd-ipv6
   $(call Package/luci2-ffwizard/template)
   DEPENDS:=luci2-ffwizard +olsrd +olsrd-mod-jsoninfo +olsrd-mod-nameservice \
-  +kmod-ipv6
   TITLE:=olsrd ipv6 config
 endef
 
