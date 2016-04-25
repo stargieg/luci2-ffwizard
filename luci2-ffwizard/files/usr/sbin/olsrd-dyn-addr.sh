@@ -273,9 +273,9 @@ for j in $hna0gw ; do
 				local netaddr="0"
 				for k in $ip6prefix ; do
 					case $genmask in
-						56) ip6pre="$(echo $k | sed -e 's/..::\/62/00::/')" ;;
-						52) ip6pre="$(echo $k | sed -e 's/...::\/62/000::/')" ;;
-						48) ip6pre="$(echo $k | sed -e 's/....::\/62/::/')" ;;
+						56) ip6pre="$(echo $k | sed -e 's/[0-9a-fA-F]\{1,2\}::\/62/00::/')" ;;
+						52) ip6pre="$(echo $k | sed -e 's/[0-9a-fA-F]\{1,3\}::\/62/000::/')" ;;
+						48) ip6pre="$(echo $k | sed -e 's/:[0-9a-fA-F]\{1,4\}::\/62/::/')" ;;
 						*) ip6pre="" ;;
 					esac
 					if [ "$destination" == "$ip6pre" ] ; then
@@ -307,7 +307,7 @@ for j in $hna0gw ; do
 					48)
 						#calc mask FFF expect input f:f:f::
 						rand1="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1-3)"
-						netaddr="$(echo $destination | sed -e 's/::/'$rand1$rand2'::/')"
+						netaddr="$(echo $destination | sed -e 's/::/:'$rand1$rand2'::/')"
 						;;
 					esac
 					address="$netaddr/62"
@@ -337,19 +337,19 @@ for k in $ip6prefix ; do
 	local validate="0"
 	for j in $hna0gw ; do
 		for i in $hna56destination ; do
-			ip6pre=$(echo $k | sed -e 's/..::\/62/00::/')
+			ip6pre=$(echo $k | sed -e 's/[0-9a-fA-F]\{1,2\}::\/62/00::/')
 			if [ $i == $ip6pre ] ; then
 				validate="1"
 			fi
 		done
 		for i in $hna52destination ; do
-			ip6pre=$(echo $k | sed -e 's/...::\/62/000::/')
+			ip6pre=$(echo $k | sed -e 's/[0-9a-fA-F]\{1,3\}::\/62/000::/')
 			if [ $i == $ip6pre ] ; then
 				validate="1"
 			fi
 		done
 		for i in $hna48destination ; do
-			ip6pre=$(echo $k | sed -e 's/...::\/62/::/')
+			ip6pre=$(echo $k | sed -e 's/:[0-9a-fA-F]\{1,4\}::\/62/::/')
 			if [ $i == $ip6pre ] ; then
 				validate="1"
 			fi
@@ -372,7 +372,7 @@ for k in $ip6prefix ; do
 		log "ip6pre:           $ip6pre"
 		config_load olsrd6
 		config_foreach clean_hna6_ip6pre Hna6 $ip6pre
-		#config_foreach clean_hosts_ip6pre LoadPlugin $ip6pre
+		config_foreach clean_hosts_ip6pre LoadPlugin $ip6pre
 		ip6prefix_tmp=""
 		for l in $ip6prefix_new ; do
 			if [ $l != $k ] ; then
