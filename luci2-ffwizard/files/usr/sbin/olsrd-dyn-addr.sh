@@ -401,6 +401,10 @@ if [ "$ip6prefix_new" != "$ip6prefix" ] ; then
 	uci_commit olsrd6
 
 	ubus call uci "reload_config"
+#	sleep 3
+#	/etc/init.d/network reload
+#	sleep 3
+#	/etc/init.d/olsrd6 restart
 
 else
 	log "Revert changes on olsrd6"
