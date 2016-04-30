@@ -42,7 +42,7 @@ if [ "$(uci_get system @system[0] hostname)" == "OpenWrt" ]; then
 	uci_commit network
 
 	uci_set kadnode @kadnode[0] enabled '1'
-	uci set kadnode @kadnode[0] mode 'ipv6'
+	uci_set kadnode @kadnode[0] mode 'ipv6'
 	uci_commit kadnode
 fi
 
