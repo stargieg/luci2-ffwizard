@@ -45,7 +45,6 @@ update_hna6() {
 				log "    Old netaddr $cfg_netaddr for gw $gw"
 				uci_set olsrd6 "$cfg" prefix "$mask"
 				uci_set olsrd6 "$cfg" netaddr "$address"
-				#uci_commit olsrd6
 				local reload=1
 			fi
 		else
@@ -62,13 +61,12 @@ clean_hna6() {
 	local prefix="$3"
 	config_get cfg_netaddr $cfg netaddr
 	ula="$(echo $cfg_netaddr | cut -b -2)"
-	if [ $ula != fd -a $ula != fe ] ; then
+	if [ "$ula" != "fd" -a "$ula" != "fe" ] ; then
 		config_get gw $cfg _gw
 		config_get idx $cfg _idx 0
 		if [ "$hna6gw" == "$gw" -a "$prefix" -lt "$idx" ] ; then
 			log "Remove UCI Hna6 $cfg_netaddr Managed from gateway $hna6gw index $idx"
 			uci_remove olsrd6 "$cfg"
-			#uci_commit olsrd6
 			reload=1
 		fi
 	fi
@@ -81,7 +79,6 @@ clean_hna6_ip6pre() {
 	if [ "$cfg_netaddr" == "$address" ] ; then
 		log "Remove UCI Hna6 $cfg_netaddr"
 		uci_remove olsrd6 "$cfg"
-		#uci_commit olsrd6
 		local reload=1
 	fi
 }
@@ -243,6 +240,9 @@ local hna56gw=""
 local hna52gw=""
 local hna48gw=""
 i=1;while json_is_a ${i} object;do
+	local destination=""
+	local genmask=""
+	local gateway=""
 	json_select ${i}
 	json_get_var destination destination
 	json_get_var genmask genmask
@@ -267,7 +267,7 @@ for j in $hna0gw ; do
 		json_get_var genmask genmask
 		json_get_var gateway gateway
 		#Nutzbare Prefixe für das Gateway $j müssen eine Netzmaske 48 52 oder 56 haben
-		if [ $gateway == $j ] && [ $genmask == 48 ] || [ $genmask -eq 42 ] || [ $genmask -eq 56 ] ; then
+		if [ $genmask == 48 ] || [ $genmask -eq 42 ] || [ $genmask -eq 56 ] && [ $gateway == $j ] ; then
 			ula="$(echo $destination | cut -b -2)"
 			if [ $ula != fd -a $ula != fe ] ; then
 				local netaddr="0"
@@ -286,7 +286,6 @@ for j in $hna0gw ; do
 				if [ "$netaddr" != "0" ] ; then
 					config_load olsrd6
 					config_foreach update_hna6 Hna6 $netaddr $genmask $gateway $pre
-					log "destination: $destination netaddr: $netaddr genmask: $genmask"
 					config_foreach update_hosts LoadPlugin $netaddr $genmask $gateway $pre
 				else
 					#die letzten stellen eines 62 netzes können nur 0,4,8,c sein.
@@ -311,7 +310,7 @@ for j in $hna0gw ; do
 						;;
 					esac
 					address="$netaddr/62"
-					log "Add Hna6 address=$address _gw=$gateway _idx=$pre"
+					#log "Add Hna6 address=$address _gw=$gateway _idx=$pre"
 					#add Hna6 for Host Interfaces
 					uci_add olsrd6 Hna6 ; hna_sec="$CONFIG_SECTION"
 					uci_set olsrd6 "$hna_sec" prefix "62"
