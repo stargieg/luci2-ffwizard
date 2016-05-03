@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=27
+PKG_RELEASE:=28
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -18,13 +18,24 @@ endef
 define Package/luci2-ffwizard
   $(call Package/luci2-ffwizard/template)
   MENU:=1
-  DEPENDS:=+luci2 +px5g +uhttpd +uhttpd-mod-tls +uhttpd-mod-ubus +odhcpd \
+  DEPENDS:=+px5g +uhttpd +uhttpd-mod-tls +uhttpd-mod-ubus +odhcpd \
   +dnsmasq +rpcd +rpcd-mod-file +rpcd-mod-iwinfo +rpcd-mod-rpcsys +iwinfo \
   +kadnode @IPV6
 endef
 
 define Package/luci2-ffwizard/conffiles
 /etc/config/ffwizard
+endef
+
+define Package/luci2-ffwizard-jq
+  $(call Package/luci2-ffwizard/template)
+  MENU:=1
+  DEPENDS:=luci2-ffwizard luci2
+endef
+
+define Package/luci2-ffwizard-jq/description
+  LuCI2 Freifunk Wizard UI with jQuery
+  http://git.openwrt.org/?p=project/luci2/ui.git
 endef
 
 define Package/luci2-ffwizard-fw
@@ -47,8 +58,14 @@ endef
 
 define Package/luci2-ffwizard-batadv
   $(call Package/luci2-ffwizard/template)
-  DEPENDS:=luci2-ffwizard +kmod-batman-adv +batctl 
+  DEPENDS:=luci2-ffwizard +kmod-batman-adv +batctl
   TITLE:=Batman advanced config
+endef
+
+define Package/luci2-proto-batadv-jq
+  $(call Package/luci2-ffwizard/template)
+  DEPENDS:=luci2 +kmod-batman-adv +batctl
+  TITLE:=Batman proto support for LuCI2 jQuery
 endef
 
 define Build/Compile
@@ -60,12 +77,6 @@ define Package/luci2-ffwizard/install
 
 	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
 	$(INSTALL_DATA) files/usr/share/rpcd/acl.d/services.ffwizard.json $(1)/usr/share/rpcd/acl.d/
-
-	$(INSTALL_DIR) $(1)/www/luci2/template
-	$(INSTALL_DATA) files/www/luci2/template/services.ffwizard.htm $(1)/www/luci2/template/
-
-	$(INSTALL_DIR) $(1)/www/luci2/view
-	$(INSTALL_DATA) files/www/luci2/view/services.ffwizard.js $(1)/www/luci2/view/
 
 	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/ffwizard.d
 	$(INSTALL_BIN) files/usr/sbin/ffwizard $(1)/usr/sbin/
@@ -82,6 +93,14 @@ define Package/luci2-ffwizard/install
 	$(INSTALL_BIN) files/etc/uci-defaults/ffwizard $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/init.d/ffwizard $(1)/etc/init.d/
 	$(INSTALL_DATA) files/etc/config/ffwizard $(1)/etc/config/
+endef
+
+define Package/luci2-ffwizard-jq/install
+	$(INSTALL_DIR) $(1)/www/luci2/template
+	$(INSTALL_DATA) files/www/luci2/template/services.ffwizard.htm $(1)/www/luci2/template/
+
+	$(INSTALL_DIR) $(1)/www/luci2/view
+	$(INSTALL_DATA) files/www/luci2/view/services.ffwizard.js $(1)/www/luci2/view/
 endef
 
 define Package/luci2-ffwizard-fw/install
@@ -103,16 +122,20 @@ define Package/luci2-ffwizard-olsrd-ipv6/install
 endef
 
 define Package/luci2-ffwizard-batadv/install
-	$(INSTALL_DIR) $(1)/www/luci2/proto
-	$(INSTALL_DATA) files/www/luci2/proto/batadv.js $(1)/www/luci2/proto/
-	$(INSTALL_DATA) files/www/luci2/proto/batadv_vlan.js $(1)/www/luci2/proto/
-
 	$(INSTALL_DIR) $(1)/etc/ffwizard.d
 	$(INSTALL_BIN) files/etc/ffwizard.d/30-batadv.sh $(1)/etc/ffwizard.d/
 endef
 
+define Package/luci2-proto-batadv-jq/install
+	$(INSTALL_DIR) $(1)/www/luci2/proto
+	$(INSTALL_DATA) files/www/luci2/proto/batadv.js $(1)/www/luci2/proto/
+	$(INSTALL_DATA) files/www/luci2/proto/batadv_vlan.js $(1)/www/luci2/proto/
+endef
+
 $(eval $(call BuildPackage,luci2-ffwizard))
+$(eval $(call BuildPackage,luci2-ffwizard-jq))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrd-ipv4))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrd-ipv6))
 $(eval $(call BuildPackage,luci2-ffwizard-batadv))
+$(eval $(call BuildPackage,luci2-proto-batadv-jq))
 $(eval $(call BuildPackage,luci2-ffwizard-fw))
