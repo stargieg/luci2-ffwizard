@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=28
+PKG_RELEASE:=29
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -30,12 +30,23 @@ endef
 define Package/luci2-ffwizard-jq
   $(call Package/luci2-ffwizard/template)
   MENU:=1
-  DEPENDS:=luci2-ffwizard luci2
+  DEPENDS:=luci2-ffwizard +luci2
 endef
 
 define Package/luci2-ffwizard-jq/description
   LuCI2 Freifunk Wizard UI with jQuery
-  http://git.openwrt.org/?p=project/luci2/ui.git
+  Depends http://git.openwrt.org/?p=project/luci2/ui.git
+endef
+
+define Package/luci2-ffwizard-angular
+  $(call Package/luci2-ffwizard/template)
+  MENU:=1
+  DEPENDS:=luci2-ffwizard +luci2-ui-base
+endef
+
+define Package/luci2-ffwizard-angular/description
+  LuCI2 Freifunk Wizard UI with angular
+  Depends https://github.com/jow-/luci-ng
 endef
 
 define Package/luci2-ffwizard-fw
@@ -103,6 +114,14 @@ define Package/luci2-ffwizard-jq/install
 	$(INSTALL_DATA) files/www/luci2/view/services.ffwizard.js $(1)/www/luci2/view/
 endef
 
+define Package/luci2-ffwizard-angular/install
+	$(INSTALL_DIR) $(1)/www/luci-ng/controller/services
+	$(INSTALL_DATA) files/www/luci-ng/controller/services/ffwizard.js $(1)/www/luci-ng/controller/services/
+
+	$(INSTALL_DIR) $(1)/www/luci-ng/view/services
+	$(INSTALL_DATA) files/www/luci-ng/view/services/ffwizard.htm $(1)/www/luci-ng/view/services/
+endef
+
 define Package/luci2-ffwizard-fw/install
 	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/uci-defaults/ffwizard_fw $(1)/etc/uci-defaults/
@@ -134,6 +153,7 @@ endef
 
 $(eval $(call BuildPackage,luci2-ffwizard))
 $(eval $(call BuildPackage,luci2-ffwizard-jq))
+$(eval $(call BuildPackage,luci2-ffwizard-angular))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrd-ipv4))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrd-ipv6))
 $(eval $(call BuildPackage,luci2-ffwizard-batadv))
