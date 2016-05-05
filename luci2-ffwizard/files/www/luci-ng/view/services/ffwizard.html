@@ -1,72 +1,70 @@
-<h1>Freifunk Wizard</h1>
-
 <div cbi-map="ffwizard" title="Freifunk Wizard">
-	<div cbi-section="@ffwizard" title="FF Wizard">
-		<div cbi-option="enabled" title="enabled" preview>
+	<div cbi-section="@ffwizard" title="Allgemeine Einstellungen">
+		<div cbi-option="enabled" title="enabled" description="Dieser hacken wird entfernt wen der Wizard seine Arbeit getan hat." preview>
 			<cbi-flag default-on on="1" off="0" />
 		</div>
-		<div cbi-option="hostname" title="hostname" validate="require hostname" preview>
+		<div cbi-option="hostname" title="hostname" placeholder="OpenWrt" validate="require hostname" preview>
 			<cbi-input />
 		</div>
-		<div cbi-option="vpn" title="VPN" preview>
+		<div cbi-option="vpn" title="VPN" description="Noch nicht implementiert! Störerhaftung VPN" preview>
 			<cbi-flag default-off on="1" off="0" />
 		</div>
-		<div cbi-option="bbvpn" title="Mesh VPN" preview>
+		<div cbi-option="bbvpn" title="Mesh VPN" description="Noch nicht implementiert! Mesh VPN für Städte und Dörfer" preview>
 			<cbi-flag default-off on="1" off="0" />
 		</div>
-		<div cbi-option="br" title="Freifunk Netzwerkbrücke" preview>
+		<div cbi-option="br" title="Netzwerkbrücke" description="Netzwerkbrücke für AP-DHCP und Batman" preview>
 			<cbi-flag default-on on="1" off="0" />
 		</div>
-		<div cbi-option="dhcp_ip" title="DHCP IPv4 Netz" validate="optional cidr4" depends="{br:'1'}" preview>
+		<div cbi-option="dhcp_ip" title="DHCP IPv4 Netz" placeholder="192.168.111.0/28" description="IP Netz DHCP Netz Batman Gateway mode und olsr Hna4" validate="optional cidr4" depends="{br:'1'}" preview>
 			<cbi-input />
 		</div>
 	</div>
-	<div cbi-section="@ether" title="Ether Interface">
+	<div cbi-section="@ether" title="Drahtgebundene Schnittstellen" collapse>
 		<div cbi-option="enabled" title="enabled" preview>
 			<cbi-flag default-on on="1" off="0" />
 		</div>
-		<div cbi-option="device" title="Device" preview>
+		<div cbi-option="device" title="Device" placeholder="lan" description="Device Name" validate="require string" preview>
 			<cbi-input />
 		</div>
-		<div cbi-option="dhcp_br" title="Freifunk Netzwerkbrücke" preview>
+		<div cbi-option="dhcp_br" title="Freifunk Netzwerkbrücke" description="Netzwerkbrücke für DHCP und Batman" preview>
 			<cbi-flag default-on on="1" off="0" />
 		</div>
-		<div cbi-option="olsr_mesh" title="Olsr Mesh" depends="{bat_mesh:'0'}" preview>
+		<div cbi-option="olsr_mesh" title="OLSR Mesh" description="OLSR Mesh Protokol" depends="{bat_mesh:'0'}" preview>
 			<cbi-flag default-on on="1" off="0" />
 		</div>
-		<div cbi-option="bat_mesh" title="B.A.T.M.A.N. Mesh" depends="{olsr_mesh:'0'}" preview>
+		<div cbi-option="bat_mesh" title="B.A.T.M.A.N. Mesh" description="B.A.T.M.A.N. Mesh Protokol" depends="{olsr_mesh:'0'}" preview>
 			<cbi-flag default-on on="1" off="0" />
 		</div>
-		<div cbi-option="mesh_ip" title="Mesh IPv4 Adresse" isRequired="0" validate="optional cidr4" depends="{olsr_mesh:'1'}" preview>
+		<div cbi-option="mesh_ip" title="Mesh IPv4 Adresse" placeholder="104.1.1.1/8" description="Mesh IPv4 Adresse" validate="optional cidr4" depends="{olsr_mesh:'1'}" preview>
 			<cbi-input />
 		</div>
-		<div cbi-option="dhcp_ip" title="DHCP Label IPv4 Netz" validate="optional cidr4" depends="{dhcp_br:'0'}" preview>
+		<div cbi-option="dhcp_ip" title="DHCP Label IPv4 Netz" placeholder="192.168.112.0/28" description="DHCP Label IPv4 Netz" validate="optional cidr4" depends="{dhcp_br:'0'}" preview>
 			<cbi-input />
 		</div>
 	</div>
-	<div cbi-section="@wifi" title="Wifi Interface">
+	<div cbi-section="@wifi" title="Drahtlose Schnittstellen" collapse>
 		<div cbi-option="enabled" title="enabled" preview>
 			<cbi-flag default-on on="1" off="0" />
 		</div>
-		<div cbi-option="phy_idx" title="Wifi Physical Index" validate="require port" preview>
+		<div cbi-option="phy_idx" title="wifi" description="Wifi Physical Index" validate="require port" preview>
 			<cbi-input />
 		</div>
-		<div cbi-option="channel" title="Funk Kanal" validate="require range(1,300)" preview>
+		<div cbi-option="channel" title="Funk Kanal" description="Der Funkkanal oder die Funk Kanalliste sind abhängieg von dem Gerät" validate="require range(1,300)" preview>
 			<cbi-input />
 		</div>
-		<div cbi-option="olsr_mesh" title="Olsr Mesh" depends="{bat_mesh:'0'}" preview>
+		<div cbi-option="olsr_mesh" title="OLSR Mesh" description="OLSR Mesh Protokol" depends="{bat_mesh:'0'}" preview>
 			<cbi-flag default-on on="1" off="0" />
 		</div>
-		<div cbi-option="bat_mesh" title="B.A.T.M.A.N. Mesh" depends="{olsr_mesh:'0'}" preview>
+		<div cbi-option="bat_mesh" title="B.A.T.M.A.N. Mesh" description="B.A.T.M.A.N. Mesh Protokol" depends="{olsr_mesh:'0'}" preview>
 			<cbi-flag default-on on="1" off="0" />
 		</div>
-		<div cbi-option="mesh_ip" title="Mesh IPv4 Adresse" validate="optional cidr4" depends="{olsr_mesh:'1'}" preview>
+		<div cbi-option="mesh_ip" title="Mesh IPv4 Adresse" placeholder="104.1.1.1/8" description="Mesh IPv4 Adresse" validate="optional cidr4" depends="{olsr_mesh:'1'}" preview>
 			<cbi-input />
 		</div>
-		<div cbi-option="vap" title="AP für Mobilgeräte" preview>
+		<div cbi-option="vap" title="AP für Mobilgeräte" description="Acces Point für Mobil Geräte" preview>
 			<cbi-flag default-off on="1" off="0" />
 		</div>
-		<div cbi-option="dhcp_ip" title="DHCP Label IPv4 Netz" validate="optional cidr4" depends="{vap:'1'}" preview>
+		<div cbi-option="dhcp_ip" title="DHCP Label IPv4 Netz" placeholder="192.168.113.0/28" description="" validate="optional cidr4" depends="{vap:'1'}" preview>
 			<cbi-input />
 		</div>
 	</div>
