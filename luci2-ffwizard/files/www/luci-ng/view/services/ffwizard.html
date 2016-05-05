@@ -51,7 +51,7 @@
 		<div cbi-option="phy_idx" title="Wifi Physical Index" validate="require port" preview>
 			<cbi-input />
 		</div>
-		<div cbi-option="channel" title="Funk Kanal" validate="require range 1 300" preview>
+		<div cbi-option="channel" title="Funk Kanal" validate="require range(1,300)" preview>
 			<cbi-input />
 		</div>
 		<div cbi-option="olsr_mesh" title="Olsr Mesh" depends="{bat_mesh:'0'}" preview>
