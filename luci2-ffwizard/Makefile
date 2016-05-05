@@ -119,7 +119,7 @@ define Package/luci2-ffwizard-angular/install
 	$(INSTALL_DATA) files/www/luci-ng/controller/services/ffwizard.js $(1)/www/luci-ng/controller/services/
 
 	$(INSTALL_DIR) $(1)/www/luci-ng/view/services
-	$(INSTALL_DATA) files/www/luci-ng/view/services/ffwizard.htm $(1)/www/luci-ng/view/services/
+	$(INSTALL_DATA) files/www/luci-ng/view/services/ffwizard.html $(1)/www/luci-ng/view/services/
 endef
 
 define Package/luci2-ffwizard-fw/install
