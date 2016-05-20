@@ -9,8 +9,8 @@ log_ffwizard() {
 
 wdir="/etc/ffwizard.d"
 [ -d $wdir ] || return 0
-files="$(ls $wdir)"
-[ -z "$wdir/$files" ] && return 0
+files="$(ls $wdir | sort)"
+[ -z "$files" ] && return 0
 for file in $files; do
 	log_ffwizard "procesing $file"
 	. "$wdir/$file"
