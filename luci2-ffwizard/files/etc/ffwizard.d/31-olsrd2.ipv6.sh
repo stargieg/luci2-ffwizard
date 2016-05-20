@@ -25,11 +25,13 @@ setup_olsrv2() {
 	uci_set olsrd2 $cfg processing_hold_time "300.0"
 	uci_remove olsrd2 $cfg routable
 	uci_add_list olsrd2 $cfg routable "$ula"
-	uci_add_list olsrd2 $cfg routable "-ff00::/8"
+	uci_add_list olsrd2 $cfg routable "-0.0.0.0/0"
+	uci_add_list olsrd2 $cfg routable "-::1/128"
 	uci_add_list olsrd2 $cfg routable "default_accept"
 	uci_remove olsrd2 $cfg originator
 	uci_add_list olsrd2 $cfg originator "$ula"
-	uci_add_list olsrd2 $cfg originator "-ff00::/8"
+	uci_add_list olsrd2 $cfg originator "-0.0.0.0/0"
+	uci_add_list olsrd2 $cfg originator "-::1/128"
 	uci_add_list olsrd2 $cfg originator "default_accept"
 }
 
@@ -46,7 +48,9 @@ setup_loop() {
 	log_olsr "Setup loopback interface"
 	uci_add olsrd2 interface ; iface_sec="$CONFIG_SECTION"
 	uci_set olsrd2 "$iface_sec" ifname "loopback"
-	uci_add_list olsrd2 "$iface_sec" "bindto" "::1"
+	uci_add_list olsrd2 "$iface_sec" bindto "-0.0.0.0/0"
+	uci_add_list olsrd2 "$iface_sec" bindto "-::1/128"
+	uci_add_list olsrd2 "$iface_sec" bindto "default_accept"
 	uci_set olsrd2 "$iface_sec" ignore "0"
 }
 
@@ -75,7 +79,9 @@ setup_ether() {
 	log_olsr "Setup ether $cfg"
 	uci_add olsrd2 interface ; iface_sec="$CONFIG_SECTION"
 	uci_set olsrd2 "$iface_sec" ifname "$device"
-	uci_add_list olsrd2 "$iface_sec" "bindto" "-::1"
+	uci_add_list olsrd2 "$iface_sec" bindto "-0.0.0.0/0"
+	uci_add_list olsrd2 "$iface_sec" bindto "-::1/128"
+	uci_add_list olsrd2 "$iface_sec" bindto "default_accept"
 	uci_set olsrd2 "$iface_sec" rx_bitrate "1G"
 	uci_set olsrd2 "$iface_sec" tx_bitrate "1G"
 	uci_set olsrd2 "$iface_sec" ignore "0"
@@ -95,7 +101,9 @@ setup_wifi() {
 	log_olsr "Setup ether $cfg"
 	uci_add olsrd2 interface ; iface_sec="$CONFIG_SECTION"
 	uci_set olsrd2 "$iface_sec" ifname "$device"
-	uci_add_list olsrd2 "$iface_sec" "bindto" "-::1"
+	uci_add_list olsrd2 "$iface_sec" bindto "-0.0.0.0/0"
+	uci_add_list olsrd2 "$iface_sec" bindto "-::1/128"
+	uci_add_list olsrd2 "$iface_sec" bindto "default_accept"
 	uci_set olsrd2 "$iface_sec" ignore "0"
 	olsr_enabled=1
 }
