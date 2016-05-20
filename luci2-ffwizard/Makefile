@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=29
+PKG_RELEASE:=30
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -64,6 +64,12 @@ endef
 define Package/luci2-ffwizard-olsrd-ipv6
   $(call Package/luci2-ffwizard/template)
   DEPENDS:=luci2-ffwizard +olsrd +olsrd-mod-jsoninfo +olsrd-mod-nameservice
+  TITLE:=olsrd ipv6 config
+endef
+
+define Package/luci2-ffwizard-olsrv2-ipv6
+  $(call Package/luci2-ffwizard/template)
+  DEPENDS:=luci2-ffwizard +oonf-init-scripts +oonf-olsrd2
   TITLE:=olsrd ipv6 config
 endef
 
@@ -140,6 +146,11 @@ define Package/luci2-ffwizard-olsrd-ipv6/install
 	$(INSTALL_BIN) files/usr/sbin/olsrd-dyn-addr.sh $(1)/usr/sbin/
 endef
 
+define Package/luci2-ffwizard-olsrv2-ipv6/install
+	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/usr/sbin
+	$(INSTALL_BIN) files/etc/ffwizard.d/31-olsrd2.ipv6.sh $(1)/etc/ffwizard.d/
+endef
+
 define Package/luci2-ffwizard-batadv/install
 	$(INSTALL_DIR) $(1)/etc/ffwizard.d
 	$(INSTALL_BIN) files/etc/ffwizard.d/30-batadv.sh $(1)/etc/ffwizard.d/
@@ -156,6 +167,7 @@ $(eval $(call BuildPackage,luci2-ffwizard-jq))
 $(eval $(call BuildPackage,luci2-ffwizard-angular))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrd-ipv4))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrd-ipv6))
+$(eval $(call BuildPackage,luci2-ffwizard-olsrv2-ipv6))
 $(eval $(call BuildPackage,luci2-ffwizard-batadv))
 $(eval $(call BuildPackage,luci2-proto-batadv-jq))
 $(eval $(call BuildPackage,luci2-ffwizard-fw))
