@@ -1,9 +1,9 @@
 <div cbi-map="ffwizard" title="Freifunk Wizard">
 	<div cbi-section="@ffwizard" title="Allgemeine Einstellungen">
-		<div cbi-option="enabled" title="enabled" description="Dieser hacken wird entfernt wen der Wizard seine Arbeit getan hat." preview>
+		<div cbi-option="enabled" title="freigegeben" description="Dieser hacken wird entfernt wen der Wizard seine Arbeit getan hat." preview>
 			<cbi-flag default-on on="1" off="0" />
 		</div>
-		<div cbi-option="hostname" title="hostname" placeholder="OpenWrt" validate="require hostname" preview>
+		<div cbi-option="hostname" title="Hostname" placeholder="OpenWrt" description="Router Name" validate="require hostname" preview>
 			<cbi-input />
 		</div>
 		<div cbi-option="vpn" title="VPN" description="Noch nicht implementiert! Störerhaftung VPN" preview>
@@ -20,7 +20,7 @@
 		</div>
 	</div>
 	<div cbi-section="@ether" title="Drahtgebundene Schnittstellen" collapse>
-		<div cbi-option="enabled" title="enabled" preview>
+		<div cbi-option="enabled" title="freigegeben" preview>
 			<cbi-flag default-on on="1" off="0" />
 		</div>
 		<div cbi-option="device" title="Device" placeholder="lan" description="Device Name" validate="require string" preview>
@@ -43,7 +43,7 @@
 		</div>
 	</div>
 	<div cbi-section="@wifi" title="Drahtlose Schnittstellen" collapse>
-		<div cbi-option="enabled" title="enabled" preview>
+		<div cbi-option="enabled" title="freigegeben" preview>
 			<cbi-flag default-on on="1" off="0" />
 		</div>
 		<div cbi-option="phy_idx" title="wifi" description="Wifi Physical Index" validate="require port" preview>
