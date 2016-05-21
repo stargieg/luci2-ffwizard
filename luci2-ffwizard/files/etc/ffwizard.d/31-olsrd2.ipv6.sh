@@ -146,6 +146,11 @@ if [ "$olsr_enabled" == "1" ] ; then
 	config_load olsrd2
 	config_foreach setup_olsrv2 olsrv2 $ula_prefix
 	uci_commit olsrd2
+	#Disable olsrd6
+	if [ -s /etc/rc.d/S*olsrd6 ] ; then
+		/etc/init.d/olsrd6 stop
+		/etc/init.d/olsrd6 disable
+	fi
 else
 	/sbin/uci revert olsrd2
 	if [ -s /etc/rc.d/S*olsrd2 ] ; then
