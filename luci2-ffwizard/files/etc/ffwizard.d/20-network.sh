@@ -164,7 +164,8 @@ setup_wifi() {
 	uci_set wireless $device channel "$valid_channel"
 	uci_set wireless $device disabled "0"
 	[ $hw_g == 1 ] && [ $hw_n == 1 ] && uci_set wireless $device noscan "1"
-	[ $hw_n == 1 ] && uci_set wireless $device htmode "HT40"
+	[ $hw_n == 1 ] && [ $valid_channel -gt 14 ] && uci_set wireless $device htmode "HT40"
+	[ $hw_n == 1 ] && [ $valid_channel -le 14 ] && uci_set wireless $device htmode "HT20"
 	uci_set wireless $device country "00"
 	[ $hw_a == 1 ] && uci_set wireless $device doth "0"
 	#read from Luci_ui
@@ -185,21 +186,25 @@ setup_wifi() {
 		cfg_mesh=$cfg"_mesh"
 		uci_add wireless wifi-iface ; sec="$CONFIG_SECTION"
 		uci_set wireless $sec device "$device"
-		uci_set wireless $sec mode "adhoc"
 		uci_set wireless $sec encryption "none"
-		uci_set wireless $sec ssid "intern-ch"$valid_channel".freifunk.net"
-		if [ $valid_channel -gt 0 -a $valid_channel -lt 10 ] ; then
-			bssid=$valid_channel"2:CA:FF:EE:BA:BE"
-		elif [ $valid_channel -eq 10 ] ; then
-			bssid="02:CA:FF:EE:BA:BE"
-		elif [ $valid_channel -gt 10 -a $valid_channel -lt 15 ] ; then
-			bssid=$(printf "%X" "$valid_channel")"2:CA:FF:EE:BA:BE"
-		elif [ $valid_channel -gt 35 -a $valid_channel -lt 100 ] ; then
-			bssid="02:"$valid_channel":CA:FF:EE:EE"
-		elif [ $valid_channel -gt 99 -a $valid_channel -lt 199 ] ; then
-			bssid="12:"$(printf "%02d" "$(expr $valid_channel - 100)")":CA:FF:EE:EE"
-		fi
-		uci_set wireless $sec bssid "$bssid"
+		# Depricated Ad-Hoc config
+		#uci_set wireless $sec mode "adhoc"
+		#uci_set wireless $sec ssid "intern-ch"$valid_channel".freifunk.net"
+		#if [ $valid_channel -gt 0 -a $valid_channel -lt 10 ] ; then
+		#	bssid=$valid_channel"2:CA:FF:EE:BA:BE"
+		#elif [ $valid_channel -eq 10 ] ; then
+		#	bssid="02:CA:FF:EE:BA:BE"
+		#elif [ $valid_channel -gt 10 -a $valid_channel -lt 15 ] ; then
+		#	bssid=$(printf "%X" "$valid_channel")"2:CA:FF:EE:BA:BE"
+		#elif [ $valid_channel -gt 35 -a $valid_channel -lt 100 ] ; then
+		#	bssid="02:"$valid_channel":CA:FF:EE:EE"
+		#elif [ $valid_channel -gt 99 -a $valid_channel -lt 199 ] ; then
+		#	bssid="12:"$(printf "%02d" "$(expr $valid_channel - 100)")":CA:FF:EE:EE"
+		#fi
+		#uci_set wireless $sec bssid "$bssid"
+		uci_set wireless $sec mode "mesh"
+		uci_set wireless $sec mesh_id 'freifunk'
+		uci_set wireless $sec mesh_fwding '0'
 		#uci_set wireless $sec "doth"
 		uci_set wireless $sec network "$cfg_mesh"
 		uci_set wireless $sec mcast_rate "18000"

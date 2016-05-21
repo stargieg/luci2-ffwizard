@@ -68,34 +68,50 @@ for ifc in $wlan_ifc ; do
 		json_select ".."
 		if [ $sta_encryption == 0 ] ; then
 			json_get_var sta_mode mode
-			if [ $sta_mode == "Ad-Hoc" ] ; then
-				json_get_var sta_ssid ssid
-				if echo "$sta_ssid" | grep -q "freifunk\.net" ; then
-					json_get_var sta_quality quality
-					if [ $sta_quality -gt $quality ] ; then
-						quality=$sta_quality
-						json_get_var sta_bssid bssid
-						json_get_var sta_channel channel
-						json_get_var sta_signal signal
-						json_get_var sta_quality_max quality_max
-						ssid=$sta_ssid
-						bssid=$sta_bssid
-						channel=$sta_channel
-					fi
+			# Depricated Ad-Hoc scan
+			#if [ $sta_mode == "Ad-Hoc" ] ; then
+			#	json_get_var sta_ssid ssid
+			#	if echo "$sta_ssid" | grep -q "freifunk\.net" ; then
+			#		json_get_var sta_quality quality
+			#		if [ $sta_quality -gt $quality ] ; then
+			#			quality=$sta_quality
+			#			json_get_var sta_bssid bssid
+			#			json_get_var sta_channel channel
+			#			json_get_var sta_signal signal
+			#			json_get_var sta_quality_max quality_max
+			#			ssid=$sta_ssid
+			#			bssid=$sta_bssid
+			#			channel=$sta_channel
+			#		fi
+			#	fi
+			#fi
+			# Mesh Point scan
+			if [ $sta_mode == "Mesh Point" ] ; then
+				json_get_var sta_quality quality
+				if [ $sta_quality -gt $quality ] ; then
+					quality=$sta_quality
+					json_get_var sta_channel channel
+					# Additional related Infos
+					#json_get_var sta_signal signal
+					#json_get_var sta_quality_max quality_max
+					channel=$sta_channel
 				fi
 			fi
 		fi
 		json_select ".."
 	done
 	json_cleanup
-	log "scan result for $ifc ssid: $ssid bssid: $bssid channel: $channel"
+	# Depricated Ad-Hoc config
+	#log "scan result for $ifc ssid: $ssid bssid: $bssid channel: $channel"
+	log "scan result for $ifc channel: $channel"
 	if ! uci_get ffwizard $ifc >/dev/null ; then
 		uci_add ffwizard wifi "$ifc"
 	fi
 	phy_idx=$(echo $ifc | cut -b6)
 	uci_set ffwizard "$ifc" phy_idx $phy_idx
-	uci_set ffwizard "$ifc" ssid $ssid
-	uci_set ffwizard "$ifc" bssid $bssid
+	# Depricated Ad-Hoc config
+	#uci_set ffwizard "$ifc" ssid $ssid
+	#uci_set ffwizard "$ifc" bssid $bssid
 	uci_set ffwizard "$ifc" channel $channel
 	uci_set ffwizard "$ifc" olsr_mesh 1
 	uci_set ffwizard ffwizard enabled 1
