@@ -96,9 +96,10 @@ setup_wifi() {
 	[ "$dhcp_br" == "0" ] || return
 	config_get olsr_mesh $cfg olsr_mesh "0"
 	[ "$olsr_mesh" == "0" ] && return
-	config_get device $cfg device "0"
-	[ "$device" == "0" ] && return
-	log_olsr "Setup ether $cfg"
+	config_get idx $cfg phy_idx "-1"
+	[ "$idx" == "-1" ] && return
+	local device="radio"$idx"_mesh"
+	log_olsr "Setup wifi $cfg"
 	uci_add olsrd2 interface ; iface_sec="$CONFIG_SECTION"
 	uci_set olsrd2 "$iface_sec" ifname "$device"
 	uci_add_list olsrd2 "$iface_sec" bindto "-0.0.0.0/0"
