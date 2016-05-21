@@ -165,7 +165,12 @@ setup_wifi() {
 	uci_set wireless $device disabled "0"
 	[ $hw_g == 1 ] && [ $hw_n == 1 ] && uci_set wireless $device noscan "1"
 	[ $hw_n == 1 ] && [ $valid_channel -gt 14 ] && uci_set wireless $device htmode "HT40"
-	[ $hw_n == 1 ] && [ $valid_channel -le 14 ] && uci_set wireless $device htmode "HT20"
+	# Channel 10 - 14 HT40-
+	[ $hw_n == 1 ] && [ $valid_channel -le 14 ] && uci_set wireless $device htmode "HT40-"
+	# Channel 5 - 9 HT40+/-
+	[ $hw_n == 1 ] && [ $valid_channel -le 7 ] && uci_set wireless $device htmode "HT40+"
+	# Channel 1 - 4 HT40+
+	[ $hw_n == 1 ] && [ $valid_channel -le 4 ] && uci_set wireless $device htmode "HT40+"
 	uci_set wireless $device country "00"
 	[ $hw_a == 1 ] && uci_set wireless $device doth "0"
 	#read from Luci_ui
