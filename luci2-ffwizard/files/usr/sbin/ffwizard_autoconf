@@ -114,8 +114,8 @@ for ifc in $wlan_ifc ; do
 	#uci_set ffwizard "$ifc" bssid $bssid
 	uci_set ffwizard "$ifc" channel $channel
 	uci_set ffwizard "$ifc" olsr_mesh 1
-	uci_set ffwizard ffwizard enabled 1
-	uci_commit ffwizard
 done
 
+uci_set ffwizard ffwizard enabled 1
+uci_commit ffwizard
 /etc/init.d/ffwizard restart

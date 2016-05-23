@@ -3,6 +3,11 @@
 		"title": "Services",
 		"index": 40
 	},
+	"services/autoconf": {
+		"title": "autoconf",
+		"acls": [ "ffwizard" ],
+		"view": "services/autoconf"
+	},
 	"services/ffwizard": {
 		"title": "ffwizard",
 		"acls": [ "ffwizard" ],
