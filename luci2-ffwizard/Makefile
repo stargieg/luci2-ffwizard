@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=30
+PKG_RELEASE:=31
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -123,9 +123,11 @@ endef
 define Package/luci2-ffwizard-angular/install
 	$(INSTALL_DIR) $(1)/www/luci-ng/controller/services
 	$(INSTALL_DATA) files/www/luci-ng/controller/services/ffwizard.js $(1)/www/luci-ng/controller/services/
+	$(INSTALL_DATA) files/www/luci-ng/controller/services/autoconf.js $(1)/www/luci-ng/controller/services/
 
 	$(INSTALL_DIR) $(1)/www/luci-ng/view/services
 	$(INSTALL_DATA) files/www/luci-ng/view/services/ffwizard.html $(1)/www/luci-ng/view/services/
+	$(INSTALL_DATA) files/www/luci-ng/view/services/autoconf.html $(1)/www/luci-ng/view/services/
 endef
 
 define Package/luci2-ffwizard-fw/install
