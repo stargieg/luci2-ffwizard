@@ -37,33 +37,41 @@ setup_olsrv2() {
 
 setup_domain() {
 	log_olsr "Setup Domain IP Table"
-	uci_add olsrd2 domain ; dom_sec="$CONFIG_SECTION"
-	uci_set olsrd2 "$dom_sec" table "192"
-	uci_set olsrd2 "$dom_sec" srcip_routes 1
-	uci_set olsrd2 "$dom_sec" protocol "100"
-	uci_set olsrd2 "$dom_sec" distance 2
+	uci_add olsrd2 domain ; cfg="$CONFIG_SECTION"
+	uci_set olsrd2 "$cfg" port "2009"
+	uci_add_list olsrd2 "$cfg" bindto "::1"
+	uci_add_list olsrd2 "$cfg" bindto "default_reject"
+}
+
+setup_telnet() {
+	log_olsr "Setup Telnet interface"
+	uci_add olsrd2 telnet ; cfg="$CONFIG_SECTION"
+	uci_set olsrd2 "$cfg" table "192"
+	uci_set olsrd2 "$cfg" srcip_routes 1
+	uci_set olsrd2 "$cfg" protocol "100"
+	uci_set olsrd2 "$cfg" distance 2
 }
 
 setup_loop() {
 	log_olsr "Setup loopback interface"
-	uci_add olsrd2 interface ; iface_sec="$CONFIG_SECTION"
-	uci_set olsrd2 "$iface_sec" ifname "loopback"
-	uci_add_list olsrd2 "$iface_sec" bindto "-0.0.0.0/0"
-	uci_add_list olsrd2 "$iface_sec" bindto "-::1/128"
-	uci_add_list olsrd2 "$iface_sec" bindto "default_accept"
-	uci_set olsrd2 "$iface_sec" ignore "0"
+	uci_add olsrd2 interface ; cfg="$CONFIG_SECTION"
+	uci_set olsrd2 "$cfg" ifname "loopback"
+	uci_add_list olsrd2 "$cfg" bindto "-0.0.0.0/0"
+	uci_add_list olsrd2 "$cfg" bindto "-::1/128"
+	uci_add_list olsrd2 "$cfg" bindto "default_accept"
+	uci_set olsrd2 "$cfg" ignore "0"
 }
 
 setup_lan_import() {
 	log_olsr "Setup Lan Import"
-	uci_add olsrd2 lan_import lan ; iface_sec="$CONFIG_SECTION"
-	uci_set olsrd2 "$iface_sec" domain 0
-	uci_add olsrd2 "$iface_sec" matches "::/0"
-	uci_set olsrd2 "$iface_sec" prefix_length "-1"
-	#uci_set olsrd2 "$iface_sec" interface "olsrd.ipv6"
-	uci_set olsrd2 "$iface_sec" table 254
-	uci_set olsrd2 "$iface_sec" protocol 0
-	uci_set olsrd2 "$iface_sec" metric 0
+	uci_add olsrd2 lan_import lan ; cfg="$CONFIG_SECTION"
+	uci_set olsrd2 "$cfg" domain 0
+	uci_add olsrd2 "$cfg" matches "::/0"
+	uci_set olsrd2 "$cfg" prefix_length "-1"
+	#uci_set olsrd2 "$cfg" interface "olsrd.ipv6"
+	uci_set olsrd2 "$cfg" table 254
+	uci_set olsrd2 "$cfg" protocol 0
+	uci_set olsrd2 "$cfg" metric 0
 }
 
 setup_ether() {
@@ -120,6 +128,8 @@ config_load olsrd2
 config_foreach remove_section interface
 #Remove domain
 config_foreach remove_section domain
+#Remove telnet
+config_foreach remove_section telnet
 
 local olsr_enabled=0
 
@@ -136,12 +146,14 @@ if [ "$olsr_enabled" == "1" ] ; then
 	if ! [ -s /etc/rc.d/S*olsrd2 ] ; then
 		/etc/init.d/olsrd2 enable
 	fi
-	#Setup loopback interface
+	#Setup OLSR1 IPv6 routen import
 	#setup_lan_import
 	#Setup loopback interface
 	setup_loop
 	#Setup Domain Table
 	setup_domain
+	#Setup Domain Table
+	setup_telnet
 	#Setup olsrd2
 	config_load olsrd2
 	config_foreach setup_olsrv2 olsrv2 $ula_prefix
