@@ -38,18 +38,18 @@ setup_olsrv2() {
 setup_domain() {
 	log_olsr "Setup Domain IP Table"
 	uci_add olsrd2 domain ; cfg="$CONFIG_SECTION"
-	uci_set olsrd2 "$cfg" port "2009"
-	uci_add_list olsrd2 "$cfg" bindto "::1"
-	uci_add_list olsrd2 "$cfg" bindto "default_reject"
+	uci_set olsrd2 "$cfg" table "192"
+	uci_set olsrd2 "$cfg" srcip_routes 1
+	uci_set olsrd2 "$cfg" protocol "100"
+	uci_set olsrd2 "$cfg" distance 2
 }
 
 setup_telnet() {
 	log_olsr "Setup Telnet interface"
 	uci_add olsrd2 telnet ; cfg="$CONFIG_SECTION"
-	uci_set olsrd2 "$cfg" table "192"
-	uci_set olsrd2 "$cfg" srcip_routes 1
-	uci_set olsrd2 "$cfg" protocol "100"
-	uci_set olsrd2 "$cfg" distance 2
+	uci_set olsrd2 "$cfg" port "2009"
+	uci_add_list olsrd2 "$cfg" bindto "::1"
+	uci_add_list olsrd2 "$cfg" bindto "default_reject"
 }
 
 setup_loop() {
