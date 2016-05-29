@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=32
+PKG_RELEASE:=33
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -49,6 +49,17 @@ define Package/luci2-ffwizard-angular/description
   Depends https://github.com/jow-/luci-ng
 endef
 
+define Package/luci2-ffwizard-lua
+  $(call Package/luci2-ffwizard/template)
+  MENU:=1
+  DEPENDS:=luci2-ffwizard +luci-mod-admin-full
+endef
+
+define Package/luci2-ffwizard-angular/description
+  LuCI2 Freifunk Wizard UI with angular
+  Depends https://github.com/jow-/luci-ng
+endef
+
 define Package/luci2-ffwizard-fw
   $(call Package/luci2-ffwizard/template)
   DEPENDS:=luci2-ffwizard +firewall
@@ -85,7 +96,27 @@ define Package/luci2-proto-batadv-jq
   TITLE:=Batman proto support for LuCI2 jQuery
 endef
 
+define Package/luci2-ffwizard-lua/config
+  config LUCI_APP_FFWIZARD_GEN_SRCDIET
+    bool "ffwizard Minify Lua sources"
+    default n
+endef
+
+define SrcDiet
+  $(FIND) $(1) -type f -name '*.lua' | while read src; do \
+    if $(STAGING_DIR_HOST)/bin/lua $(STAGING_DIR_HOST)/bin/LuaSrcDiet \
+      --noopt-binequiv -o "$$$$src.o" "$$$$src"; \
+    then mv "$$$$src.o" "$$$$src"; fi; \
+  done
+endef
+
+define Build/Prepare
+	mkdir -p $(PKG_BUILD_DIR)/ffwizard
+	$(CP) ./luasrc $(PKG_BUILD_DIR)/
+endef
+
 define Build/Compile
+	$(if $(CONFIG_LUCI_APP_LINKNX_GEN_SRCDIET),$(call SrcDiet,$(PKG_BUILD_DIR)/luasrc/),true);
 endef
 
 define Package/luci2-ffwizard/install
@@ -128,6 +159,14 @@ define Package/luci2-ffwizard-angular/install
 	$(INSTALL_DIR) $(1)/www/luci-ng/view/services
 	$(INSTALL_DATA) files/www/luci-ng/view/services/ffwizard.html $(1)/www/luci-ng/view/services/
 	$(INSTALL_DATA) files/www/luci-ng/view/services/autoconf.html $(1)/www/luci-ng/view/services/
+endef
+
+define Package/luci2-ffwizard-lua/install
+	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/controller
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/luasrc/controller/ffwizard.lua $(1)/usr/lib/lua/luci/controller
+	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/model/cbi
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/luasrc/model/cbi/ffwizard.lua $(1)/usr/lib/lua/luci/model/cbi
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/luasrc/model/cbi/ffwizard_autoconf.lua $(1)/usr/lib/lua/luci/model/cbi
 endef
 
 define Package/luci2-ffwizard-fw/install
