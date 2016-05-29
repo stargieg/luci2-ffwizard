@@ -14,7 +14,7 @@ $Id$
 
 
 m = Map("ffwizard", "Freifunk Wizard", "Autokonfiguration")
-m.on_after_commit = function() luci.sys.call("ubus call uci reload_config") end
+m.on_after_commit = function() utl.ubus("uci", "reload_config") end
 
 s = m:section(NamedSection, "autoconf", "Autokonfiguration")
 

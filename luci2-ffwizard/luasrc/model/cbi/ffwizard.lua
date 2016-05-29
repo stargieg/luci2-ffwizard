@@ -12,9 +12,10 @@ You may obtain a copy of the License at
 $Id$
 ]]--
 
+local utl = require "luci.util"
 
 m = Map("ffwizard", "Freifunk Wizard", "Freifunk Wizard")
-m.on_after_commit = function() luci.sys.call("/etc/init.d/ffwizard reload") end
+m.on_after_commit = function() utl.ubus("uci", "reload_config") end
 
 s = m:section(NamedSection, "ffwizard", "Freifunk Wizard")
 s:option(DummyValue, "dv1", nil,"Supported Hardware:")
