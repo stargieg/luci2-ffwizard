@@ -21,20 +21,11 @@ function index()
 	end
 
 	local page
-	page = entry({"admin", "services", "ffwizard"}, cbi("ffwizard"))
-	page.dependent = true
-	page.title  = _("ffwizard")
+	page = entry({"admin", "services", "ffwizard_autoconf"}, cbi("ffwizard_autoconf"))
+	page.title  = _("ffwizard autoconf")
 	page.order = 10
 
-	page = node("admin", "services", "ffwizard_diag")
-	page.target = template("ffwizard_diag")
-	page.title  = _("ffwizard Diagnostics")
+	page = entry({"admin", "services", "ffwizard"}, cbi("ffwizard"))
+	page.title  = _("ffwizard")
 	page.order  = 11
-
-	page = entry({"admin", "services", "autoconf"}, call("ffwizard_autoconf"), nil)
-	page.leaf = true
-
-	page = entry({"admin", "services", "ffwizard"}, call("ffwizard"), nil)
-	page.leaf = true
-
 end
