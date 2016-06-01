@@ -206,6 +206,7 @@ endef
 $(eval $(call BuildPackage,luci2-ffwizard))
 $(eval $(call BuildPackage,luci2-ffwizard-jq))
 $(eval $(call BuildPackage,luci2-ffwizard-angular))
+$(eval $(call BuildPackage,luci2-ffwizard-lua))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrd-ipv4))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrd-ipv6))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrv2-ipv6))
