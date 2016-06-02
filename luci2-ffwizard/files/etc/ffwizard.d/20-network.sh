@@ -164,7 +164,19 @@ setup_wifi() {
 	uci_set wireless $device channel "$valid_channel"
 	uci_set wireless $device disabled "0"
 	[ $hw_g == 1 ] && [ $hw_n == 1 ] && uci_set wireless $device noscan "1"
-	[ $hw_n == 1 ] && [ $valid_channel -gt 14 ] && uci_set wireless $device htmode "HT40"
+	[ $hw_n == 1 ] && [ $valid_channel -gt 165 ] && uci_set wireless $device htmode "HT40+"
+	# Channel 165 HT40-
+	[ $hw_n == 1 ] && [ $valid_channel -le 165 ] && uci_set wireless $device htmode "HT40-"
+	# Channel 153,157,161 HT40+
+	[ $hw_n == 1 ] && [ $valid_channel -le 161 ] && uci_set wireless $device htmode "HT40+"
+	# Channel 104 - 140 HT40-
+	[ $hw_n == 1 ] && [ $valid_channel -le 140 ] && uci_set wireless $device htmode "HT40-"
+	# Channel 100 HT40+
+	[ $hw_n == 1 ] && [ $valid_channel -le 100 ] && uci_set wireless $device htmode "HT40+"
+	# Channel 40 - 64 HT40-
+	[ $hw_n == 1 ] && [ $valid_channel -le 64 ] && uci_set wireless $device htmode "HT40-"
+	# Channel 36 HT40+
+	[ $hw_n == 1 ] && [ $valid_channel -le 36 ] && uci_set wireless $device htmode "HT40+"
 	# Channel 10 - 14 HT40-
 	[ $hw_n == 1 ] && [ $valid_channel -le 14 ] && uci_set wireless $device htmode "HT40-"
 	# Channel 5 - 9 HT40+/-
