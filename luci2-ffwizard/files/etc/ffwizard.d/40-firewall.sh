@@ -46,7 +46,7 @@ setup_wifi() {
 zone_iface_add() {
 	local cfg="$1"
 	local zone="$2"
-	local networks="$1"
+	local networks="$3"
 	config_get name $cfg name
 
 	if [ "$name" == "$zone" ] ; then
@@ -59,7 +59,6 @@ zone_iface_add() {
 zone_iface_del() {
 	local cfg="$1"
 	local zone="$2"
-	local network="$1"
 	config_get name $cfg name
 
 	if [ "$name" == "$zone" ] ; then
@@ -85,19 +84,18 @@ fi
 
 #Add interfaces to Zone freifunk
 config_load firewall
+config_foreach zone_iface_del zone "freifunk"
 config_foreach zone_iface_add zone "freifunk" "$ff_ifaces"
 #Add interface lan to Zone lan if not an freifunk interface
+config_foreach zone_iface_del zone "lan"
 if [ -n "$lan_iface" ] ; then
 	config_foreach zone_iface_add zone "lan" "$lan_iface"
-else
-	config_foreach zone_iface_del zone "lan"
 fi
 
 #Add interface wan to Zone wan if not an freifunk interface
+config_foreach zone_iface_del zone "wan"
 if [ -n "$wan_iface" ] ; then
 	config_foreach zone_iface_add zone "wan" "$wan_iface"
-else
-	config_foreach zone_iface_del zone "wan"
 fi
 
 uci_commit firewall
