@@ -33,6 +33,7 @@ uci_set firewall $sec drop_invalid 0
 uci_add firewall zone ; sec="$CONFIG_SECTION"
 uci_set firewall $sec name wan
 uci_set firewall $sec masq 1
+uci_set firewall $sec mtu_fix 1
 uci_set firewall $sec network wan
 uci_set firewall $sec forward REJECT
 uci_set firewall $sec output ACCEPT
