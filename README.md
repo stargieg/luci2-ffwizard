@@ -65,7 +65,7 @@ Wenn der Hostname OpenWrt ist wird eine Zufallszahl an den Hostnamen an gehangen
 Geodaten und Zeitzone werden eingestellt  
 
 ```
-/etc/ffwizard.d/20-system.sh
+/etc/ffwizard.d/20-network.sh
 ```
 Die Wlan- und die Netzwerkeinstellungen  
 
@@ -80,14 +80,14 @@ B.A.T.M.A.N Mesh Konfiguration
 Legacy olsr1 ipv4  
 
 ```
-/etc/ffwizard.d/30-olsrd.ipv4.sh
+/etc/ffwizard.d/30-olsrd.ipv6.sh
 ```
 Legacy olsr1 ipv6  
 
 ```
 /etc/ffwizard.d/31-olsrd2.ipv6.sh
 ```
-Legacy olsr2 ipv6 Mesh Konfiguration  
+olsr2 ipv6 Mesh Konfiguration  
 
 ```
 /etc/ffwizard.d/40-firewall.sh
