@@ -20,7 +20,7 @@ define Package/luci2-ffwizard
   MENU:=1
   DEPENDS:=+px5g +uhttpd +uhttpd-mod-tls +uhttpd-mod-ubus +odhcpd \
   +dnsmasq +rpcd +rpcd-mod-file +rpcd-mod-iwinfo +rpcd-mod-rpcsys +iwinfo \
-  +kadnode @IPV6
+  @IPV6
 endef
 
 define Package/luci2-ffwizard/conffiles
@@ -52,7 +52,10 @@ endef
 define Package/luci2-ffwizard-lua
   $(call Package/luci2-ffwizard/template)
   MENU:=1
-  DEPENDS:=luci2-ffwizard +luci-mod-admin-full
+  DEPENDS:=luci2-ffwizard +luci-mod-admin-full luci-i18n-base-de \
+  luci-theme-bootstrap luci-app-owm luci-app-owm-ant luci-app-owm-cmd \
+  luci-app-owm-gui luci-mod-freifunk luci-i18n-freifunk-de luci-proto-ipv6 \
+  luci-lib-json uhttpd-mod-lua libiwinfo-lua
 endef
 
 define Package/luci2-ffwizard-angular/description
@@ -88,6 +91,12 @@ define Package/luci2-ffwizard-batadv
   $(call Package/luci2-ffwizard/template)
   DEPENDS:=luci2-ffwizard +kmod-batman-adv +batctl
   TITLE:=Batman advanced config
+endef
+
+define Package/luci2-ffwizard-kadnode
+  $(call Package/luci2-ffwizard/template)
+  DEPENDS:=luci2-ffwizard +kadnode
+  TITLE:=kadnode config
 endef
 
 define Package/luci2-proto-batadv-jq
@@ -197,6 +206,12 @@ define Package/luci2-ffwizard-batadv/install
 	$(INSTALL_BIN) files/etc/ffwizard.d/30-batadv.sh $(1)/etc/ffwizard.d/
 endef
 
+define Package/luci2-ffwizard-kadnode/install
+	$(INSTALL_DIR) $(1)/etc/ffwizard.d
+	$(INSTALL_BIN) files/etc/ffwizard.d/60-kadnode.sh $(1)/etc/ffwizard.d/
+	$(INSTALL_BIN) files/etc/uci-defaults/ffwizard_kadnode.sh $(1)/etc/uci-defaults/
+endef
+
 define Package/luci2-proto-batadv-jq/install
 	$(INSTALL_DIR) $(1)/www/luci2/proto
 	$(INSTALL_DATA) files/www/luci2/proto/batadv.js $(1)/www/luci2/proto/
@@ -212,4 +227,5 @@ $(eval $(call BuildPackage,luci2-ffwizard-olsrd-ipv6))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrv2-ipv6))
 $(eval $(call BuildPackage,luci2-ffwizard-batadv))
 $(eval $(call BuildPackage,luci2-proto-batadv-jq))
+$(eval $(call BuildPackage,luci2-ffwizard-kadnode))
 $(eval $(call BuildPackage,luci2-ffwizard-fw))

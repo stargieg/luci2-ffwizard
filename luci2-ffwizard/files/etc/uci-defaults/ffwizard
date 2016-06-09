@@ -47,16 +47,12 @@ if [ "$(uci_get system @system[0] hostname)" == "OpenWrt" ]; then
 	uci_add dhcp domain frei_funk_ipv6
 	uci_set dhcp frei_funk_ipv6 name "frei.funk"
 	uci_set dhcp frei_funk_ipv6 ip "$(uci get network.globals.ula_prefix | cut -d '/' -f 1)1"
-	uci_add_list dhcp @dnsmasq[0] server '/p2p/::1#3535'
 	uci_commit dhcp
 
 	uci_set network lan ipaddr "192.168.42.1"
 	uci_set network lan dns "85.214.20.141 213.73.91.35 194.150.168.168 2001:4ce8::53 2001:910:800::12"
 	uci_commit network
 
-	uci_set kadnode @kadnode[0] enabled '1'
-	uci_set kadnode @kadnode[0] mode 'ipv6'
-	uci_commit kadnode
 fi
 
 [ -s /www/index.html ] || ln -s /www/luci2.html /www/index.html
