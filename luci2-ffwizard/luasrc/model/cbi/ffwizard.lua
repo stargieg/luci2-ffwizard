@@ -24,6 +24,10 @@ s:option(DummyValue, "dv1", nil,"Supported Hardware:")
 
 svc = s:option(Flag, "enabled", "freigegeben","Dieser hacken wird entfernt wenn der Wizard seine Arbeit getan hat.")
 
+svc = s:option(Value, "hostname", "Hostname", "Router Name")
+svc.placeholder = "OpenWrt"
+svc.datatype = "string"
+
 svc = s:option(Flag, "br", "Netzwerkbrücke","Netzwerkbrücke für AP-DHCP und Batman")
 
 svc = s:option(Value, "dhcp_ip", "DHCP IPv4 Netz", "IP Netz DHCP Netz Batman Gateway mode und olsr Hna4")
