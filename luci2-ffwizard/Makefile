@@ -207,7 +207,7 @@ define Package/luci2-ffwizard-batadv/install
 endef
 
 define Package/luci2-ffwizard-kadnode/install
-	$(INSTALL_DIR) $(1)/etc/ffwizard.d
+	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/ffwizard.d/60-kadnode.sh $(1)/etc/ffwizard.d/
 	$(INSTALL_BIN) files/etc/uci-defaults/ffwizard_kadnode.sh $(1)/etc/uci-defaults/
 endef
