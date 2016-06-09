@@ -30,6 +30,10 @@ svc = s:option(Value, "dhcp_ip", "DHCP IPv4 Netz", "IP Netz DHCP Netz Batman Gat
 svc.placeholder = "192.168.111.0/28"
 svc.datatype = "ip4addr"
 
+svc = s:option(Value, "ip6prefix", "IPv6 Prefix", "Öffentliches IPv6 Prefix. Sinvolle Netzgrössen sind /62 (4x/64) - /48 (65535x/64)")
+svc.placeholder = "2a00:c1a0:488f:8404::/62"
+svc.datatype = "ip6addr"
+
 s = m:section(TypedSection, "ether", "Drahtgebundene Schnittstellen")
 
 svc = s:option(Flag, "enabled", "freigegeben")
