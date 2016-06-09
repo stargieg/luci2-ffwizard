@@ -34,11 +34,15 @@ setup_dhcp() {
 			uci_set dhcp $cfg_dhcp dhcpv4 "disabled"
 		fi
 		uci_set dhcp $cfg_dhcp leasetime "15m"
-		uci_add_list dhcp $cfg_dhcp dhcp_option "119,olsr"
-		uci_add_list dhcp $cfg_dhcp dhcp_option "119,lan"
+		#uci_add_list dhcp $cfg_dhcp dhcp_option "119,olsr"
+		#uci_add_list dhcp $cfg_dhcp dhcp_option "119,lan"
+		uci_add_list dhcp $cfg_dhcp domain "olsr"
+		uci_add_list dhcp $cfg_dhcp domain "lan"
+		uci_add_list dhcp $cfg_dhcp domain "p2p"
 		uci_set dhcp $cfg_dhcp dhcpv6 "server"
 		uci_set dhcp $cfg_dhcp ra "server"
 		uci_set dhcp $cfg_dhcp ra_preference "low"
+		uci_set dhcp $cfg_dhcp ra_default "1"
 }
 
 setup_ether() {
@@ -56,10 +60,14 @@ setup_ether() {
 		if [ "$cfg" == "lan" ] && [ "$mesh_ip" == "0" ] && [ "$dhcp_br" == "0" ] ; then
 			log_dhcp "Setup iface $cfg to default"
 			uci_set dhcp $cfg ignore "0"
+			uci_add_list dhcp $cfg_dhcp domain "olsr"
+			uci_add_list dhcp $cfg_dhcp domain "lan"
+			uci_add_list dhcp $cfg_dhcp domain "p2p"
 			uci_set dhcp $cfg dhcpv4 "server"
 			uci_set dhcp $cfg dhcpv6 "server"
 			uci_set dhcp $cfg ra "server"
-			uci_set dhcp $cfg_dhcp ra_preference "low"
+			uci_set dhcp $cfg ra_preference "low"
+			uci_set dhcp $cfg ra_default "1"
 		else
 			uci_set dhcp $cfg ignore "1"
 			uci_set dhcp $cfg dhcpv4 "disabled"
