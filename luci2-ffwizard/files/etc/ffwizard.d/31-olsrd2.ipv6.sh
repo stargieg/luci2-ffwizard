@@ -19,6 +19,11 @@ setup_olsrv2() {
 	log_olsr "Setup olsrv2 with ula $ula"
 	uci_remove olsrd2 $cfg lan
 	uci_add_list olsrd2 $cfg lan "$ula"
+	#Setup IP6 Prefix
+	config_get ip6prefix ffwizard ip6prefix
+	if [ -n "$ip6prefix" ] ; then
+		uci_add_list olsrd2 $cfg lan "$ip6prefix"
+	fi
 	uci_set olsrd2 $cfg tc_interval "5.0"
 	uci_set olsrd2 $cfg tc_validity "300.0"
 	uci_set olsrd2 $cfg forward_hold_time "300.0"

@@ -316,12 +316,19 @@ else
 	uci_remove network "$br_name" >/dev/null
 fi
 
+#Setup IP6 Prefix
+config_get ip6prefix ffwizard ip6prefix
+if [ -n "$ip6prefix" ] ; then
+	uci_set network loopback ip6prefix "$ip6prefix"
+fi
+
 #Add interface lan to Zone lan if not an freifunk interface
 if [ -n "$lan_iface" ] ; then
-	uci_set network $cfg type "bridge"
-	uci_set network $cfg proto "static"
-	uci_set network $cfg ipaddr "192.168.42.1"
-	uci_set network $cfg netmask "255.255.255.0"
+	uci_set network lan type "bridge"
+	uci_set network lan proto "static"
+	uci_set network lan ipaddr "192.168.42.1"
+	uci_set network lan netmask "255.255.255.0"
+	uci_set network lan ip6assign '64'
 fi
 
 #Add interface wan to Zone wan if not an freifunk interface

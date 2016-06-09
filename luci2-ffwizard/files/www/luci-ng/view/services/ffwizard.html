@@ -18,6 +18,9 @@
 		<div cbi-option="dhcp_ip" title="DHCP IPv4 Netz" placeholder="192.168.111.0/28" description="IP Netz DHCP Netz Batman Gateway mode und olsr Hna4" validate="optional cidr4" depends="{br:'1'}" preview>
 			<cbi-input />
 		</div>
+		<div cbi-option="ip6prefix" title="IPv6 Prefix" placeholder="2a00:c1a0:488f:8404::/62" description="Öffentliches IPv6 Prefix. Sinvolle Netzgrössen sind /62 (4x/64) - /48 (65535x/64)" validate="optional cidr6" preview>
+			<cbi-input />
+		</div>
 	</div>
 	<div cbi-section="@ether" title="Drahtgebundene Schnittstellen" collapse>
 		<div cbi-option="enabled" title="freigegeben" preview>

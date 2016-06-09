@@ -13,6 +13,7 @@ validate_ffwizard_section()
 		'bbvpn:bool' \
 		'br:bool' \
 		'dhcp_ip:cidr4'
+		'ip6prefix:cidr6'
 }
 
 validate_ether_section()

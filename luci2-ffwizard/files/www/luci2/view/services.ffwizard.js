@@ -56,6 +56,13 @@ L.ui.view.extend({
 			optional:    true
 		}).depends('br');
 
+		s.option(L.cbi.InputValue, 'ip6prefix', {
+			caption:     L.tr('IPv6 Prefix'),
+			description: L.tr('Öffentliches IPv6 Prefix. Sinvolle Netzgrössen sind /62 (4x/64) - /48 (65535x/64)'),
+			datatype:    'cidr6',
+			optional:    true
+		});
+
 
 		var ether_sec = m.section(L.cbi.TypedSection, 'ether', {
 			caption:      L.tr('Ether Interface'),
