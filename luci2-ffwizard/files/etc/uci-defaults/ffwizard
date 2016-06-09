@@ -40,9 +40,9 @@ if [ "$(uci_get system @system[0] hostname)" == "OpenWrt" ]; then
 	uci_commit uhttpd
 
 	# add dns entry frei.funk
-	uci_add dhcp domain frei_funk
-	uci_set dhcp frei_funk name "frei.funk"
-	uci_set dhcp frei_funk ip "192.168.42.1"
+	#uci_add dhcp domain frei_funk
+	#uci_set dhcp frei_funk name "frei.funk"
+	#uci_set dhcp frei_funk ip "192.168.42.1"
 	# add dns entry frei.funk for ipv6
 	uci_add dhcp domain frei_funk_ipv6
 	uci_set dhcp frei_funk_ipv6 name "frei.funk"
