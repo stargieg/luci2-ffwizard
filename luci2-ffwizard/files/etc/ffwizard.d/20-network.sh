@@ -271,7 +271,7 @@ regdomain() {
 
 remove_wifi() {
 	local cfg="$1"
-	uci_remove wireless "$cfg"
+	uci_remove wireless "$cfg" 2>/dev/null
 }
 
 local br_ifaces
@@ -313,7 +313,7 @@ if [ "$br" == "1" ] ; then
 	fi
 	setup_bridge "$br_name" "$ipaddr" "$br_ifaces"
 else
-	uci_remove network "$br_name" >/dev/null
+	uci_remove network "$br_name" 2>/dev/null
 fi
 
 #Setup IP6 Prefix
@@ -333,9 +333,9 @@ fi
 
 #Add interface wan to Zone wan if not an freifunk interface
 if [ -n "$wan_iface" ] ; then
-	uci_remove network wan ipaddr
-	uci_remove network wan netmask
-	uci_remove network wan ip6assign
+	uci_remove network wan ipaddr 2>/dev/null
+	uci_remove network wan netmask 2>/dev/null
+	uci_remove network wan ip6assign 2>/dev/null
 	uci_set network wan proto "dhcp"
 	uci_set network wan6 proto "dhcpv6"
 fi

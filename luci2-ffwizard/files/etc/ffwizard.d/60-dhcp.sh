@@ -152,11 +152,11 @@ fi
 
 #Disable dhcp on WAN
 if [ -n "$wan_iface" ] ; then
-	log_dhcp "Setup iface $lan_iface to default"
+	log_dhcp "Setup iface $wan_iface to default"
 	uci_set dhcp $wan_iface ignore "1"
-	uci_set dhcp $cfg dhcpv4 "disabled"
-	uci_set dhcp $cfg dhcpv6 "disabled"
-	uci_set dhcp $cfg ra "disabled"
+	uci_set dhcp $wan_iface dhcpv4 "disabled"
+	uci_set dhcp $wan_iface dhcpv6 "disabled"
+	uci_set dhcp $wan_iface ra "disabled"
 fi
 
 uci_commit dhcp
