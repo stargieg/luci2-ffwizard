@@ -55,4 +55,7 @@ if [ "$(uci_get system @system[0] hostname)" == "OpenWrt" ]; then
 
 fi
 
-[ -s /www/index.html ] || ln -s /www/luci2.html /www/index.html
+# Remove disable parts of freifunk-common
+/etc/init.d/freifunk disable
+grep -v '/usr/sbin/ff_olsr_watchdog' /etc/crontabs/root > /etc/crontabs/root_new
+mv /etc/crontabs/root_new /etc/crontabs/root
