@@ -67,10 +67,10 @@ setup_ether() {
 		fi
 	else
 		log_net "Setup $cfg IP"
-		config_get mesh_ip $cfg mesh_ip
-		setup_ip "$cfg" "$mesh_ip"
-		config_get dhcp_ip $cfg dhcp_ip "0"
-		if [ "$dhcp_ip" != "0" ] ; then
+		config_get ipaddr $cfg mesh_ip
+		setup_ip "$cfg" "$ipaddr"
+		config_get ipaddr $cfg dhcp_ip "0"
+		if [ "$ipaddr" != "0" ] ; then
 			cfg_dhcp=$cfg"_dhcp"
 			eval "$(ipcalc.sh $ipaddr)"
 			OCTET_4="${NETWORK##*.}"

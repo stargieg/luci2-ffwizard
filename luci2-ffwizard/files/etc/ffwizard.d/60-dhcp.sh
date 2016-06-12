@@ -30,12 +30,9 @@ setup_dhcp() {
 			uci_set dhcp $cfg_dhcp start "$start_ipaddr"
 			limit=$(($((2**$((32-$PREFIX))))-2))
 			uci_set dhcp $cfg_dhcp limit "$limit"
-		else
-			uci_set dhcp $cfg_dhcp dhcpv4 "disabled"
 		fi
 		uci_set dhcp $cfg_dhcp leasetime "15m"
-		#uci_add_list dhcp $cfg_dhcp dhcp_option "119,olsr"
-		#uci_add_list dhcp $cfg_dhcp dhcp_option "119,lan"
+		uci_add_list dhcp $cfg_dhcp dhcp_option "119,olsr,lan,p2p"
 		uci_add_list dhcp $cfg_dhcp domain "olsr"
 		uci_add_list dhcp $cfg_dhcp domain "lan"
 		uci_add_list dhcp $cfg_dhcp domain "p2p"
@@ -60,17 +57,16 @@ setup_ether() {
 		if [ "$cfg" == "lan" ] && [ "$mesh_ip" == "0" ] && [ "$dhcp_br" == "0" ] ; then
 			log_dhcp "Setup iface $cfg to default"
 			uci_set dhcp $cfg ignore "0"
-			uci_add_list dhcp $cfg_dhcp domain "olsr"
-			uci_add_list dhcp $cfg_dhcp domain "lan"
-			uci_add_list dhcp $cfg_dhcp domain "p2p"
-			uci_set dhcp $cfg dhcpv4 "server"
+			uci_add_list dhcp $cfg dhcp_option "119,olsr,lan,p2p"
+			uci_add_list dhcp $cfg domain "olsr"
+			uci_add_list dhcp $cfg domain "lan"
+			uci_add_list dhcp $cfg domain "p2p"
 			uci_set dhcp $cfg dhcpv6 "server"
 			uci_set dhcp $cfg ra "server"
 			uci_set dhcp $cfg ra_preference "low"
 			uci_set dhcp $cfg ra_default "1"
 		else
 			uci_set dhcp $cfg ignore "1"
-			uci_set dhcp $cfg dhcpv4 "disabled"
 			uci_set dhcp $cfg dhcpv6 "disabled"
 			uci_set dhcp $cfg ra "disabled"
 		fi
@@ -106,7 +102,8 @@ setup_dhcpbase() {
 
 setup_odhcpbase() {
 	local cfg="$1"
-	uci_set dhcp $cfg maindhcp "1"
+	#uci_set dhcp $cfg maindhcp "1"
+	uci_set dhcp $cfg maindhcp "0"
 }
 
 local br_name="fflandhcp"
@@ -142,10 +139,14 @@ fi
 #Enable dhcp on LAN
 if [ -n "$lan_iface" ] ; then
 	log_dhcp "Setup iface $lan_iface to default"
+	uci_set dhcp $cfg ignore "0"
 	uci_set dhcp $lan_iface start "100"
 	uci_set dhcp $lan_iface limit "150"
 	uci_set dhcp $lan_iface leasetime "12h"
-	uci_set dhcp $lan_iface dhcpv4 "server"
+	uci_add_list dhcp $cfg_dhcp dhcp_option "119,olsr,lan,p2p"
+	uci_add_list dhcp $cfg_dhcp domain "olsr"
+	uci_add_list dhcp $cfg_dhcp domain "lan"
+	uci_add_list dhcp $cfg_dhcp domain "p2p"
 	uci_set dhcp $lan_iface dhcpv6 "server"
 	uci_set dhcp $lan_iface ra "server"
 fi
@@ -154,7 +155,6 @@ fi
 if [ -n "$wan_iface" ] ; then
 	log_dhcp "Setup iface $wan_iface to default"
 	uci_set dhcp $wan_iface ignore "1"
-	uci_set dhcp $wan_iface dhcpv4 "disabled"
 	uci_set dhcp $wan_iface dhcpv6 "disabled"
 	uci_set dhcp $wan_iface ra "disabled"
 fi
