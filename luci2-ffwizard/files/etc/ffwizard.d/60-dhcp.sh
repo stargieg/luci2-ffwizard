@@ -47,9 +47,10 @@ setup_ether() {
 	config_get enabled $cfg enabled "0"
 	[ "$enabled" == "0" ] && return
 	config_get dhcp_ip $cfg dhcp_ip "0"
+	cfg_dhcp=$cfg"_dhcp"
+	uci_remove dhcp $cfg_dhcp 2>/dev/null
 	if [ "$dhcp_ip" != "0" ] ; then
 		log_dhcp "Setup $cfg"
-		cfg_dhcp=$cfg"_dhcp"
 		setup_dhcp $cfg_dhcp "$dhcp_ip"
 	else
 		config_get dhcp_br $cfg dhcp_br "0"
@@ -83,14 +84,10 @@ setup_wifi() {
 	[ "$enabled" == "0" ] && return
 	config_get dhcp_ip $cfg dhcp_ip "0"
 	cfg_dhcp=$cfg"_vap"
+	uci_remove dhcp $cfg_dhcp 2>/dev/null
 	if [ "$dhcp_ip" != "0" ] ; then
 		log_dhcp "Setup $cfg with $dhcp_ip"
 		setup_dhcp $cfg_dhcp "$dhcp_ip"
-	else
-		if uci_get dhcp $cfg_dhcp >/dev/null ; then
-			log_dhcp "Setup $cfg remove"
-			uci_remove dhcp $cfg_dhcp 2>/dev/null
-		fi
 	fi
 }
 

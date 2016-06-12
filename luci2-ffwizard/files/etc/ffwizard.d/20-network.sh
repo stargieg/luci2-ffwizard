@@ -55,6 +55,8 @@ setup_ether() {
 	config_get enabled $cfg enabled "0"
 	[ "$enabled" == "0" ] && return
 	config_get dhcp_br $cfg dhcp_br "0"
+	cfg_dhcp=$cfg"_dhcp"
+	uci_remove network $cfg_dhcp 2>/dev/null
 	if [ "$dhcp_br" == "1" ] ; then
 		log_net "Setup $cfg as DHCP Bridge member"
 		if uci_get network $cfg >/dev/null ; then
@@ -71,7 +73,6 @@ setup_ether() {
 		setup_ip "$cfg" "$ipaddr"
 		config_get ipaddr $cfg dhcp_ip "0"
 		if [ "$ipaddr" != "0" ] ; then
-			cfg_dhcp=$cfg"_dhcp"
 			eval "$(ipcalc.sh $ipaddr)"
 			OCTET_4="${NETWORK##*.}"
 			OCTET_1_3="${NETWORK%.*}"
