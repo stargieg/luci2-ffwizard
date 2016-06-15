@@ -1,0 +1,12 @@
+{
+	"status_olsrd2": {
+		"description": "Status information olsrd2",
+		"read": {
+			"ubus": {
+				"status.olsrd2": [
+					"getNHDPinfo"
+				]
+			}
+		}
+	}
+}

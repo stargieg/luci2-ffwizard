@@ -1,0 +1,8 @@
+{
+	"status/olsrd2": {
+		"title": "olsrd2 Status",
+		"acls": [ "status_olsrd2" ],
+		"view": "status/olsrd2",
+		"index": 60
+	},
+}

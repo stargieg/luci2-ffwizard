@@ -1,0 +1,47 @@
+#!/bin/sh
+# Copyright (C) 2016 OpenWrt.org
+
+. /lib/functions.sh
+. /usr/share/libubox/jshn.sh
+
+case "$1" in
+	list)
+		json_init
+
+		json_add_object "getNHDPinfo"
+		json_close_object
+
+		json_dump
+	;;
+	call)
+		case "$2" in
+			getNHDPinfo)
+				json_init
+				json_add_array "neighbors"
+				OLDIFS="$IFS"
+				IFS=$'\n'
+				neighbor_status="$(echo '/nhdpinfo neighbor /quit' | nc ::1 2009 | cut -f 1,10,11,12,13)"
+				for neighbor in $neighbor_status; do
+					json_add_object 0
+					IFS="$OLDIFS"
+					i=1
+					for value in $neighbor ; do
+						case $i in
+							1) json_add_string "originator" "${value}";;
+							2) json_add_string "metric_in" "${value}";;
+							3) json_add_string "metric_in_raw" "${value}";;
+							4) json_add_string "metric_out" "${value}";;
+							5) json_add_string "metric_out_raw" "${value}";;
+						esac
+						i=$(( i + 1 ))
+					done
+					IFS=$'\n'
+					json_close_object
+				done
+				IFS="$OLDIFS"
+				json_close_array
+				json_dump
+			;;
+		esac
+	;;
+esac

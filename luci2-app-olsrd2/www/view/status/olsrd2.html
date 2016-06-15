@@ -1,0 +1,25 @@
+<h2 translate>olsrd2 Status</h2>
+
+<div class="l2-grid l2-grid-hover">
+	<div class="row">
+		<div class="cell clearfix caption col-xs-3" translate>
+			Nachtbar
+		</div><div class="cell clearfix caption col-xs-2" translate>
+			Empfangen
+		</div><div class="cell clearfix caption col-xs-2" translate>
+			Senden
+		</div>
+	</div>
+
+	<div class="row animate-repeat" ng-repeat="neighbor in neighbors | orderBy:'metric_in_raw' track by neighbor.metric_in_raw">
+		<div class="cell clearfix content col-xs-3">
+			<a href="https://[{{neighbor.originator}}]/luci-ng.html#/status/olsrd2">
+			{{neighbor.originator}}
+			</a>
+		</div><div class="cell clearfix content col-xs-2">
+			{{neighbor.metric_in}} [{{neighbor.metric_in_raw}}]
+		</div><div class="cell clearfix content col-xs-2">
+			{{neighbor.metric_out}} [{{neighbor.metric_out_raw}}]
+		</div>
+	</div>
+</div>
