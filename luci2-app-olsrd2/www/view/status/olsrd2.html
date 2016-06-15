@@ -11,7 +11,7 @@
 		</div>
 	</div>
 
-	<div class="row animate-repeat" ng-repeat="neighbor in neighbors | orderBy:'metric_in_raw' track by neighbor.metric_in_raw">
+	<div class="row animate-repeat" ng-repeat="neighbor in neighbors">
 		<div class="cell clearfix content col-xs-3">
 			<a href="https://[{{neighbor.originator}}]/luci-ng.html#/status/olsrd2">
 			{{neighbor.originator}}
