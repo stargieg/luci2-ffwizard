@@ -34,14 +34,18 @@ endef
 
 define Package/luci2-app-olsrd2/postinst
 #!/bin/sh
-/etc/init.d/rpcd restart
-exit 0
+if [ -z $${IPKG_INSTROOT} ] ; then
+	/etc/init.d/rpcd restart
+	exit 0
+fi
 endef
 
 define Package/luci2-app-olsrd2/postrm
 #!/bin/sh
-/etc/init.d/rpcd restart
-exit 0
+if [ -z $${IPKG_INSTROOT} ] ; then
+	/etc/init.d/rpcd restart
+	exit 0
+fi
 endef
 
 define Package/luci2-app-olsrd2/install
