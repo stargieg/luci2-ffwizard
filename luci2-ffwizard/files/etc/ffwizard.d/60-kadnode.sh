@@ -23,7 +23,7 @@ setup_kadnode() {
 config_load ffwizard
 
 # Set Hostname
-config_get hostname ffwizard hostname "OpenWrt"
+config_get hostname ffwizard hostname "lede"
 
 #Load kadnode config
 config_load kadnode

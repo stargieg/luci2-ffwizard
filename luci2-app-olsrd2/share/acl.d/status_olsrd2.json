@@ -1,5 +1,5 @@
 {
-	"status_olsrd2": {
+	"unauthenticated": {
 		"description": "Status information olsrd2",
 		"read": {
 			"ubus": {

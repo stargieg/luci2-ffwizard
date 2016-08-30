@@ -4,7 +4,7 @@ Freifunk Wizard für luci2 rpcd
 ```
 /etc/uci-defaults/ffwizard
 ```
- Wenn der Hostname OpenWrt ist wird eine Zufallszahl an den Hostnamen an gehangen.  
+ Wenn der Hostname lede ist wird eine Zufallszahl an den Hostnamen an gehangen.  
  IPv6 fähiegen NTP Server setzen.  
  Webserver Konfiguration mit TLS Cert commonname=Hostname  
  Hostname frei.funk=ula_prefix  
@@ -61,7 +61,7 @@ Die Wlan- Konfiguration wird auf die Standard Werte zurückgesetzt. Danach wird 
 ```
 /etc/ffwizard.d/10-system.sh
 ```
-Wenn der Hostname OpenWrt ist wird eine Zufallszahl an den Hostnamen an gehangen.  
+Wenn der Hostname lede ist wird eine Zufallszahl an den Hostnamen an gehangen.  
 Geodaten und Zeitzone werden eingestellt  
 
 ```

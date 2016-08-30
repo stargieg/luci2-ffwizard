@@ -6,11 +6,11 @@ log_system() {
 setup_system() {
 	local cfg=$1
 	
-	if [ -z "$hostname" ] || [ "$hostname" == "OpenWrt" ] ; then
+	if [ -z "$hostname" ] || [ "$hostname" == "lede" ] ; then
 		config_get hostname $cfg hostname "$hostname"
 		log_system "No custom Hostname! Get sys Hostname $hostname"
 	fi
-	if [ -z "$hostname" ] || [ "$hostname" == "OpenWrt" ] ; then
+	if [ -z "$hostname" ] || [ "$hostname" == "lede" ] ; then
 		rand="$(echo -n $(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1-4))"
 		rand="$(printf "%d" "0x$rand")"
 		hostname="$hostname-$rand"
@@ -42,7 +42,7 @@ setup_system() {
 config_load ffwizard
 
 # Set Hostname
-config_get hostname ffwizard hostname "OpenWrt"
+config_get hostname ffwizard hostname "lede"
 
 # Set lat lon
 config_get location ffwizard location

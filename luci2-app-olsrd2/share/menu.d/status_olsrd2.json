@@ -1,8 +1,12 @@
 {
-	"status/olsrd2": {
+	"pubstatus": {
+		"title": "Status",
+		"index": 10
+	},
+	"pubstatus/olsrd2": {
 		"title": "olsrd2 Status",
-		"acls": [ "status_olsrd2" ],
+		"acls": [ "unauthenticated" ],
 		"view": "status/olsrd2",
 		"index": 60
-	},
+	}
 }
