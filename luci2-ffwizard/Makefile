@@ -18,7 +18,7 @@ endef
 define Package/luci2-ffwizard
   $(call Package/luci2-ffwizard/template)
   MENU:=1
-  DEPENDS:=+px5g +uhttpd +uhttpd-mod-tls +uhttpd-mod-ubus +odhcpd \
+  DEPENDS:=+px5g +uhttpd +uhttpd-mod-ubus +odhcpd \
   +dnsmasq +rpcd +rpcd-mod-file +rpcd-mod-iwinfo +rpcd-mod-rpcsys +iwinfo \
   @IPV6
 endef
