@@ -15,7 +15,7 @@ uci_add_list() {
 if [ "$(uci_get system @system[0] hostname)" == "OpenWrt" ]; then
 	rand="$(echo -n $(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1-4))"
 	rand="$(printf "%d" "0x$rand")"
-	hostname="lede-$rand"
+	hostname="OpenWrt-$rand"
 	uci_set system @system[0] hostname "$hostname"
 	#add ipv6 ntp server. can remove if dig AAAA 0.openwrt.pool.ntp.org is true
 	uci_add_list system ntp server "2.pool.ntp.org"

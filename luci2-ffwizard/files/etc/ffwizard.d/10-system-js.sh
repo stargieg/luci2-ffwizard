@@ -42,7 +42,7 @@ setup_system() {
 config_load ffwizard
 
 # Set Hostname
-config_get hostname ffwizard hostname "lede"
+config_get hostname ffwizard hostname "OpenWrt"
 
 # Set lat lon
 config_get location ffwizard location

@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=34
+PKG_RELEASE:=35
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -18,7 +18,7 @@ endef
 define Package/luci2-ffwizard
   $(call Package/luci2-ffwizard/template)
   MENU:=1
-  DEPENDS:=+px5g +uhttpd +uhttpd-mod-ubus +odhcpd \
+  DEPENDS:=+uhttpd +uhttpd-mod-ubus \
   +dnsmasq +rpcd +rpcd-mod-file +rpcd-mod-iwinfo +rpcd-mod-rpcsys +iwinfo \
   @IPV6
 endef

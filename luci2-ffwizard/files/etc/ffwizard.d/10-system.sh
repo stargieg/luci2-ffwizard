@@ -51,7 +51,7 @@ if ! json_select router ; then
 	return 1
 fi
 # Set Hostname
-json_get_var hostname name "lede"
+json_get_var hostname name "OpenWrt"
 
 json_select sshkeys
 json_select keys
