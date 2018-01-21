@@ -53,7 +53,7 @@ define Package/luci2-ffwizard-lua
   $(call Package/luci2-ffwizard/template)
   MENU:=1
   DEPENDS:=luci2-ffwizard +luci-mod-admin-full luci-i18n-base-de \
-  luci-theme-bootstrap uci-mod-freifunk luci-i18n-freifunk-de luci-proto-ipv6 \
+  luci-theme-bootstrap luci-proto-ipv6 \
   luci-lib-json uhttpd-mod-lua libiwinfo-lua
 endef
 
