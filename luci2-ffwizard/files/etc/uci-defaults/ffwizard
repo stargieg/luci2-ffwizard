@@ -12,7 +12,7 @@ uci_add_list() {
 }
 
 # Set Hostname
-if [ "$(uci_get system @system[0] hostname)" == "lede" ]; then
+if [ "$(uci_get system @system[0] hostname)" == "OpenWrt" ]; then
 	rand="$(echo -n $(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1-4))"
 	rand="$(printf "%d" "0x$rand")"
 	hostname="lede-$rand"

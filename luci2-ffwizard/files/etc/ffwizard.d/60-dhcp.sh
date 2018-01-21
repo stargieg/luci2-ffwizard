@@ -103,9 +103,9 @@ setup_odhcpbase() {
 	uci_set dhcp $cfg maindhcp "0"
 }
 
-local br_name="fflandhcp"
-local lan_iface="lan"
-local wan_iface="wan"
+br_name="fflandhcp"
+lan_iface="lan"
+wan_iface="wan"
 #Load dhcp config
 config_load dhcp
 #Setup dnsmasq

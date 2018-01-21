@@ -10,7 +10,7 @@ get_hostname() {
 }
 
 
-local sys_hostname
+sys_hostname=""
 
 #Load system config
 config_load system

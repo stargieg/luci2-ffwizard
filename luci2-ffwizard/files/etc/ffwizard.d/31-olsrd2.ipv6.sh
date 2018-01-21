@@ -136,7 +136,7 @@ config_foreach remove_section domain
 #Remove telnet
 config_foreach remove_section telnet
 
-local olsr_enabled=0
+olsr_enabled=0
 
 #Setup ether and wifi
 config_load ffwizard

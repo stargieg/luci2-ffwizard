@@ -66,11 +66,11 @@ remove_section() {
 	uci_remove batman-adv "$cfg"
 }
 
-local br_ifaces
-local br_name="fflandhcp"
-local bat_br_name="mesh"
-local bat_iface="bat0"
-local bat_mode="client"
+br_ifaces=""
+br_name="fflandhcp"
+bat_br_name="mesh"
+bat_iface="bat0"
+bat_mode="client"
 
 if ! [ -f /etc/config/batman-adv ] ; then
 	touch /etc/config/batman-adv

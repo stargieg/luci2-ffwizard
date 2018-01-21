@@ -275,14 +275,14 @@ remove_wifi() {
 	uci_remove wireless "$cfg" 2>/dev/null
 }
 
-local br_ifaces
-local br_name="fflandhcp"
-local lan_iface="lan"
-local wan_iface="wan wan6"
+br_ifaces=""
+br_name="fflandhcp"
+lan_iface="lan"
+wan_iface="wan wan6"
 
 #Remove wireless config
 rm /etc/config/wireless
-/sbin/wifi detect > /etc/config/wireless
+/sbin/wifi config
 
 #Set regdomain
 config_load wireless

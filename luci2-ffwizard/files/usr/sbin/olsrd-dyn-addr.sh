@@ -212,8 +212,8 @@ clean_hosts_ip6pre() {
 	esac
 }
 
-local ip6prefix
-local ip6prefix_new
+ip6prefix=""
+ip6prefix_new=""
 
 
 if [ "$(uci_get network lan)" == "interface" ] ; then
@@ -235,14 +235,14 @@ if ! json_select hna ; then
 	return 1
 fi
 
-local hna0gw=""
-local hna56gw=""
-local hna52gw=""
-local hna48gw=""
+hna0gw=""
+hna56gw=""
+hna52gw=""
+hna48gw=""
 i=1;while json_is_a ${i} object;do
-	local destination=""
-	local genmask=""
-	local gateway=""
+	destination=""
+	genmask=""
+	gateway=""
 	json_select ${i}
 	json_get_var destination destination
 	json_get_var genmask genmask
@@ -258,9 +258,9 @@ i=1;while json_is_a ${i} object;do
 	i=$(( i + 1 ))
 done
 
-local reload=0
+reload=0
 for j in $hna0gw ; do
-	local pre="1"
+	pre="1"
 	i=1;while json_is_a ${i} object;do
 		json_select ${i}
 		json_get_var destination destination
@@ -333,7 +333,7 @@ for j in $hna0gw ; do
 done
 
 for k in $ip6prefix ; do
-	local validate="0"
+	validate="0"
 	for j in $hna0gw ; do
 		for i in $hna56destination ; do
 			ip6pre=$(echo $k | sed -e 's/[0-9a-fA-F]\{1,2\}::\/62/00::/')

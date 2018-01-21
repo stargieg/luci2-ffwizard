@@ -66,10 +66,10 @@ zone_iface_del() {
 	fi
 }
 
-local br_name="fflandhcp"
-local ff_ifaces=""
-local lan_iface="lan"
-local wan_iface="wan wan6"
+br_name="fflandhcp"
+ff_ifaces=""
+lan_iface="lan"
+wan_iface="wan wan6"
 
 #Setup ether and wifi
 config_load ffwizard

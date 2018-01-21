@@ -72,12 +72,12 @@ update_hosts() {
 }
 
 
-local address=0
-local mask=0
-local wan6_prefix=0
-local rule6_prefix=0
-local reload=0
-local uci_olsrd="olsrd"
+address=0
+mask=0
+wan6_prefix=0
+rule6_prefix=0
+reload=0
+uci_olsrd="olsrd"
 
 if uci -q get olsrd6 ; then 
 	uci_olsrd="olsrd6"

@@ -142,10 +142,10 @@ config_foreach remove_section Interface
 #Remove Hna's
 config_foreach remove_section Hna4
 
-local olsr_enabled=0
-local olsr_json=0
-local olsr_watchdog=0
-local olsr_nameservice=0
+olsr_enabled=0
+olsr_json=0
+olsr_watchdog=0
+olsr_nameservice=0
 
 #Setup ether and wifi
 config_load ffwizard
