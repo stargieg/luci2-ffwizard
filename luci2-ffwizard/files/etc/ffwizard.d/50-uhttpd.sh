@@ -19,14 +19,14 @@ config_foreach get_hostname system
 
 #Load uhttpd config
 config_load uhttpd
-config_get cn_hostname px5g commonname
+config_get cn_hostname defaults commonname
 if [ "$cn_hostname" != "$sys_hostname" ] ; then
 	config_get crtfile main cert
 	config_get keyfile main key
 	[ -f "$crtfile" ] && rm -f "$crtfile"
 	[ -f "$keyfile" ] && rm -f "$keyfile"
-	uci_set uhttpd px5g commonname "$hostname"
+	uci_set uhttpd defaults commonname "$hostname"
 	uci_commit uhttpd
 fi
 
-[ -s /www/index.html ] || ln -s /www/luci2.html /www/index.html
+[ -s /www/index.html ] || ln -s /www/luci-ng.html /www/index.html

@@ -136,7 +136,7 @@ define Package/luci2-ffwizard/install
 
 	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/ffwizard.d
 	$(INSTALL_BIN) files/usr/sbin/ffwizard $(1)/usr/sbin/
-	$(INSTALL_BIN) files/etc/ffwizard.d/10-system.sh $(1)/etc/ffwizard.d/
+	$(INSTALL_BIN) files/etc/ffwizard.d/10-system-js.sh $(1)/etc/ffwizard.d/
 	$(INSTALL_BIN) files/etc/ffwizard.d/20-network.sh $(1)/etc/ffwizard.d/
 	$(INSTALL_BIN) files/etc/ffwizard.d/50-uhttpd.sh $(1)/etc/ffwizard.d/
 	$(INSTALL_BIN) files/etc/ffwizard.d/60-dhcp.sh $(1)/etc/ffwizard.d/

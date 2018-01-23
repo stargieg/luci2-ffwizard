@@ -165,25 +165,25 @@ setup_wifi() {
 	uci_set wireless $device channel "$valid_channel"
 	uci_set wireless $device disabled "0"
 	[ $hw_g == 1 ] && [ $hw_n == 1 ] && uci_set wireless $device noscan "1"
-	[ $hw_n == 1 ] && [ $valid_channel -gt 165 ] && uci_set wireless $device htmode "HT40+"
+	#[ $hw_n == 1 ] && [ $valid_channel -gt 165 ] && uci_set wireless $device htmode "HT40+"
 	# Channel 165 HT40-
-	[ $hw_n == 1 ] && [ $valid_channel -le 165 ] && uci_set wireless $device htmode "HT40-"
+	#[ $hw_n == 1 ] && [ $valid_channel -le 165 ] && uci_set wireless $device htmode "HT40-"
 	# Channel 153,157,161 HT40+
-	[ $hw_n == 1 ] && [ $valid_channel -le 161 ] && uci_set wireless $device htmode "HT40+"
+	#[ $hw_n == 1 ] && [ $valid_channel -le 161 ] && uci_set wireless $device htmode "HT40+"
 	# Channel 104 - 140 HT40-
-	[ $hw_n == 1 ] && [ $valid_channel -le 140 ] && uci_set wireless $device htmode "HT40-"
+	#[ $hw_n == 1 ] && [ $valid_channel -le 140 ] && uci_set wireless $device htmode "HT40-"
 	# Channel 100 HT40+
-	[ $hw_n == 1 ] && [ $valid_channel -le 100 ] && uci_set wireless $device htmode "HT40+"
+	#[ $hw_n == 1 ] && [ $valid_channel -le 100 ] && uci_set wireless $device htmode "HT40+"
 	# Channel 40 - 64 HT40-
-	[ $hw_n == 1 ] && [ $valid_channel -le 64 ] && uci_set wireless $device htmode "HT40-"
+	#[ $hw_n == 1 ] && [ $valid_channel -le 64 ] && uci_set wireless $device htmode "HT40-"
 	# Channel 36 HT40+
-	[ $hw_n == 1 ] && [ $valid_channel -le 36 ] && uci_set wireless $device htmode "HT40+"
+	#[ $hw_n == 1 ] && [ $valid_channel -le 36 ] && uci_set wireless $device htmode "HT40+"
 	# Channel 10 - 14 HT40-
-	[ $hw_n == 1 ] && [ $valid_channel -le 14 ] && uci_set wireless $device htmode "HT40-"
+	#[ $hw_n == 1 ] && [ $valid_channel -le 14 ] && uci_set wireless $device htmode "HT40-"
 	# Channel 5 - 9 HT40+/-
-	[ $hw_n == 1 ] && [ $valid_channel -le 7 ] && uci_set wireless $device htmode "HT40+"
+	#[ $hw_n == 1 ] && [ $valid_channel -le 7 ] && uci_set wireless $device htmode "HT40+"
 	# Channel 1 - 4 HT40+
-	[ $hw_n == 1 ] && [ $valid_channel -le 4 ] && uci_set wireless $device htmode "HT40+"
+	#[ $hw_n == 1 ] && [ $valid_channel -le 4 ] && uci_set wireless $device htmode "HT40+"
 	uci_set wireless $device country "00"
 	[ $hw_a == 1 ] && uci_set wireless $device doth "0"
 	#read from Luci_ui
@@ -198,6 +198,7 @@ setup_wifi() {
 	#wifi-iface
 	config_get olsr_mesh $cfg olsr_mesh "0"
 	config_get bat_mesh $cfg bat_mesh "0"
+	config_get iface_mode $cfg iface_mode "mesh"
 	if [ "$olsr_mesh" == "1" -o "$bat_mesh" == "1" ] ; then
 		local bssid
 		log_wifi "mesh"
@@ -206,23 +207,30 @@ setup_wifi() {
 		uci_set wireless $sec device "$device"
 		uci_set wireless $sec encryption "none"
 		# Depricated Ad-Hoc config
-		#uci_set wireless $sec mode "adhoc"
-		#uci_set wireless $sec ssid "intern-ch"$valid_channel".freifunk.net"
-		#if [ $valid_channel -gt 0 -a $valid_channel -lt 10 ] ; then
-		#	bssid=$valid_channel"2:CA:FF:EE:BA:BE"
-		#elif [ $valid_channel -eq 10 ] ; then
-		#	bssid="02:CA:FF:EE:BA:BE"
-		#elif [ $valid_channel -gt 10 -a $valid_channel -lt 15 ] ; then
-		#	bssid=$(printf "%X" "$valid_channel")"2:CA:FF:EE:BA:BE"
-		#elif [ $valid_channel -gt 35 -a $valid_channel -lt 100 ] ; then
-		#	bssid="02:"$valid_channel":CA:FF:EE:EE"
-		#elif [ $valid_channel -gt 99 -a $valid_channel -lt 199 ] ; then
-		#	bssid="12:"$(printf "%02d" "$(expr $valid_channel - 100)")":CA:FF:EE:EE"
-		#fi
-		#uci_set wireless $sec bssid "$bssid"
-		uci_set wireless $sec mode "mesh"
-		uci_set wireless $sec mesh_id 'freifunk'
-		uci_set wireless $sec mesh_fwding '0'
+		if [ "$iface_mode" == "adhoc" ] ; then
+			uci_set wireless $sec mode "adhoc"
+			config_get ssid $cfg ssid "intern-ch"$valid_channel".freifunk.net"
+			uci_set wireless $sec ssid "$ssid"
+			if [ $valid_channel -gt 0 -a $valid_channel -lt 10 ] ; then
+				bssid_ch=$valid_channel"2:CA:FF:EE:BA:BE"
+			elif [ $valid_channel -eq 10 ] ; then
+				bssid_ch="02:CA:FF:EE:BA:BE"
+			elif [ $valid_channel -gt 10 -a $valid_channel -lt 15 ] ; then
+				bssid_ch=$(printf "%X" "$valid_channel")"2:CA:FF:EE:BA:BE"
+			elif [ $valid_channel -gt 35 -a $valid_channel -lt 100 ] ; then
+				bssid_ch="02:"$valid_channel":CA:FF:EE:EE"
+			elif [ $valid_channel -gt 99 -a $valid_channel -lt 199 ] ; then
+				bssid_ch="12:"$(printf "%02d" "$(expr $valid_channel - 100)")":CA:FF:EE:EE"
+			fi
+			config_get bssid $cfg bssid "$bssid_ch"
+			uci_set wireless $sec bssid "$bssid"
+		else
+			#TODO check valid htmode. adhoc works with HT40
+			[ $hw_n == 1 ] && uci_set wireless $device htmode "HT20"
+			uci_set wireless $sec mode "mesh"
+			uci_set wireless $sec mesh_id 'freifunk'
+			uci_set wireless $sec mesh_fwding '0'
+		fi
 		#uci_set wireless $sec "doth"
 		uci_set wireless $sec network "$cfg_mesh"
 		uci_set wireless $sec mcast_rate "18000"

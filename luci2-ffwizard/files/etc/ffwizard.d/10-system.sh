@@ -47,7 +47,7 @@ setup_system() {
 json_init
 json_load "$(cat /tmp/config.json)"
 if ! json_select router ; then
-	log "Exit no valid json"
+	log_system "Exit no valid json"
 	return 1
 fi
 # Set Hostname

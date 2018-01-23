@@ -29,10 +29,10 @@ if [ "$(uci_get system @system[0] hostname)" == "OpenWrt" ]; then
 	config_get keyfile main key
 	[ -f "$crtfile" ] && rm -f "$crtfile"
 	[ -f "$keyfile" ] && rm -f "$keyfile"
-	uci_set uhttpd px5g country "DE"
-	uci_set uhttpd px5g state "Berlin"
-	uci_set uhttpd px5g location "uncertain"
-	uci_set uhttpd px5g commonname "$hostname"
+	uci_set uhttpd defaults country "DE"
+	uci_set uhttpd defaults state "Berlin"
+	uci_set uhttpd defaults location "uncertain"
+	uci_set uhttpd defaults commonname "$hostname"
 	[ -f /usr/lib/lua/luci/sgi/uhttpd.lua ] && \
 	uci_set uhttpd main lua_prefix "/cgi-bin/luci"
 	[ -f /usr/lib/lua/luci/sgi/uhttpd.lua ] && \
