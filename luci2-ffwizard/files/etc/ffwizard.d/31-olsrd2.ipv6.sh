@@ -43,7 +43,7 @@ setup_olsrv2() {
 setup_domain() {
 	log_olsr "Setup Domain IP Table"
 	uci_add olsrd2 domain ; cfg="$CONFIG_SECTION"
-	uci_set olsrd2 "$cfg" table "192"
+	uci_set olsrd2 "$cfg" table "254"
 	uci_set olsrd2 "$cfg" srcip_routes 1
 	uci_set olsrd2 "$cfg" protocol "100"
 	uci_set olsrd2 "$cfg" distance 2
