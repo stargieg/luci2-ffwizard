@@ -34,7 +34,7 @@ if [ "$(uci_get system @system[0] hostname)" == "OpenWrt" ]; then
 	uci_set uhttpd defaults location "uncertain"
 	uci_set uhttpd defaults commonname "$hostname"
 	[ -f /usr/lib/lua/luci/sgi/uhttpd.lua ] && \
-	uci_set uhttpd main lua_prefix "/cgi-bin/luci"
+	uci_set uhttpd main lua_prefix "/luci"
 	[ -f /usr/lib/lua/luci/sgi/uhttpd.lua ] && \
 	uci_set uhttpd main lua_handler "/usr/lib/lua/luci/sgi/uhttpd.lua"
 	uci_commit uhttpd
