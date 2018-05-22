@@ -12,6 +12,7 @@ You may obtain a copy of the License at
 $Id$
 ]]--
 
+local utl = require "luci.util"
 
 m = Map("ffwizard", "Freifunk Wizard", "Autokonfiguration")
 m.on_after_commit = function() utl.ubus("uci", "reload_config") end
