@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=35
+PKG_RELEASE:=36
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -27,17 +27,6 @@ define Package/luci2-ffwizard/conffiles
 /etc/config/ffwizard
 endef
 
-define Package/luci2-ffwizard-jq
-  $(call Package/luci2-ffwizard/template)
-  MENU:=1
-  DEPENDS:=luci2-ffwizard +luci2
-endef
-
-define Package/luci2-ffwizard-jq/description
-  LuCI2 Freifunk Wizard UI with jQuery
-  Depends http://git.openwrt.org/?p=project/luci2/ui.git
-endef
-
 define Package/luci2-ffwizard-angular
   $(call Package/luci2-ffwizard/template)
   MENU:=1
@@ -57,9 +46,9 @@ define Package/luci2-ffwizard-lua
   luci-lib-json uhttpd-mod-lua libiwinfo-lua
 endef
 
-define Package/luci2-ffwizard-angular/description
-  LuCI2 Freifunk Wizard UI with angular
-  Depends https://github.com/jow-/luci-ng
+define Package/luci2-ffwizard-lua/description
+  Freifunk Wizard UI with Luci
+  Depends https://github.com/openwrt/luci
 endef
 
 define Package/luci2-ffwizard-fw
