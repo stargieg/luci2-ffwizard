@@ -87,12 +87,6 @@ define Package/luci2-ffwizard-kadnode
   TITLE:=kadnode config
 endef
 
-define Package/luci2-proto-batadv-jq
-  $(call Package/luci2-ffwizard/template)
-  DEPENDS:=luci2 +kmod-batman-adv +batctl
-  TITLE:=Batman proto support for LuCI2 jQuery
-endef
-
 define Package/luci2-ffwizard-lua/config
   config LUCI_APP_FFWIZARD_GEN_SRCDIET
     bool "ffwizard Minify Lua sources"
@@ -138,14 +132,6 @@ define Package/luci2-ffwizard/install
 	$(INSTALL_BIN) files/etc/uci-defaults/ffwizard $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/init.d/ffwizard $(1)/etc/init.d/
 	$(INSTALL_DATA) files/etc/config/ffwizard $(1)/etc/config/
-endef
-
-define Package/luci2-ffwizard-jq/install
-	$(INSTALL_DIR) $(1)/www/luci2/template
-	$(INSTALL_DATA) files/www/luci2/template/services.ffwizard.htm $(1)/www/luci2/template/
-
-	$(INSTALL_DIR) $(1)/www/luci2/view
-	$(INSTALL_DATA) files/www/luci2/view/services.ffwizard.js $(1)/www/luci2/view/
 endef
 
 define Package/luci2-ffwizard-angular/install
@@ -200,20 +186,12 @@ define Package/luci2-ffwizard-kadnode/install
 	$(INSTALL_BIN) files/etc/uci-defaults/ffwizard_kadnode $(1)/etc/uci-defaults/
 endef
 
-define Package/luci2-proto-batadv-jq/install
-	$(INSTALL_DIR) $(1)/www/luci2/proto
-	$(INSTALL_DATA) files/www/luci2/proto/batadv.js $(1)/www/luci2/proto/
-	$(INSTALL_DATA) files/www/luci2/proto/batadv_vlan.js $(1)/www/luci2/proto/
-endef
-
 $(eval $(call BuildPackage,luci2-ffwizard))
-$(eval $(call BuildPackage,luci2-ffwizard-jq))
 $(eval $(call BuildPackage,luci2-ffwizard-angular))
 $(eval $(call BuildPackage,luci2-ffwizard-lua))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrd-ipv4))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrd-ipv6))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrv2-ipv6))
 $(eval $(call BuildPackage,luci2-ffwizard-batadv))
-$(eval $(call BuildPackage,luci2-proto-batadv-jq))
 $(eval $(call BuildPackage,luci2-ffwizard-kadnode))
 $(eval $(call BuildPackage,luci2-ffwizard-fw))
