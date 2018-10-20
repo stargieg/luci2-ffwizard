@@ -17,11 +17,15 @@ setup_ip() {
 		eval "$(ipcalc.sh $ipaddr)"
 		uci_set network $cfg ipaddr "$IP"
 		uci_set network $cfg netmask "$NETMASK"
+		if [ "$cfg" == "lan" ] ; then
+			uci_set network $cfg type "bridge"
+		fi
 	else
 		if [ "$cfg" == "lan" ] ; then
 			#Magemant Access via lan ipv4
 			uci_set network $cfg ipaddr "192.168.42.1"
 			uci_set network $cfg netmask "255.255.255.0"
+			uci_set network $cfg type "bridge"
 		else
 			#ipv6 only via ip6assign
 			uci_remove network $cfg ipaddr 2>/dev/null
@@ -300,14 +304,14 @@ uci_commit wireless
 sleep 5
 
 #Remove wifi ifaces
+config_load wireless
 config_foreach remove_wifi wifi-iface
 uci_commit wireless
 
 
-#Setup ether and wifi
+#Setup ether
 config_load ffwizard
 config_foreach setup_ether ether
-config_foreach setup_wifi wifi "$br_name"
 
 #Setup DHCP Batman Bridge
 config_get br ffwizard br "0"
@@ -323,7 +327,12 @@ if [ "$br" == "1" ] ; then
 	setup_bridge "$br_name" "$ipaddr" "$br_ifaces"
 else
 	uci_remove network "$br_name" 2>/dev/null
+	br_name="lan"
 fi
+
+#Setup wifi
+config_foreach setup_wifi wifi "$br_name"
+
 
 #Setup IP6 Prefix
 config_get ip6prefix ffwizard ip6prefix
