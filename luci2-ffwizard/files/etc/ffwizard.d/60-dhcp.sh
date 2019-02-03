@@ -42,6 +42,16 @@ setup_dhcp() {
 		uci_set dhcp $cfg_dhcp ra_default "1"
 }
 
+setup_dhcp_ignore() {
+		local cfg_dhcp="$1"
+		if uci_get dhcp $cfg_dhcp >/dev/null ; then
+			uci_remove dhcp $cfg_dhcp
+		fi
+		uci_add dhcp dhcp $cfg_dhcp
+		uci_set dhcp $cfg_dhcp interface "$cfg_dhcp"
+		uci_set dhcp $cfg_dhcp ignore "1"
+}
+
 setup_ether() {
 	local cfg="$1"
 	config_get enabled $cfg enabled "0"
@@ -57,19 +67,9 @@ setup_ether() {
 		config_get mesh_ip $cfg mesh_ip "0"
 		if [ "$cfg" == "lan" ] && [ "$mesh_ip" == "0" ] && [ "$dhcp_br" == "0" ] ; then
 			log_dhcp "Setup iface $cfg to default"
-			uci_set dhcp $cfg ignore "0"
-			uci_add_list dhcp $cfg dhcp_option "119,olsr,lan,p2p"
-			uci_add_list dhcp $cfg domain "olsr"
-			uci_add_list dhcp $cfg domain "lan"
-			uci_add_list dhcp $cfg domain "p2p"
-			uci_set dhcp $cfg dhcpv6 "server"
-			uci_set dhcp $cfg ra "server"
-			uci_set dhcp $cfg ra_preference "low"
-			uci_set dhcp $cfg ra_default "1"
+			setup_dhcp $cfg
 		else
-			uci_set dhcp $cfg ignore "1"
-			uci_set dhcp $cfg dhcpv6 "disabled"
-			uci_set dhcp $cfg ra "disabled"
+			setup_dhcp_ignore $cfg
 		fi
 	fi
 	case $cfg in
@@ -88,6 +88,8 @@ setup_wifi() {
 	if [ "$dhcp_ip" != "0" ] ; then
 		log_dhcp "Setup $cfg with $dhcp_ip"
 		setup_dhcp $cfg_dhcp "$dhcp_ip"
+	else
+		setup_dhcp_ignore $cfg_dhcp
 	fi
 }
 
@@ -95,6 +97,9 @@ setup_dhcpbase() {
 	local cfg="$1"
 	uci_set dhcp $cfg local "/olsr/"
 	uci_set dhcp $cfg domain "olsr"
+	uci_set dhcp $cfg localservice "0"
+	uci_set dhcp $cfg add_local_fqdn "3"
+	uci_set dhcp $cfg add_wan_fqdn "3"
 }
 
 setup_odhcpbase() {
@@ -132,28 +137,16 @@ else
 	fi
 fi
 
-
 #Enable dhcp on LAN
 if [ -n "$lan_iface" ] ; then
 	log_dhcp "Setup iface $lan_iface to default"
-	uci_set dhcp $cfg ignore "0"
-	uci_set dhcp $lan_iface start "100"
-	uci_set dhcp $lan_iface limit "150"
-	uci_set dhcp $lan_iface leasetime "12h"
-	uci_add_list dhcp $cfg_dhcp dhcp_option "119,olsr,lan,p2p"
-	uci_add_list dhcp $cfg_dhcp domain "olsr"
-	uci_add_list dhcp $cfg_dhcp domain "lan"
-	uci_add_list dhcp $cfg_dhcp domain "p2p"
-	uci_set dhcp $lan_iface dhcpv6 "server"
-	uci_set dhcp $lan_iface ra "server"
+	setup_dhcp $lan_iface
 fi
 
 #Disable dhcp on WAN
 if [ -n "$wan_iface" ] ; then
 	log_dhcp "Setup iface $wan_iface to default"
-	uci_set dhcp $wan_iface ignore "1"
-	uci_set dhcp $wan_iface dhcpv6 "disabled"
-	uci_set dhcp $wan_iface ra "disabled"
+	setup_dhcp_ignore $wan_iface
 fi
 
 uci_commit dhcp
