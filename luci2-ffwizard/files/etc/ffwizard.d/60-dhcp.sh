@@ -82,14 +82,19 @@ setup_wifi() {
 	local cfg="$1"
 	config_get enabled $cfg enabled "0"
 	[ "$enabled" == "0" ] && return
-	config_get dhcp_ip $cfg dhcp_ip "0"
+	config_get olsr_mesh $cfg olsr_mesh "0"
+	if [ "$olsr_mesh" == "1" ] ; then
+		log_dhcp "Setup "$cfg"_mesh with"
+		setup_dhcp_ignore $cfg"_mesh"
+	fi
 	cfg_dhcp=$cfg"_vap"
 	uci_remove dhcp $cfg_dhcp 2>/dev/null
-	if [ "$dhcp_ip" != "0" ] ; then
+	config_get vap $cfg vap "0"
+	config_get vap_br $cfg vap_br "0"
+	if [ "$vap_br" == "0" -a "$vap" == "1" ] ; then
 		log_dhcp "Setup $cfg with $dhcp_ip"
+		config_get dhcp_ip $cfg dhcp_ip
 		setup_dhcp $cfg_dhcp "$dhcp_ip"
-	else
-		setup_dhcp_ignore $cfg_dhcp
 	fi
 }
 
