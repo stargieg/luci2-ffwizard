@@ -240,6 +240,11 @@ setup_wifi() {
 		uci_set wireless $sec mcast_rate "18000"
 		config_get ipaddr $cfg mesh_ip
 		setup_ip "$cfg_mesh" "$ipaddr"
+	else
+		if uci_get network $cfg >/dev/null ; then
+			cfg_mesh=$cfg"_mesh"
+			uci_remove network "$cfg_mesh"
+		fi
 	fi
 	config_get vap $cfg vap "0"
 	#TODO check valid interface combinations
