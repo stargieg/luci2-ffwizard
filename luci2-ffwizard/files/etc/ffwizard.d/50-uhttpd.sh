@@ -19,13 +19,14 @@ config_foreach get_hostname system
 
 #Load uhttpd config
 config_load uhttpd
-config_get cn_hostname defaults commonname
-if [ "$cn_hostname" != "$sys_hostname" ] ; then
+config_get commonname defaults commonname
+sys_fqdn="$sys_hostname"".olsr"
+if [ "$commonname" != "$sys_fqdn" ] ; then
 	config_get crtfile main cert
 	config_get keyfile main key
 	[ -f "$crtfile" ] && rm -f "$crtfile"
 	[ -f "$keyfile" ] && rm -f "$keyfile"
-	uci_set uhttpd defaults commonname "$hostname"
+	uci_set uhttpd defaults commonname "$sys_fqdn"
 	uci_commit uhttpd
 fi
 
