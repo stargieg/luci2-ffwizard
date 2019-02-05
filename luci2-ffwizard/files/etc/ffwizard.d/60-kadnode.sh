@@ -45,8 +45,8 @@ setup_kadnode() {
 	uci_set kadnode $cfg port "5881"
 	uci_remove kadnode $cfg peer 2>/dev/null
 	uci_set kadnode $cfg peerfile '/etc/kadnode_peers.txt'
-	#uci_set ifname $cfg "br-lan"
-	uci_set kadnode $cfg ifname "$iface"
+	#TODO https://github.com/mwarning/KadNode/issues/44
+	#uci_set kadnode $cfg ifname "$iface"
 	uci_remove kadnode $cfg bob_load_key 2>/dev/null
 	uci_add_list kadnode $cfg bob_load_key '/etc/kadnode_secret.pem'
 	uci_remove kadnode $cfg tls_server_cert 2>/dev/null
