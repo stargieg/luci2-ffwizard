@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=37
+PKG_RELEASE:=38
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -83,7 +83,7 @@ endef
 
 define Package/luci2-ffwizard-kadnode
   $(call Package/luci2-ffwizard/template)
-  DEPENDS:=luci2-ffwizard +kadnode
+  DEPENDS:=luci2-ffwizard +kadnode +ca-bundle
   TITLE:=kadnode config
 endef
 
