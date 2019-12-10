@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=39
+PKG_RELEASE:=40
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -18,9 +18,6 @@ endef
 define Package/luci2-ffwizard
   $(call Package/luci2-ffwizard/template)
   MENU:=1
-  DEPENDS:=+uhttpd +uhttpd-mod-ubus \
-  +dnsmasq +rpcd +rpcd-mod-file +rpcd-mod-iwinfo +rpcd-mod-rpcsys +iwinfo \
-  @IPV6
 endef
 
 define Package/luci2-ffwizard/conffiles
@@ -30,61 +27,63 @@ endef
 define Package/luci2-ffwizard-angular
   $(call Package/luci2-ffwizard/template)
   MENU:=1
-  DEPENDS:=luci2-ffwizard +luci2-ui-base
+  DEPENDS:=luci2-ffwizard
 endef
 
 define Package/luci2-ffwizard-angular/description
   LuCI2 Freifunk Wizard UI with angular
   Depends https://github.com/jow-/luci-ng
+  luci2-ui-base
 endef
 
 define Package/luci2-ffwizard-lua
   $(call Package/luci2-ffwizard/template)
   MENU:=1
-  DEPENDS:=luci2-ffwizard +luci-mod-admin-full luci-i18n-base-de \
-  luci-theme-bootstrap luci-proto-ipv6 \
-  luci-lib-json uhttpd-mod-lua libiwinfo-lua
+  DEPENDS:=luci2-ffwizard
 endef
 
 define Package/luci2-ffwizard-lua/description
   Freifunk Wizard UI with Luci
   Depends https://github.com/openwrt/luci
+  luci-mod-admin-full luci-i18n-base-de
+  luci-theme-bootstrap luci-proto-ipv6
+  luci-lib-json uhttpd-mod-lua libiwinfo-lua
 endef
 
 define Package/luci2-ffwizard-fw
   $(call Package/luci2-ffwizard/template)
-  DEPENDS:=luci2-ffwizard +firewall
-  TITLE:=olsrd firewall config
+  DEPENDS:=luci2-ffwizard
+  TITLE:=olsrd firewall config depends firewall
 endef
 
 define Package/luci2-ffwizard-olsrd-ipv4
   $(call Package/luci2-ffwizard/template)
-  DEPENDS:=luci2-ffwizard +olsrd +olsrd-mod-jsoninfo +olsrd-mod-nameservice
-  TITLE:=olsrd ipv4 config
+  DEPENDS:=luci2-ffwizard
+  TITLE:=olsrd ipv4 config depends olsrd olsrd-mod-jsoninfo olsrd-mod-nameservice
 endef
 
 define Package/luci2-ffwizard-olsrd-ipv6
   $(call Package/luci2-ffwizard/template)
-  DEPENDS:=luci2-ffwizard +olsrd +olsrd-mod-jsoninfo +olsrd-mod-nameservice
-  TITLE:=olsrd ipv6 config
+  DEPENDS:=luci2-ffwizard
+  TITLE:=olsrd ipv6 config depends olsrd olsrd-mod-jsoninfo olsrd-mod-nameservice
 endef
 
 define Package/luci2-ffwizard-olsrv2-ipv6
   $(call Package/luci2-ffwizard/template)
-  DEPENDS:=luci2-ffwizard +oonf-init-scripts +oonf-olsrd2
-  TITLE:=olsrd ipv6 config
+  DEPENDS:=luci2-ffwizard
+  TITLE:=olsrd ipv6 config depends oonf-init-scripts oonf-olsrd2
 endef
 
 define Package/luci2-ffwizard-batadv
   $(call Package/luci2-ffwizard/template)
-  DEPENDS:=luci2-ffwizard +kmod-batman-adv +batctl
-  TITLE:=Batman advanced config
+  DEPENDS:=luci2-ffwizard
+  TITLE:=Batman advanced config depends kmod-batman-adv batctl
 endef
 
 define Package/luci2-ffwizard-kadnode
   $(call Package/luci2-ffwizard/template)
-  DEPENDS:=luci2-ffwizard +kadnode +ca-bundle
-  TITLE:=kadnode config
+  DEPENDS:=luci2-ffwizard
+  TITLE:=kadnode config depends kadnode ca-bundle
 endef
 
 define Package/luci2-ffwizard-lua/config
