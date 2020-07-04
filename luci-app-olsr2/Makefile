@@ -15,7 +15,7 @@ define Package/luci-app-olsr2
   CATEGORY:=LuCI
   SUBMENU:=3. Applications
   TITLE:=OLSR2 configuration and status module
-  EXTRA_DEPENDS:=+oonf-olsrd2, luci-mod-admin-full
+  EXTRA_DEPENDS:=oonf-olsrd2, luci-mod-admin-full
 endef
 
 define Package/luci-app-bacnet/config
