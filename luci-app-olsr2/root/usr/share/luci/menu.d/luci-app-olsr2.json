@@ -1,0 +1,117 @@
+{
+	"admin/services/olsr2": {
+		"title": "olsr2",
+		"action": {
+			"type": "firstchild",
+		},
+		"depends": {
+			"acl": [ "luci-app-olsr2" ]
+		}
+	},
+	"admin/services/olsr2/global": {
+		"title": "Global",
+		"order": 1,
+		"action": {
+			"type": "view",
+			"path": "olsr2/global",
+		}
+	},
+	"admin/services/olsr2/log": {
+		"title": "OONF Logging",
+		"order": 2,
+		"action": {
+			"type": "view",
+			"path": "olsr2/log",
+		}
+	},
+	"admin/services/olsr2/olsrv2": {
+		"title": "OLSR2 Daemon",
+		"order": 3,
+		"action": {
+			"type": "view",
+			"path": "olsr2/olsrv2",
+		}
+	},
+	"admin/services/olsr2/domain": {
+		"title": "Domain",
+		"order": 4,
+		"action": {
+			"type": "view",
+			"path": "olsr2/domain",
+		}
+	},
+	"admin/services/olsr2/mesh": {
+		"title": "Mesh",
+		"order": 5,
+		"action": {
+			"type": "view",
+			"path": "olsr2/mesh",
+		}
+	},
+	"admin/services/olsr2/lan_import": {
+		"title": "LAN Import",
+		"order": 6,
+		"action": {
+			"type": "view",
+			"path": "olsr2/lan_import",
+		}
+	},
+	"admin/services/olsr2/interface": {
+		"title": "Interface",
+		"order": 7,
+		"action": {
+			"type": "view",
+			"path": "olsr2/interface",
+		}
+	},
+		"admin/services/olsr2": {
+		"title": "olsr2",
+		"action": {
+			"type": "firstchild",
+		},
+		"depends": {
+			"acl": [ "luci-app-olsr2" ]
+		}
+	},
+	"admin/status/olsr2": {
+		"title": "olsr2",
+		"action": {
+			"type": "firstchild",
+		},
+		"depends": {
+			"acl": [ "luci-app-olsr2" ]
+		}
+	},
+	"admin/status/olsr2/overview": {
+		"title": "Overview",
+		"order": 1,
+		"action": {
+			"type": "view",
+			"path": "olsr2/overview",
+		}
+	},
+	"admin/status/olsr2/node": {
+		"title": "Nodes",
+		"order": 2,
+		"action": {
+			"type": "view",
+			"path": "olsr2/node"
+		}
+	},
+	"admin/status/olsr2/attachednetwork": {
+		"title": "attachednetwork",
+		"order": 3,
+		"action": {
+			"type": "view",
+			"path": "olsr2/attachednetwork"
+		}
+	},
+	"admin/status/olsr2/neighbors": {
+		"title": "neighbors",
+		"order": 4,
+		"action": {
+			"type": "view",
+			"path": "olsr2/neighbors"
+		}
+	}
+}

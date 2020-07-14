@@ -160,8 +160,10 @@ function action_neigh()
 			end
 		end
 	
-	
 		req_json = jsonc.parse(utl.exec("(echo '/nhdpinfo json neighbor /quit' | nc ::1 %d) 2>/dev/null" % telnet_port))
+		if not (type(req_json) == "table") then
+			return
+		end
 	
 		for _, neighbors in pairs(req_json) do
 			for nidx, neighbor in pairs(neighbors) do
@@ -170,6 +172,9 @@ function action_neigh()
 				end
 				neighbors[nidx].proto = 6
 				local rt = ipc.route(neighbor["neighbor_originator"])
+				if not rt then
+					return
+				end
 				local localIP=rt.src:string()
 				neighbors[nidx].localIP=localIP
 				neighbors[nidx].interface = ntm:get_status_by_address(localIP) or "?"
