@@ -64,7 +64,7 @@
 			"path": "olsr2/interface",
 		}
 	},
-		"admin/services/olsr2": {
+	"admin/services/olsr2": {
 		"title": "olsr2",
 		"action": {
 			"type": "firstchild",
@@ -76,10 +76,7 @@
 	"admin/status/olsr2": {
 		"title": "olsr2",
 		"action": {
-			"type": "firstchild",
-		},
-		"depends": {
-			"acl": [ "luci-app-olsr2" ]
+			"type": "firstchild"
 		}
 	},
 	"admin/status/olsr2/overview": {
@@ -107,6 +104,46 @@
 		}
 	},
 	"admin/status/olsr2/neighbors": {
+		"title": "neighbors",
+		"order": 4,
+		"action": {
+			"type": "view",
+			"path": "olsr2/neighbors"
+		}
+	},
+	"olsr2": {
+		"title": "olsr2",
+		"action": {
+			"type": "firstchild",
+			"recurse": true
+		},
+		"auth": {}
+	},
+	"olsr2/overview": {
+		"title": "Overview",
+		"order": 1,
+		"action": {
+			"type": "view",
+			"path": "olsr2/overview",
+		}
+	},
+	"olsr2/node": {
+		"title": "Nodes",
+		"order": 2,
+		"action": {
+			"type": "view",
+			"path": "olsr2/node"
+		}
+	},
+	"olsr2/attachednetwork": {
+		"title": "attachednetwork",
+		"order": 3,
+		"action": {
+			"type": "view",
+			"path": "olsr2/attachednetwork"
+		}
+	},
+	"olsr2/neighbors": {
 		"title": "neighbors",
 		"order": 4,
 		"action": {
