@@ -46,8 +46,9 @@ define Package/$(PKG_NAME)/install
 	#$(INSTALL_BIN) $(PKG_BUILD_DIR)/luasrc/view/status-olsr2/* $(1)/usr/lib/lua/luci/view/status-olsr2
 	#$(INSTALL_DIR) $(1)/www/
 	#$(INSTALL_DATA) ./htdocs/* $(1)/www
-	$(INSTALL_DIR) $(1)/www/
-	$(INSTALL_DATA) ./root/htdocs/* $(1)/www
+	$(INSTALL_DIR) $(1)/www/luci-static/resources/view/olsr2
+	$(INSTALL_DATA) ./htdocs/cgi-bin-olsr2-neigh.html $(1)/www
+	$(INSTALL_DATA) ./htdocs/luci-static/resources/view/olsr2/* $(1)/www/luci-static/resources/view/olsr2
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DATA) ./root/etc/config/* $(1)/etc/config
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
