@@ -55,8 +55,8 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DATA) ./root/etc/uci-defaults/* $(1)/etc/uci-defaults
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) ./root/usr/bin/* $(1)/usr/bin
-	$(INSTALL_DIR) $(1)/usr/share/libexec/rpcd
-	$(INSTALL_BIN) ./root/usr/share/libexec/rpcd/* $(1)/usr/share/libexec/rpcd
+	$(INSTALL_DIR) $(1)/usr/libexec/rpcd
+	$(INSTALL_BIN) ./root/usr/libexec/rpcd/* $(1)/usr/libexec/rpcd
 	$(INSTALL_DIR) $(1)/usr/share/luci/menu.d
 	$(INSTALL_DATA) ./root/usr/share/luci/menu.d/* $(1)/usr/share/luci/menu.d
 	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
