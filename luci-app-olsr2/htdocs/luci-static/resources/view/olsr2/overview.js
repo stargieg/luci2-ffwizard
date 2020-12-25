@@ -41,10 +41,10 @@ return view.extend({
 		var table = E('div',{ 'class': 'olsr'});
 		table.appendChild(E('ul', { 'class': 'tabs' }, [
 			E('li', { 'class': 'tabmenu-item-admin' }, [ E('a',{ 'href': '/cgi-bin/luci/admin'}, _(' Admin')) ]),
-			E('li', { 'class': 'tabmenu-item-overview' }, [ E('a',{ 'href': '../olsr2'}, _('Overview')) ]),
-			E('li', { 'class': 'tabmenu-item-node' }, [ E('a',{ 'href': '../olsr2/node'}, _('Node')) ]),
-			E('li', { 'class': 'tabmenu-item-attachednetwork' }, [ E('a',{ 'href': '../olsr2/attachednetwork'}, _('Attachednetwork')) ]),
-			E('li', { 'class': 'tabmenu-item-neighbors' }, [ E('a',{ 'href': '../olsr2/neighbors'}, _('Neighbors')) ]),
+			E('li', { 'class': 'tabmenu-item-overview' }, [ E('a',{ 'href': 'olsr2'}, _('Overview')) ]),
+			E('li', { 'class': 'tabmenu-item-node' }, [ E('a',{ 'href': 'olsr2/node'}, _('Node')) ]),
+			E('li', { 'class': 'tabmenu-item-attachednetwork' }, [ E('a',{ 'href': 'olsr2/attachednetwork'}, _('Attachednetwork')) ]),
+			E('li', { 'class': 'tabmenu-item-neighbors' }, [ E('a',{ 'href': 'olsr2/neighbors'}, _('Neighbors')) ]),
 		]));
 
 		table.appendChild(E('div', { 'class': 'table' }));
