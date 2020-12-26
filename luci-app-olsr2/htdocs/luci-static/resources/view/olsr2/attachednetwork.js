@@ -9,7 +9,7 @@ var callgetAttached_network = rpc.declare({
 });
 
 return view.extend({
-	title: _('OLSR2 mesh nodes'),
+	title: _('OLSR2 networks'),
 
 	load: function() {
 		return Promise.all([
@@ -18,37 +18,32 @@ return view.extend({
 	},
 
 	render: function(data) {
-		var attached_network = data[0];
 
-		var fields = [];
-		for (var idx = 0; idx < attached_network.attached_network.length; idx++) {
-			fields.push(attached_network.attached_network[idx].node,
-				attached_network.attached_network[idx].attached_net,
-				attached_network.attached_network[idx].attached_net_src,
-				attached_network.attached_network[idx].domain_metric_out
-				);
-		}
-			
-		var table = E('div',{ 'class': 'olsr'});
-		table.appendChild(E('ul', { 'class': 'tabs' }, [
-			E('li', { 'class': 'tabmenu-item-admin' }, [ E('a',{ 'href': '/cgi-bin/luci/admin'}, _(' Admin')) ]),
-			E('li', { 'class': 'tabmenu-item-overview' }, [ E('a',{ 'href': '../olsr2'}, _('Overview')) ]),
-			E('li', { 'class': 'tabmenu-item-node' }, [ E('a',{ 'href': '../olsr2/node'}, _('Node')) ]),
-			E('li', { 'class': 'tabmenu-item-attachednetwork' }, [ E('a',{ 'href': '../olsr2/attachednetwork'}, _('Attachednetwork')) ]),
-			E('li', { 'class': 'tabmenu-item-neighbors' }, [ E('a',{ 'href': '../olsr2/neighbors'}, _('Neighbors')) ]),
+		var menu = E('ul',{ 'class': 'tabs'});
+		menu.appendChild(E('li', { 'class': 'tabmenu-item-admin' }, [ E('a',{ 'href': '/cgi-bin/luci/admin'}, _('Admin')) ]));
+		menu.appendChild(E('li', { 'class': 'tabmenu-item-overview' }, [ E('a',{ 'href': '../olsr2'}, _('Overview')) ]));
+		menu.appendChild(E('li', { 'class': 'tabmenu-item-node' }, [ E('a',{ 'href': '../olsr2/node'}, _('Node')) ]));
+		menu.appendChild(E('li', { 'class': 'tabmenu-item-attachednetwork active' }, [ E('a',{ 'href': '../olsr2/attachednetwork'}, _('Attachednetwork')) ]));
+		menu.appendChild(E('li', { 'class': 'tabmenu-item-neighbors' }, [ E('a',{ 'href': '../olsr2/neighbors'}, _('Neighbors')) ]));
+
+		var tr = E('div', { 'class': 'table' });
+		tr.appendChild(E('div', { 'class': 'tr cbi-section-table-titles' }, [
+			E('div', { 'class': 'td left', 'width': '33%' }, [ 'IP address' ]),
+			E('div', { 'class': 'td left' }, [ 'Network' ]),
+			E('div', { 'class': 'td left' }, [ 'Source' ]),
+			E('div', { 'class': 'td left' }, [ 'Metric' ])
 		]));
 
-		table.appendChild(E('div', { 'class': 'table' }));
-		for (var i = 0; i < fields.length; i += 4) {
-			table.appendChild(E('div', { 'class': 'tr' }, [
-				E('div', { 'class': 'td left', 'width': '33%' }, [ fields[i] ]),
-				E('div', { 'class': 'td left' }, [ (fields[i + 1] != null) ? fields[i + 1] : '?' ]),
-				E('div', { 'class': 'td left' }, [ (fields[i + 2] != null) ? fields[i + 2] : '?' ]),
-				E('div', { 'class': 'td left' }, [ (fields[i + 3] != null) ? fields[i + 3] : '?' ])
+		for (var idx = 0; idx < data[0].attached_network.length; idx++) {
+			tr.appendChild(E('div', { 'class': 'tr' }, [
+				E('div', { 'class': 'td left', 'width': '33%' }, [ data[0].attached_network[idx].node ]),
+				E('div', { 'class': 'td left' }, [ data[0].attached_network[idx].attached_net ]),
+				E('div', { 'class': 'td left' }, [ data[0].attached_network[idx].attached_net_src ]),
+				E('div', { 'class': 'td left' }, [ data[0].attached_network[idx].domain_metric_out ])
 			]));
 		}
 
-		return table;
+		return [ menu, tr ];
 	},
 
 	handleSaveApply: null,
