@@ -35,7 +35,7 @@ return view.extend({
 		for (var idx = 0; idx < data[0].node.length; idx++) {
 			tr.appendChild(E('div', { 'class': 'tr' }, [
 				//E('div', { 'class': 'td left', 'width': '33%' }, [ 'Node' ]),
-				E('div', { 'class': 'td left' }, [ data[0].node[idx].node ])
+				E('div', { 'class': 'td left' }, [ E('a',{ 'href': 'https://[' + data[0].node[idx].node + ']/'},data[0].node[idx].node) ])
 			]));
 		}
 

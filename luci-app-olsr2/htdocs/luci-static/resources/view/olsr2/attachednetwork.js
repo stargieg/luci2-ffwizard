@@ -28,7 +28,7 @@ return view.extend({
 
 		var tr = E('div', { 'class': 'table' });
 		tr.appendChild(E('div', { 'class': 'tr cbi-section-table-titles' }, [
-			E('div', { 'class': 'td left', 'width': '33%' }, [ 'IP address' ]),
+			E('div', { 'class': 'td left' }, [ 'IP address' ]),
 			E('div', { 'class': 'td left' }, [ 'Network' ]),
 			E('div', { 'class': 'td left' }, [ 'Source' ]),
 			E('div', { 'class': 'td left' }, [ 'Metric' ])
@@ -36,7 +36,7 @@ return view.extend({
 
 		for (var idx = 0; idx < data[0].attached_network.length; idx++) {
 			tr.appendChild(E('div', { 'class': 'tr' }, [
-				E('div', { 'class': 'td left', 'width': '33%' }, [ data[0].attached_network[idx].node ]),
+				E('div', { 'class': 'td left' }, [ E('a',{ 'href': 'https://[' + data[0].attached_network[idx].node + ']/'},data[0].attached_network[idx].node) ]),
 				E('div', { 'class': 'td left' }, [ data[0].attached_network[idx].attached_net ]),
 				E('div', { 'class': 'td left' }, [ data[0].attached_network[idx].attached_net_src ]),
 				E('div', { 'class': 'td left' }, [ data[0].attached_network[idx].domain_metric_out ])
