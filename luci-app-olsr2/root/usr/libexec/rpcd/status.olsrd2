@@ -3,6 +3,7 @@
 
 . /lib/functions.sh
 . /usr/share/libubox/jshn.sh
+. /lib/functions/olsr2.sh
 
 case "$1" in
 	list)
@@ -44,7 +45,13 @@ case "$1" in
 					i=1
 					for value in $neighbor ; do
 						case $i in
-							1) json_add_string "originator" "${value}";;
+							1) json_add_string "originator" "${value}"
+								network_get_neighbour_by_ip "${value}"
+								json_add_string "lladdr" "${lladdr}"
+								json_add_string "hostname" "${hostname}"
+								network_get_name_by_device interface $dev
+								json_add_string "interface" "${interface}"
+								;;
 							2) json_add_string "metric_in" "${value}";;
 							3) json_add_string "metric_in_raw" "${value}";;
 							4) json_add_string "metric_out" "${value}";;
