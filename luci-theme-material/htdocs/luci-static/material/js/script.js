@@ -57,7 +57,7 @@ document.addEventListener('luci-loaded', function(ev) {
 	 */
 	function getCurrentNodeByUrl() {
 		var ret = false;
-		if (!$('body').hasClass('logged-in')) {
+		if (!$('body').hasClass('logged-in') && !(luciLocation[0]=='public')) {
 			luciLocation = ["Main", "Login"];
 			return true;
 		}
