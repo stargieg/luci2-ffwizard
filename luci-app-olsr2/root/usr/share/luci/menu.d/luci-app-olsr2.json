@@ -1,6 +1,6 @@
 {
 	"admin/services/olsr2": {
-		"title": "olsr2",
+		"title": "OLSR2",
 		"action": {
 			"type": "firstchild",
 		},
@@ -74,7 +74,7 @@
 		}
 	},
 	"admin/status/olsr2": {
-		"title": "olsr2",
+		"title": "OLSR2",
 		"action": {
 			"type": "firstchild"
 		}
@@ -96,7 +96,7 @@
 		}
 	},
 	"admin/status/olsr2/attachednetwork": {
-		"title": "attachednetwork",
+		"title": "Attachednetwork",
 		"order": 3,
 		"action": {
 			"type": "view",
@@ -104,22 +104,41 @@
 		}
 	},
 	"admin/status/olsr2/neighbors": {
-		"title": "neighbors",
+		"title": "Neighbors",
 		"order": 4,
 		"action": {
 			"type": "view",
 			"path": "olsr2/neighbors"
 		}
 	},
-	"olsr2": {
-		"title": "olsr2",
+	"public": {
+		"title": "Public",
+		"order": 5,
 		"action": {
 			"type": "firstchild",
 			"recurse": true
 		},
 		"auth": {}
 	},
-	"olsr2/overview": {
+	"public/status": {
+		"title": "Status",
+		"order": 10,
+		"action": {
+			"type": "firstchild",
+			"recurse": true
+		},
+		"auth": {}
+	},
+	"public/status/olsr2": {
+		"title": "OLSR2",
+		"order": 20,
+		"action": {
+			"type": "firstchild",
+			"recurse": true
+		},
+		"auth": {}
+	},
+	"public/status/olsr2/overview": {
 		"title": "Overview",
 		"order": 1,
 		"action": {
@@ -127,7 +146,7 @@
 			"path": "olsr2/overview",
 		}
 	},
-	"olsr2/node": {
+	"public/status/olsr2/node": {
 		"title": "Nodes",
 		"order": 2,
 		"action": {
@@ -135,16 +154,16 @@
 			"path": "olsr2/node"
 		}
 	},
-	"olsr2/attachednetwork": {
-		"title": "attachednetwork",
+	"public/status/olsr2/attachednetwork": {
+		"title": "Attachednetwork",
 		"order": 3,
 		"action": {
 			"type": "view",
 			"path": "olsr2/attachednetwork"
 		}
 	},
-	"olsr2/neighbors": {
-		"title": "neighbors",
+	"public/status/olsr2/neighbors": {
+		"title": "Neighbors",
 		"order": 4,
 		"action": {
 			"type": "view",
