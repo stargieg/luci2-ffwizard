@@ -111,6 +111,15 @@
 			"path": "olsr2/neighbors"
 		}
 	},
+	"public": {
+		"title": "Public",
+		"order": 5,
+		"action": {
+			"type": "firstchild",
+			"recurse": true
+		},
+		"auth": {}
+	},
 	"public/status": {
 		"title": "Status",
 		"order": 10,
@@ -159,6 +168,15 @@
 		"action": {
 			"type": "view",
 			"path": "olsr2/neighbors"
+		}
+	},
+	"public/admin": {
+		"title": "Admin",
+		"order": 999,
+		"action": {
+			"type": "call",
+			"module": "luci.controller.admin.index",
+			"function": "action_logout"
 		}
 	}
 }

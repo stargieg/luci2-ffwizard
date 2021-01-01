@@ -18,7 +18,7 @@ define Package/luci-mod-freifunk
   CATEGORY:=LuCI
   SUBMENU:=2. Modules
   TITLE:=LuCI Freifunk module
-  EXTRA_DEPENDS:=freifunk-common
+  EXTRA_DEPENDS:=freifunk-common, luci-mod-public
 endef
 
 define Build/Prepare

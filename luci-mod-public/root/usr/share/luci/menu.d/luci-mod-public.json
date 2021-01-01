@@ -1,0 +1,19 @@
+{
+	"public": {
+		"title": "Public",
+		"order": 5,
+		"action": {
+			"type": "firstchild",
+			"recurse": true
+		},
+		"auth": {}
+	},
+	"public/index": {
+		"title": "index",
+		"order": 999,
+		"action": {
+			"type": "alias",
+			"path": ""
+		}
+	}
+}

@@ -2,10 +2,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-olsr2
-PKG_VERSION:=0.2.4
+PKG_VERSION:=0.2.5
 PKG_RELEASE:=1
-PKG_BUILD_DEPENDS += LUCI_APP_OLSR2_SRCDIET:luasrcdiet/host
-PKG_CONFIG_DEPENDS += CONFIG_LUCI_APP_OLSR2_SRCDIET
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
@@ -15,7 +13,7 @@ define Package/luci-app-olsr2
   CATEGORY:=LuCI
   SUBMENU:=3. Applications
   TITLE:=OLSR2 configuration and status module
-  EXTRA_DEPENDS:=oonf-olsrd2, luci-mod-admin-full
+  EXTRA_DEPENDS:=oonf-olsrd2, luci-mod-admin-full, luci-mod-public
 endef
 
 define Build/Prepare

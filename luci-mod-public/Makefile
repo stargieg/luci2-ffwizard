@@ -1,19 +1,17 @@
 # call BuildPackage - OpenWrt buildroot signature
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=luci-app-statistics-public
+PKG_NAME:=luci-mod-public
 PKG_VERSION:=0.2.4
 PKG_RELEASE:=1
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/luci-app-statistics-public
+define Package/luci-mod-public
   SECTION:=luci
   CATEGORY:=LuCI
   SUBMENU:=3. Applications
-  TITLE:=Statistics Public view
-  EXTRA_DEPENDS:=luci-app-statistics, luci-mod-public
+  TITLE:=public status module
 endef
 
 define Build/Prepare
@@ -36,8 +34,8 @@ define Package/$(PKG_NAME)/postinst
 endef
 
 define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/controller
-	$(INSTALL_BIN) ./luasrc/controller/* $(1)/usr/lib/lua/luci/controller
+	$(INSTALL_DIR) $(1)/usr/share/luci/menu.d
+	$(INSTALL_DATA) ./root/usr/share/luci/menu.d/* $(1)/usr/share/luci/menu.d
 endef
 
-$(eval $(call BuildPackage,luci-app-statistics-public))
+$(eval $(call BuildPackage,luci-mod-public))
