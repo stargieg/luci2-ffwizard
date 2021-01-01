@@ -24,13 +24,6 @@ return view.extend({
 
 	render: function(data) {
 
-		var menu = E('ul',{ 'class': 'tabs'});
-		menu.appendChild(E('li', { 'class': 'tabmenu-item-admin' }, [ E('a',{ 'href': '/cgi-bin/luci/admin'}, _('Admin')) ]));
-		menu.appendChild(E('li', { 'class': 'tabmenu-item-overview active' }, [ E('a',{ 'href': 'olsr2'}, _('Overview')) ]));
-		menu.appendChild(E('li', { 'class': 'tabmenu-item-node' }, [ E('a',{ 'href': 'olsr2/node'}, _('Node')) ]));
-		menu.appendChild(E('li', { 'class': 'tabmenu-item-attachednetwork' }, [ E('a',{ 'href': 'olsr2/attachednetwork'}, _('Attachednetwork')) ]));
-		menu.appendChild(E('li', { 'class': 'tabmenu-item-neighbors' }, [ E('a',{ 'href': 'olsr2/neighbors'}, _('Neighbors')) ]));
-
 		var fields = [
 			_('Version'), data[0].version[0].version_text,
 			_('Commit'), data[0].version[0].version_commit,
@@ -51,7 +44,7 @@ return view.extend({
 			]));
 		}
 
-		return [ menu, tr ];
+		return tr;
 	},
 
 	handleSaveApply: null,
