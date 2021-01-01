@@ -37,7 +37,7 @@ endef
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/view/themes/material
-	$(INSTALL_DATA) $(1)/luasrc/view/themes/material/* $(1)/usr/lib/lua/luci/view/themes/material
+	$(INSTALL_DATA) ./luasrc/view/themes/material/* $(1)/usr/lib/lua/luci/view/themes/material
 	$(INSTALL_DIR) $(1)/www/
 	$(INSTALL_DATA) ./htdocs/* $(1)/www
 	cp -pR $(PKG_BUILD_DIR)/htdocs/* $(1)/www/
