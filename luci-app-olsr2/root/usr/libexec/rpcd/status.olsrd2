@@ -38,7 +38,7 @@ case "$1" in
 				json_add_array "neighbors"
 				OLDIFS="$IFS"
 				IFS=$'\n'
-				neighbor_status="$(echo '/nhdpinfo neighbor /quit' | nc ::1 2009 | cut -f 1,10,11,12,13)"
+				neighbor_status="$(echo '/nhdpinfo neighbor /quit' | nc ::1 2009 | cut -f 1,9,10,11,12)"
 				for neighbor in $neighbor_status; do
 					json_add_object 0
 					IFS="$OLDIFS"
