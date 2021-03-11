@@ -1,7 +1,7 @@
 <%
 local uci = require "luci.model.uci".cursor()
 local community = "profile_"..uci:get("freifunk", "community", "name")
-local mapserver = uci:get("freifunk", "community", "mapserver") or "http://openwifimap.net/"
+local mapserver = uci:get("freifunk", "community", "mapserver") or "https://openwifimap.net/"
 if type(mapserver)=="table" then
 	mapserver = mapserver[#mapserver]
 end
@@ -23,16 +23,16 @@ if longitude then
 end
 %>
 
-<%+header%>
-
-<h3>
-	<a href="<%=mapserver%>/index.html#map?bbox=<%=latitude1%>,<%=longitude1%>,<%=latitude2%>,<%=longitude2%>">OpenWifiMap on <%=mapserver%></a>
-</h3>
-
-<iframe src="<%=mapserver%>/map.html#bbox=<%=latitude1%>,<%=longitude1%>,<%=latitude2%>,<%=longitude2%>" name="owm-iframe" width="100%" height="640px" frameborder="0" scrolling="no">
+<div style="position:absolute; top:5px; bottom:70px; left:10px; right:10px; font-size:20px; float:none; display:block">
+<span id="owm-span">
+<iframe src="<%=mapserver%>/map.html#bbox=<%=latitude1%>,<%=longitude1%>,<%=latitude2%>,<%=longitude2%>" name="owm-iframe" width="100%" height="100%" frameborder="0" scrolling="no">
 </iframe>
-<br>
-<a href="/cgi-bin/luci/owm.json"> JSON daten owm.json</a>
-
-<%+footer%>
-
+</span>
+<h3>
+	<a href="/cgi-bin/luci">zurück</a>
+	<a> </a>
+	<a href="<%=mapserver%>/index.html#map?bbox=<%=latitude1%>,<%=longitude1%>,<%=latitude2%>,<%=longitude2%>">OpenWifiMap on <%=mapserver%></a>
+	<a> </a>
+	<a href="/cgi-bin/luci/owm.json" style="text-align:right;">JSON daten owm.json</a>
+</h3>
+</div>
