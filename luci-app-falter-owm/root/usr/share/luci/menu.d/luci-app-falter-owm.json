@@ -1,0 +1,10 @@
+{
+	"public/freifunk/owm": {
+		"title": "Karte",
+		"order": 30,
+		"action": {
+			"type": "template",
+			"path": "owm",
+		}
+	}
+}

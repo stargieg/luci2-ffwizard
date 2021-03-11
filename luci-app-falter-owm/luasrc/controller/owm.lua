@@ -16,11 +16,6 @@ module("luci.controller.owm", package.seeall)
 
 function index()
 	entry({"owm.json"}, call("getjsonowm"))
-
-	local page = node("owm")
-	page.target = template("owm")
-	page.title = "OpenWifiMap"
-	page.order = 100
 end
 
 function getjsonowm()
