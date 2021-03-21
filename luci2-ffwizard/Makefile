@@ -121,11 +121,11 @@ endef
 
 define Package/luci2-ffwizard-lua/postinst
 #!/bin/sh
-[ -n "${IPKG_INSTROOT}" ] || {
+if [ -z $${IPKG_INSTROOT} ] ; then
 	rm -f /tmp/luci-indexcache
-	exit 0
-}
-
+	rm -rf /tmp/luci-modulecache/
+	killall -HUP rpcd 2>/dev/null
+fi
 endef
 
 define Package/luci2-ffwizard/install

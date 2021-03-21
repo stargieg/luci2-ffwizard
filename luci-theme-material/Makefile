@@ -26,13 +26,12 @@ endef
 
 define Package/$(PKG_NAME)/postinst
 #!/bin/sh
-[ -z "$${IPKG_INSTROOT}" ] && {
+if [ -z $${IPKG_INSTROOT} ] ; then
 	(. /etc/uci-defaults/30_luci-theme-material) && rm -f /etc/uci-defaults/30_luci-theme-material
 	rm -f /tmp/luci-indexcache
 	rm -rf /tmp/luci-modulecache/
 	killall -HUP rpcd 2>/dev/null
-	exit 0
-}
+fi
 endef
 
 define Package/$(PKG_NAME)/install

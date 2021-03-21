@@ -25,12 +25,11 @@ endef
 
 define Package/$(PKG_NAME)/postinst
 #!/bin/sh
-[ -n "${IPKG_INSTROOT}" ] || {
+if [ -z $${IPKG_INSTROOT} ] ; then
 	rm -f /tmp/luci-indexcache
 	rm -rf /tmp/luci-modulecache/
 	killall -HUP rpcd 2>/dev/null
-	exit 0
-}
+fi
 endef
 
 define Package/$(PKG_NAME)/install
