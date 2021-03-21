@@ -56,7 +56,7 @@ local _, r, def4, def6
 
 for _, r in ipairs(ip.routes({ type = 1, dest_exact = "0.0.0.0/0" })) do
 	def4 = {
-		gateway = r.gw:string(),
+		gateway = r.gw and r.gw:string(),
 		dest = r.dest:string(),
 		dev = r.dev,
 		metr = r.metric or 0
@@ -66,7 +66,7 @@ end
 
 for _, r in ipairs(ip.routes({ type = 1, dest_exact = "::/0" })) do
 	def6 = {
-		gateway = r.gw:string(),
+		gateway = r.gw and r.gw:string(),
 		dest = r.dest:string(),
 		dev = r.dev,
 		metr = r.metric or 0
