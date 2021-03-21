@@ -41,7 +41,7 @@ local lat = uci:get_first("system", "system", "latitude") or ""
 <legend><%:Location%></legend>
 	<div class="table" cellspacing="10" width="100%" style="text-align:left">
 		<div class="tr"><div class="th" width="33%"><%:Location%>:</div><div class="td"><%=location%></div></div>
-		<div class="tr"><div class="th" width="33%"><%:Coordinates%>:</div><div class="td"><%=lat%> <%=lon%> (<a href="<%=pcdata(luci.dispatcher.build_url("freifunk/map"))%>"><%:Show on map%>)</a></div></div>
+		<div class="tr"><div class="th" width="33%"><%:Coordinates%>:</div><div class="td"><%=lat%> <%=lon%> (<a href="<%=pcdata(luci.dispatcher.build_url("public/freifunk/owm"))%>"><%:Show on map%>)</a></div></div>
 	</div>
 </fieldset>
 
