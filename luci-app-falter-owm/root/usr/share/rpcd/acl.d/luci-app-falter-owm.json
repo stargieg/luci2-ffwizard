@@ -1,5 +1,5 @@
 {
-        "luci-mod-falter": {
+        "luci-mod-falter-owm": {
                 "description": "Provides access to config files and scripts",
                 "read": {
                         "cgi-io": [
