@@ -26,7 +26,7 @@ endef
 
 define Package/$(PKG_NAME)/postinst
 #!/bin/sh
-[ -n "${IPKG_INSTROOT}" ] || {
+[ -z "$${IPKG_INSTROOT}" ] && {
 	(. /etc/uci-defaults/30_luci-theme-material) && rm -f /etc/uci-defaults/30_luci-theme-material
 	rm -f /tmp/luci-indexcache
 	rm -rf /tmp/luci-modulecache/

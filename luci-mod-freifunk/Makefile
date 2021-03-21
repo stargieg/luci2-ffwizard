@@ -32,7 +32,7 @@ endef
 
 define Package/$(PKG_NAME)/postinst
 #!/bin/sh
-[ -n "${IPKG_INSTROOT}" ] || {
+[ -z "$${IPKG_INSTROOT}" ] && {
 	rm -f /tmp/luci-indexcache
 	rm -rf /tmp/luci-modulecache/
 	killall -HUP rpcd 2>/dev/null
