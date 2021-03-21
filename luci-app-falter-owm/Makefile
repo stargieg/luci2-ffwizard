@@ -81,6 +81,10 @@ define Package/luci-app-falter-owm-gui/install
 	$(CP) $(PKG_BUILD_DIR)/luasrc/controller/owm.lua $(1)/usr/lib/lua/luci/controller/owm.lua
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/view
 	$(CP) $(PKG_BUILD_DIR)/luasrc/view/owm.htm $(1)/usr/lib/lua/luci/view/owm.htm
+	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
+	$(INSTALL_DATA) ./root/usr/share/rpcd/acl.d/* $(1)/usr/share/rpcd/acl.d
+	$(INSTALL_DIR) $(1)/usr/share/luci/menu.d
+	$(INSTALL_DATA) ./root/usr/share/luci/menu.d/* $(1)/usr/share/luci/menu.d
 endef
 
 define Package/luci-app-falter-owm-ant/install
