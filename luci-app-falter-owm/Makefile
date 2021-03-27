@@ -24,7 +24,7 @@ endef
 
 define Package/luci-app-falter-owm
   $(call Package/luci-app-falter-owm/default)
-  EXTRA_DEPENDS:=luci-lib-json, olsrd-mod-jsoninfo, luci-lib-ip
+  EXTRA_DEPENDS:=luci-lib-json, luci-lib-ip
   TITLE:=Luci JSON Export for Open Wireless Map
 endef
 
