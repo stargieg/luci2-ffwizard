@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-falter-owm
-PKG_VERSION:=2021.03.10
+PKG_VERSION:=2021.09.03
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
@@ -71,7 +71,7 @@ endef
 
 define Package/luci-app-falter-owm-cmd/install
 	$(INSTALL_DIR) $(1)/usr/sbin/
-	$(CP) files/owm.lua $(1)/usr/sbin/owm.lua
+	$(CP) files/owm.sh $(1)/usr/sbin/owm.sh
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(CP) files/owm-defaults $(1)/etc/uci-defaults/owm
 endef
