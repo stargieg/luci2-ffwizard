@@ -7,8 +7,8 @@ if type(mapserver)=="table" then
 end
 local latitude = tonumber(uci:get_first("system", "system", "latitude"))
 local longitude = tonumber(uci:get_first("system", "system", "longitude"))
-local communityLatitude = tonumber(uci:get(community, "profile", "latitude"))
-local communityLongitude = tonumber(uci:get(community, "profile", "longitude"))
+local communityLatitude = tonumber(uci:get(community, "profile", "latitude") or 0)
+local communityLongitude = tonumber(uci:get(community, "profile", "longitude") or 0)
 local latitude1 = communityLatitude - 0.01
 local latitude2 = communityLatitude + 0.01
 local longitude1 = communityLongitude - 0.01
