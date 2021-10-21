@@ -1,5 +1,14 @@
 {
-	"public/owm": {
+	"public/freifunk": {
+		"title": "Freifunk",
+		"order": 20,
+		"action": {
+			"type": "firstchild",
+			"recurse": true
+		},
+		"auth": {}
+	},
+	"public/freifunk/owm": {
 		"title": "Karte",
 		"order": 30,
 		"action": {
