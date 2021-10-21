@@ -14,6 +14,6 @@ function index()
 	page.setgroup = "nogroup"
 	page.i18n     = "Status"
 	page.index    = true
-	assign({"public","status","olsr"}, {"admin", "status", "olsr"}, _("Olsr"), 40)
+	assign({"public","status","olsr"}, {"admin", "status", "olsr"}, _("OLSR1"), 40)
 	assign({"freifunk","olsr","neighbors"}, {"admin", "status", "olsr","neighbors"}, _("Olsr neighbors"), 40)
 end
