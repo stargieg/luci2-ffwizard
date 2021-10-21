@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-falter-owm
-PKG_VERSION:=2021.09.03
+PKG_VERSION:=2021.10.21
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
