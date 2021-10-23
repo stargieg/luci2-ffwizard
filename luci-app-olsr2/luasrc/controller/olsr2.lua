@@ -52,7 +52,7 @@ function index()
 	page.leaf = true
 
 	local page  = node("admin", "status", "olsr2")
-	page.target = alias("admin", "status", "olsr2", "overview")
+	page.target = alias("admin", "status", "olsr2", "neighbors")
 	page.title  = _("OLSR2")
 	page.subindex = true
 
@@ -60,7 +60,7 @@ function index()
 	page.target = template("status-olsr2/overview")
 	page.title  = _("Overview")
 	page.subindex = true
-	page.order  = 1
+	page.order  = 10
 
 	local page  = node("admin", "status", "olsr2", "overview", "version")
 	page.target = call("action_version")
@@ -76,7 +76,7 @@ function index()
 	page.target = call("action_neigh")
 	page.title  = _("Neighbours")
 	page.subindex = true
-	page.order  = 5
+	page.order  = 1
 
 	local page  = node("admin", "status", "olsr2", "node")
 	page.target = call("action_node")
