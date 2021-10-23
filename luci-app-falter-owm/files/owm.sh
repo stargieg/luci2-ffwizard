@@ -69,6 +69,7 @@ olsr4_links() {
 	json_get_var localIP localIP
 	json_get_var remoteIP remoteIP
 	remotehost="$(nslookup $remoteIP | grep name | sed -e 's/.*name = \(.*\)/\1/' | sed 's/^mid\d*\.//' )"
+	[ -z "$remotehost" ] && remotehost="$remoteIP"
 	json_get_var linkQuality linkQuality
 	json_get_var olsrInterface olsrInterface
 	json_get_var ifName ifName
@@ -106,7 +107,7 @@ fi
 
 
 # collect data on OLSR-links
-json_load "$(printf "/nhdpinfo" json link | nc ::1 2009 2>/dev/null)" 2>/dev/null
+json_load "$(printf "/nhdpinfo json link" | nc ::1 2009 2>/dev/null)" 2>/dev/null
 olsr2links=""
 if json_is_a link array;then
 	json_for_each_item olsr2_links link
