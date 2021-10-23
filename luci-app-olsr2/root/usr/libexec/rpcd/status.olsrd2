@@ -19,6 +19,12 @@ case "$1" in
 		json_close_object
 		json_add_object "getAttached_network"
 		json_close_object
+		json_add_object "getRoute"
+		json_close_object
+		json_add_object "getGraph"
+		json_close_object
+		json_add_object "getDomain"
+		json_close_object
 
 		json_dump
 	;;
@@ -68,6 +74,15 @@ case "$1" in
 			;;
 			getAttached_network)
 				echo '/olsrv2info json attached_network /quit' | nc ::1 2009 2>/dev/null
+			;;
+			getRoute)
+				echo '/netjsoninfo filter route ipv6_0' | nc ::1 2009 2>/dev/null
+			;;
+			getGraph)
+				echo '/netjsoninfo filter graph ipv6_0' | nc ::1 2009 2>/dev/null
+			;;
+			getDomain)
+				echo '/netjsoninfo domain' | nc ::1 2009 2>/dev/null
 			;;
 		esac
 	;;
