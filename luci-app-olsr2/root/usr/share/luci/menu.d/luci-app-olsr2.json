@@ -131,7 +131,7 @@
 	},
 	"public/status/olsr2/overview": {
 		"title": "Overview",
-		"order": 1,
+		"order": 4,
 		"action": {
 			"type": "view",
 			"path": "olsr2/overview",
@@ -155,7 +155,7 @@
 	},
 	"public/status/olsr2/neighbors": {
 		"title": "Neighbors",
-		"order": 4,
+		"order": 1,
 		"action": {
 			"type": "view",
 			"path": "olsr2/neighbors"
