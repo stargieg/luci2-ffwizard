@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=42
+PKG_RELEASE:=43
 PKG_BUILD_DEPENDS += LUCI_APP_FFWIZARD_GEN_SRCDIET:luasrcdiet/host
 PKG_CONFIG_DEPENDS += CONFIG_LUCI_APP_FFWIZARD_GEN_SRCDIET
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
@@ -47,7 +47,7 @@ define Package/luci2-ffwizard-lua
   DEPENDS:=luci2-ffwizard
   EXTRA_DEPENDS:=luci-mod-admin-full, luci-i18n-base-de, \
   luci-theme-material, luci-proto-ipv6, \
-  luci-lib-json, uhttpd-mod-lua, libiwinfo-lua
+  luci-lib-json, libiwinfo-lua
 endef
 
 define Package/luci2-ffwizard-lua/description
