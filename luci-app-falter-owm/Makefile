@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-falter-owm
-PKG_VERSION:=2021.10.21
+PKG_VERSION:=2021.11.05
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
@@ -34,7 +34,6 @@ endef
 
 define Package/luci-app-falter-owm-cmd
   $(call Package/luci-app-falter-owm/default)
-  EXTRA_DEPENDS:=luci-app-falter-owm, luci-lib-httpclient
   TITLE:=luci-app-falter-owm-cmd - Commandline update tool
 endef
 
