@@ -53,10 +53,10 @@ olsr2_links() {
 	json_select $2
 	json_get_var localIP link_bindto
 	json_get_var remoteIP neighbor_originator
-	remotehost="$(nslookup $remoteIP | grep name | sed -e 's/.*name = \(.*\)/\1/' -e 's/\..*//')"".olsr"
-	# Maybe add some stuff here.
-	# If $remotehost name ist empty ask remote host for his name
-	# remotehost="$(nslookup $remoteIP $remoteIP | grep name | sed -e 's/.*name = \(.*\)/\1/' -e 's/\..*//')"".olsr"
+	remotehost="$(nslookup $remoteIP $remoteIP | grep name | sed -e 's/.*name = \(.*\)/\1/' -e 's/\..*//')"".olsr"
+	if [ -z "$remotehost" ] ; then
+		remotehost="$(nslookup $remoteIP | grep name | sed -e 's/.*name = \(.*\)/\1/' -e 's/\..*//')"".olsr"
+	fi
 	json_get_var linkQuality domain_metric_out_raw
 	#json_get_var linkQuality domain_metric_in_raw
 	json_get_var ifName "if"
