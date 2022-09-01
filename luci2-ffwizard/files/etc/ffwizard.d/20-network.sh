@@ -1,3 +1,11 @@
+uci_add_list() {
+        local PACKAGE="$1"
+        local CONFIG="$2"
+        local OPTION="$3"
+        local VALUE="$4"
+
+        /sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} add_list "$PACKAGE.$CONFIG.$OPTION=$VALUE"
+}
 
 log_net() {
 	logger -s -t ffwizard_net $@
@@ -45,13 +53,19 @@ setup_bridge() {
 	local ipaddr="$2"
 	local ifc="$3"
 	setup_ip $cfg "$ipaddr"
+        if ! uci_get network br$cfg >/dev/null ; then
+                uci_add network device "br$cfg"
+        fi
+	uci_set network br$cfg name "br-$cfg"
+	uci_set network br$cfg type "bridge"
 	#for batman
-	uci_set network $cfg mtu "1532"
-	uci_set network $cfg force_link "1"
+	uci_set network br$cfg bridge_empty "1"
+	uci_set network br$cfg mtu "1532"
+	for port in $ifc ; do
+		uci_add_list network br$cfg ports "$port"
+	done
 	#TODO
-	#uci_set network $cfg macaddr "$random"?
-	uci_set network $cfg type "bridge"
-	uci_set network $cfg ifname "$ifc"
+	#uci_set network br$cfg macaddr "$random"?
 }
 
 setup_ether() {
@@ -64,7 +78,7 @@ setup_ether() {
 	if [ "$dhcp_br" == "1" ] ; then
 		log_net "Setup $cfg as DHCP Bridge member"
 		if uci_get network $cfg >/dev/null ; then
-			ifname="$(uci_get network $cfg ifname)"
+			ifname="$(uci_get network $cfg device)"
 			if [ -n "$ifname" ] ; then
 				br_ifaces="$br_ifaces $ifname"
 			fi
@@ -188,7 +202,7 @@ setup_wifi() {
 	#[ $hw_n == 1 ] && [ $valid_channel -le 7 ] && uci_set wireless $device htmode "HT40+"
 	# Channel 1 - 4 HT40+
 	#[ $hw_n == 1 ] && [ $valid_channel -le 4 ] && uci_set wireless $device htmode "HT40+"
-	uci_set wireless $device country "00"
+	uci_set wireless $device country "DE"
 	[ $hw_a == 1 ] && uci_set wireless $device doth "0"
 	#read from Luci_ui
 	uci_set wireless $device distance "1000"
@@ -283,7 +297,7 @@ setup_wifi() {
 
 regdomain() {
 	local cfg="$1"
-	uci_set wireless "$cfg" country "00"
+	uci_set wireless "$cfg" country "DE"
 	uci_set wireless "$cfg" disabled "0"
 }
 
@@ -312,7 +326,6 @@ sleep 5
 config_load wireless
 config_foreach remove_wifi wifi-iface
 uci_commit wireless
-
 
 #Setup ether
 config_load ffwizard
@@ -345,16 +358,16 @@ if [ -n "$ip6prefix" ] ; then
 	uci_set network loopback ip6prefix "$ip6prefix"
 fi
 
-#Add interface lan to Zone lan if not an freifunk interface
+#Set lan defaults if not an freifunk interface
 if [ -n "$lan_iface" ] ; then
-	uci_set network lan type "bridge"
+	uci_set network lan device "br-lan"
 	uci_set network lan proto "static"
 	uci_set network lan ipaddr "192.168.42.1"
 	uci_set network lan netmask "255.255.255.0"
 	uci_set network lan ip6assign '64'
 fi
 
-#Add interface wan to Zone wan if not an freifunk interface
+#Set wan defaults if not an freifunk interface
 if [ -n "$wan_iface" ] ; then
 	uci_remove network wan ipaddr 2>/dev/null
 	uci_remove network wan netmask 2>/dev/null

@@ -19,7 +19,8 @@ EOF
 }
 
 # reset firewall config
-uci_reset firewall
+#uci_reset firewall
+>/etc/config/firewall
 
 # Set defaults
 uci_add firewall defaults ; sec="$CONFIG_SECTION"
@@ -37,7 +38,6 @@ uci_set firewall $sec mtu_fix 1
 uci_set firewall $sec network wan
 uci_set firewall $sec forward REJECT
 uci_set firewall $sec output ACCEPT
-uci_set firewall $sec local_restrict 1
 uci_set firewall $sec input ACCEPT
 
 uci_add firewall rule ; sec="$CONFIG_SECTION"
@@ -134,8 +134,8 @@ uci_set firewall $sec dest freifunk
 uci_set firewall $sec src wan
 
 # Set Include custom rules. Not needed normaly
-uci_add firewall include ; sec="$CONFIG_SECTION"
-uci_set firewall $sec path "/etc/firewall.user"
+#uci_add firewall include ; sec="$CONFIG_SECTION"
+#uci_set firewall $sec path "/etc/firewall.user"
 
 uci_commit firewall
 
