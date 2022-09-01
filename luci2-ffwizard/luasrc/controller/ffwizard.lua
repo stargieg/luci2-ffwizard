@@ -25,7 +25,7 @@ function index()
 	page.title  = _("ffwizard autoconf")
 	page.order = 10
 
-	page = entry({"admin", "services", "ffwizard"}, cbi("ffwizard"))
-	page.title  = _("ffwizard")
+	page = entry({"admin", "services", "ffwizard_conf"}, cbi("ffwizard"))
+	page.title  = _("ffwizard conf")
 	page.order  = 11
 end

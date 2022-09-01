@@ -19,7 +19,7 @@ m.on_after_commit = function() utl.ubus("uci", "reload_config") end
 
 s = m:section(NamedSection, "autoconf", "Autokonfiguration")
 
-svc = s:option(Flag, "enabled", "freigegeben","Dieser \
+svc = s:option(Flag, "firstboot", "freigegeben","Dieser \
 	hacken wird entfernt wenn die Autokonfiguration gestartet wurde. \
 	Die Netzwerk- und WLAN-Einstellungen werden zurückgesetzt. \
 	Der Neustart des WLAN dauert 20 sek. Anschliessend wird im verfügbaren \
