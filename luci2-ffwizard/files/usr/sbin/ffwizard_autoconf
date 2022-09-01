@@ -20,7 +20,7 @@ for i in $wifi_res ; do
 	if [ $wifi_disabled == 1 ] ; then
 		log "wifi $i is disabled. set enable"
 		uci set wireless.$i.disabled=0
-		uci set wireless.$i.country=00
+		uci set wireless.$i.country=DE
 		#uci commit wireless
 	else
 		log "wifi $i allready enabled leave it untouch"

@@ -25,15 +25,11 @@ setup_ip() {
 		eval "$(ipcalc.sh $ipaddr)"
 		uci_set network $cfg ipaddr "$IP"
 		uci_set network $cfg netmask "$NETMASK"
-		if [ "$cfg" == "lan" ] ; then
-			uci_set network $cfg type "bridge"
-		fi
 	else
 		if [ "$cfg" == "lan" ] ; then
 			#Magemant Access via lan ipv4
 			uci_set network $cfg ipaddr "192.168.42.1"
 			uci_set network $cfg netmask "255.255.255.0"
-			uci_set network $cfg type "bridge"
 		else
 			#ipv6 only via ip6assign
 			uci_remove network $cfg ipaddr 2>/dev/null
@@ -221,7 +217,7 @@ setup_wifi() {
 		local bssid
 		log_wifi "mesh"
 		cfg_mesh=$cfg"_mesh"
-		uci_add wireless wifi-iface ; sec="$CONFIG_SECTION"
+		uci_add wireless wifi-iface "$device"mesh ; sec="$CONFIG_SECTION"
 		uci_set wireless $sec device "$device"
 		uci_set wireless $sec encryption "none"
 		# Depricated Ad-Hoc config
@@ -273,7 +269,7 @@ setup_wifi() {
 	if [ "$vap" == "1" ] ; then
 		log_wifi "Virtual AP"
 		cfg_vap=$cfg"_vap"
-		uci_add wireless wifi-iface ; sec="$CONFIG_SECTION"
+		uci_add wireless wifi-iface "$device"vap ; sec="$CONFIG_SECTION"
 		uci_set wireless $sec device "$device"
 		uci_set wireless $sec mode "ap"
 		uci_set wireless $sec mcast_rate "6000"
