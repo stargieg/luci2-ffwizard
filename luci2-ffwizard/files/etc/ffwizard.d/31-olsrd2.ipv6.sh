@@ -29,12 +29,10 @@ setup_olsrv2() {
 	uci_set olsrd2 $cfg forward_hold_time "300.0"
 	uci_set olsrd2 $cfg processing_hold_time "300.0"
 	uci_remove olsrd2 $cfg routable
-	uci_add_list olsrd2 $cfg routable "$ula"
 	uci_add_list olsrd2 $cfg routable "-0.0.0.0/0"
 	uci_add_list olsrd2 $cfg routable "-::1/128"
 	uci_add_list olsrd2 $cfg routable "default_accept"
 	uci_remove olsrd2 $cfg originator
-	uci_add_list olsrd2 $cfg originator "$ula"
 	uci_add_list olsrd2 $cfg originator "-0.0.0.0/0"
 	uci_add_list olsrd2 $cfg originator "-::1/128"
 	uci_add_list olsrd2 $cfg originator "default_accept"
