@@ -24,18 +24,31 @@ return view.extend({
 
 	render: function(data) {
 
-		var fields = [
-			_('Version'), data[0].version[0].version_text,
-			_('Commit'), data[0].version[0].version_commit,
-			_('LAN IP'), data[1].lan[0].lan,
-			_('LAN Source IP'), data[1].lan[0].lan_src,
-			_('Domain'), data[1].lan[0].domain,
-			_('Domain metric'), data[1].lan[0].domain_metric,
-			_('Domain metric outgoing'), data[1].lan[0].domain_metric_out,
-			_('domain_metric_out_raw'), data[1].lan[0].domain_metric_out_raw,
-			_('Domain distance'), data[1].lan[0].domain_distance
-		];
-
+		var fields = [];
+		if ( data[1] && data[1].lan[0] && data[1].lan[0].lan != undefined ) {
+				fields.push(_('LAN IP'));
+				fields.push(data[1].lan[0].lan);
+		}
+		if ( data[1] && data[1].lan[0] && data[1].lan[0].domain != undefined) {
+				fields.push(_('Domain'));
+				fields.push(data[1].lan[0].domain);
+		}
+		if ( data[1] && data[1].lan[0] && data[1].lan[0].domain_metric != undefined) {
+				fields.push(_('Domain metric'));
+				fields.push(data[1].lan[0].domain_metric);
+		}
+		if ( data[1] && data[1].lan[0] && data[1].lan[0].domain_metric_out != undefined) {
+				fields.push(_('Domain metric outgoing'));
+				fields.push(data[1].lan[0].domain_metric_out);
+		}
+		if ( data[1] && data[1].lan[0] && data[1].lan[0].domain_metric_out_raw != undefined) {
+				fields.push(_('domain_metric_out_raw'));
+				fields.push(data[1].lan[0].domain_metric_out_raw);
+		}
+		if ( data[1] && data[1].lan[0] && data[1].lan[0].domain_distance != undefined) {
+				fields.push(_('Domain distance'));
+				fields.push(data[1].lan[0].domain_distance);
+		}
 		var tr = E('div',{ 'class': 'table'});
 		for (var i = 0; i < fields.length; i += 2) {
 			tr.appendChild(E('div', { 'class': 'tr' }, [
