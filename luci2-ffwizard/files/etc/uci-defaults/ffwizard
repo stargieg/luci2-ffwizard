@@ -50,7 +50,9 @@ if [ "$(uci_get system @system[0] hostname)" == "OpenWrt" ]; then
 	uci_commit dhcp
 
 	uci_set network lan ipaddr "192.168.42.1"
-	uci_set network lan dns "85.214.20.141 213.73.91.35 194.150.168.168 2001:4ce8::53 2001:910:800::12"
+	#uci_set network lan dns "85.214.20.141 213.73.91.35 194.150.168.168 2001:4ce8::53 2001:910:800::12"
+	# https://nat64.dresel.systems/
+	uci_set network lan dns "2a0b:f4c0:4d:53::1 2a01:4f8:221:2d08::213"
 	uci_commit network
 
 fi
