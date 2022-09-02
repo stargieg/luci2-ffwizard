@@ -12,8 +12,6 @@ function index()
 	page.title    = _("Public")
 	page.target   = alias("public", "freifunk")
 	page.order    = 5
-	page.setuser  = "nobody"
-	page.setgroup = "nogroup"
 	page.i18n     = "public"
 	page.index    = true
 
@@ -21,8 +19,6 @@ function index()
 	page.title    = _("Freifunk")
 	page.target   = alias("public", "freifunk", "index")
 	page.order    = 5
-	page.setuser  = "nobody"
-	page.setgroup = "nogroup"
 	page.i18n     = "freifunk"
 	page.index    = true
 
