@@ -18,8 +18,12 @@ log_wifi() {
 setup_ip() {
 	local cfg="$1"
 	local ipaddr="$2"
+	local device="$3"
 	if ! uci_get network $cfg >/dev/null ; then
 		uci_add network interface "$cfg"
+	fi
+	if [ -n "$ipaddr" ] ; then
+		uci_set network $cfg device "$device"
 	fi
 	if [ -n "$ipaddr" ] ; then
 		eval "$(ipcalc.sh $ipaddr)"
@@ -48,7 +52,7 @@ setup_bridge() {
 	local cfg="$1"
 	local ipaddr="$2"
 	local ifc="$3"
-	setup_ip $cfg "$ipaddr"
+	setup_ip $cfg "$ipaddr" "br-$cfg"
         if ! uci_get network br$cfg >/dev/null ; then
                 uci_add network device "br$cfg"
         fi
@@ -352,6 +356,8 @@ config_foreach setup_wifi wifi "$br_name"
 config_get ip6prefix ffwizard ip6prefix
 if [ -n "$ip6prefix" ] ; then
 	uci_set network loopback ip6prefix "$ip6prefix"
+else
+	uci_remove network loopback ip6prefix
 fi
 
 #Set lan defaults if not an freifunk interface
