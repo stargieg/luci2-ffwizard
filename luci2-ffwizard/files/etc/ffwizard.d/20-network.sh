@@ -22,7 +22,7 @@ setup_ip() {
 	if ! uci_get network $cfg >/dev/null ; then
 		uci_add network interface "$cfg"
 	fi
-	if [ -n "$ipaddr" ] ; then
+	if [ -n "$device" ] ; then
 		uci_set network $cfg device "$device"
 	fi
 	if [ -n "$ipaddr" ] ; then

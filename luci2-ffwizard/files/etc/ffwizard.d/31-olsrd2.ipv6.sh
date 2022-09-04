@@ -16,9 +16,7 @@ log_olsr() {
 setup_olsrv2() {
 	local cfg="$1"
 	local ula="$2"
-	log_olsr "Setup olsrv2 with ula $ula"
-	uci_remove olsrd2 $cfg lan
-	uci_add_list olsrd2 $cfg lan "$ula"
+	log_olsr "Setup olsrv2"
 	#Setup IP6 Prefix
 	config_get ip6prefix ffwizard ip6prefix
 	if [ -n "$ip6prefix" ] ; then
@@ -41,6 +39,7 @@ setup_olsrv2() {
 setup_domain() {
 	log_olsr "Setup Domain IP Table"
 	uci_add olsrd2 domain ; cfg="$CONFIG_SECTION"
+	uci_set olsrd2 "$cfg" name "0"
 	uci_set olsrd2 "$cfg" table "254"
 	uci_set olsrd2 "$cfg" srcip_routes 1
 	uci_set olsrd2 "$cfg" protocol "100"
@@ -53,6 +52,13 @@ setup_telnet() {
 	uci_set olsrd2 "$cfg" port "2009"
 	uci_add_list olsrd2 "$cfg" bindto "::1"
 	uci_add_list olsrd2 "$cfg" bindto "default_reject"
+}
+
+setup_olsrv2_lan() {
+        log_olsr "Setup $1 prefix $2"
+        uci_add olsrd2 olsrv2_lan ; cfg="$CONFIG_SECTION"
+        uci_set olsrd2 "$cfg" name "$1"
+        uci_set olsrd2 "$cfg" prefix "$2"
 }
 
 setup_loop() {
@@ -133,6 +139,8 @@ config_foreach remove_section interface
 config_foreach remove_section domain
 #Remove telnet
 config_foreach remove_section telnet
+#Remove ula and lan prefix
+config_foreach remove_section olsrv2_lan
 
 olsr_enabled=0
 
@@ -157,9 +165,16 @@ if [ "$olsr_enabled" == "1" ] ; then
 	setup_domain
 	#Setup Domain Table
 	setup_telnet
+	#Add ula prefix
+	setup_olsrv2_lan ula $ula_prefix
+	#Setup IP6 Prefix
+	config_get ip6prefix ffwizard ip6prefix
+	if [ -n "$ip6prefix" ] ; then
+		setup_olsrv2_lan lan "$ip6prefix"
+	fi
 	#Setup olsrd2
 	config_load olsrd2
-	config_foreach setup_olsrv2 olsrv2 $ula_prefix
+	config_foreach setup_olsrv2 olsrv2
 	uci_commit olsrd2
 	#Disable olsrd6
 	if [ -s /etc/rc.d/S*olsrd6 ] ; then
