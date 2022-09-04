@@ -32,9 +32,17 @@
 			"path": "olsr2/olsrv2",
 		}
 	},
+	"admin/services/olsr2/olsrv2_lan": {
+		"title": "Prefix",
+		"order": 4,
+		"action": {
+			"type": "view",
+			"path": "olsr2/olsrv2_lan",
+		}
+	},
 	"admin/services/olsr2/domain": {
 		"title": "Domain",
-		"order": 4,
+		"order": 5,
 		"action": {
 			"type": "view",
 			"path": "olsr2/domain",
@@ -42,7 +50,7 @@
 	},
 	"admin/services/olsr2/mesh": {
 		"title": "Mesh",
-		"order": 5,
+		"order": 6,
 		"action": {
 			"type": "view",
 			"path": "olsr2/mesh",
@@ -50,7 +58,7 @@
 	},
 	"admin/services/olsr2/lan_import": {
 		"title": "LAN Import",
-		"order": 6,
+		"order": 7,
 		"action": {
 			"type": "view",
 			"path": "olsr2/lan_import",
@@ -58,7 +66,7 @@
 	},
 	"admin/services/olsr2/interface": {
 		"title": "Interface",
-		"order": 7,
+		"order": 8,
 		"action": {
 			"type": "view",
 			"path": "olsr2/interface",

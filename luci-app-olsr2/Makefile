@@ -3,7 +3,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-olsr2
 PKG_VERSION:=0.2.6
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
@@ -35,14 +35,6 @@ fi
 endef
 
 define Package/$(PKG_NAME)/install
-	#$(INSTALL_DIR) $(1)/usr/lib/lua/luci/controller
-	#$(INSTALL_BIN) $(PKG_BUILD_DIR)/luasrc/controller/* $(1)/usr/lib/lua/luci/controller
-	#$(INSTALL_DIR) $(1)/usr/lib/lua/luci/model/cbi
-	#$(INSTALL_BIN) $(PKG_BUILD_DIR)/luasrc/model/cbi/* $(1)/usr/lib/lua/luci/model/cbi
-	#$(INSTALL_DIR) $(1)/usr/lib/lua/luci/view/status-olsr2
-	#$(INSTALL_BIN) $(PKG_BUILD_DIR)/luasrc/view/status-olsr2/* $(1)/usr/lib/lua/luci/view/status-olsr2
-	#$(INSTALL_DIR) $(1)/www/
-	#$(INSTALL_DATA) ./htdocs/* $(1)/www
 	$(INSTALL_DIR) $(1)/www/luci-static/resources/view/olsr2
 	$(INSTALL_DATA) ./htdocs/cgi-bin-olsr2-neigh.html $(1)/www
 	$(INSTALL_DATA) ./htdocs/luci-static/resources/view/olsr2/* $(1)/www/luci-static/resources/view/olsr2

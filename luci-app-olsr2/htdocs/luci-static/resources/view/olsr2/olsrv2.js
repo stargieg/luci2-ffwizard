@@ -41,10 +41,6 @@ return view.extend({
 //	return _M['or'](v:gsub("^%s*-%s*", ""), ...)
 //end
 		o.optional = true;
-		o = s.option(form.DynamicList, "lan", _("lan defines the locally attached network prefixes (similar to HNAs in OLSR v1). A LAN entry is a IP address/prefix, followed (optionally) by up to three key=value pairs defining the metric cost, hopcount distance and domain of the LAN ( <metric=...> <dist=...> <domain=...> )."), "ip6prefix, ip4prefix, src=ip6prefix");
-		o.datatype = "string";
-		//o.datatype = "or(ip6addr, ip4addr, 'src='";
-		o.optional = true;
 		o = s.option(form.DynamicList, "originator", _("originator defines the ACL which declares a valid originator IP address for the router."), "ip6prefix, ip4prefix, default_accept, default_reject");
 		o.datatype = "string";
 //TODO
