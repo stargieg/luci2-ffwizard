@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=52
+PKG_RELEASE:=53
 PKG_BUILD_DEPENDS += LUCI_APP_FFWIZARD_GEN_SRCDIET:luasrcdiet/host
 PKG_CONFIG_DEPENDS += CONFIG_LUCI_APP_FFWIZARD_GEN_SRCDIET
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
@@ -59,7 +59,7 @@ define Package/luci2-ffwizard-fw
   $(call Package/luci2-ffwizard/template)
   DEPENDS:=luci2-ffwizard
   TITLE:=olsrd firewall config
-  EXTRA_DEPENDS:=firewall
+  EXTRA_DEPENDS:=firewall4
 endef
 
 define Package/luci2-ffwizard-olsrd-ipv4
