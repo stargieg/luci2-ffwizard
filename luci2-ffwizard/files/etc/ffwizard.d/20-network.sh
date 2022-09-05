@@ -48,22 +48,46 @@ setup_ip() {
 	fi
 }
 
+get_ports() {
+	local cfg="$1"
+	local gname="$2"
+	config_get name $cfg name
+	[ "$name" == "$gname" ] || return
+	config_get ports $cfg ports
+	log_net "get_ports $cfg $gname $ports"
+	fports="$fports $ports"
+	uci_remove network $cfg ports
+	for port in $ports ; do
+		uci_add_list network $cfg _ports $port
+	done
+}
+
+restore_portlist() {
+	local cfg="$1"
+	local gname="$2"
+	config_get name $cfg name
+	[ "$name" == "$gname" ] || return
+	config_get ports $cfg _ports
+	fports="$fports $ports"
+	uci_remove network $cfg _ports
+	for port in $ports ; do
+		log_net "restore_portlist $cfg $gname $port"
+		uci_add_list network $cfg ports $port
+	done
+}
+
 setup_bridge() {
 	local cfg="$1"
 	local ipaddr="$2"
-	local ifc="$3"
 	setup_ip $cfg "$ipaddr" "br-$cfg"
-        if ! uci_get network br$cfg >/dev/null ; then
-                uci_add network device "br$cfg"
-        fi
+	if ! uci_get network br$cfg >/dev/null ; then
+			uci_add network device "br$cfg"
+	fi
 	uci_set network br$cfg name "br-$cfg"
 	uci_set network br$cfg type "bridge"
 	#for batman
 	uci_set network br$cfg bridge_empty "1"
 	uci_set network br$cfg mtu "1532"
-	for port in $ifc ; do
-		uci_add_list network br$cfg ports "$port"
-	done
 	#TODO
 	#uci_set network br$cfg macaddr "$random"?
 }
@@ -71,16 +95,24 @@ setup_bridge() {
 setup_ether() {
 	local cfg="$1"
 	config_get enabled $cfg enabled "0"
-	[ "$enabled" == "0" ] && return
 	config_get dhcp_br $cfg dhcp_br "0"
+	if [ "$dhcp_br" == "0" ] || [ "$enabled" == "0" ] ; then
+		device="$(uci_get network $cfg device)"
+		if [ -n "$device" ] ; then
+			log_net "Setup $cfg with device $device"
+			restore_ports="$restore_ports $device"
+		fi
+		[ "$enabled" == "0" ] && return
+	fi
 	cfg_dhcp=$cfg"_dhcp"
 	uci_remove network $cfg_dhcp 2>/dev/null
 	if [ "$dhcp_br" == "1" ] ; then
 		log_net "Setup $cfg as DHCP Bridge member"
 		if uci_get network $cfg >/dev/null ; then
-			ifname="$(uci_get network $cfg device)"
-			if [ -n "$ifname" ] ; then
-				br_ifaces="$br_ifaces $ifname"
+			device="$(uci_get network $cfg device)"
+			if [ -n "$device" ] ; then
+				log_net "Setup $cfg with device $device"
+				br_ifaces="$br_ifaces $device"
 			fi
 			uci_set network $cfg proto "none"
 			uci_remove network $cfg type 2>/dev/null
@@ -97,7 +129,7 @@ setup_ether() {
 			OCTET_4="$((OCTET_4 + 1))"
 			ipaddr="$OCTET_1_3.$OCTET_4"
 			setup_ip "$cfg_dhcp" "$ipaddr/$PREFIX"
-			uci_set network $cfg_dhcp ifname "@$cfg"
+			uci_set network $cfg_dhcp device "@$cfg"
 		fi
 	fi
 	case $cfg in
@@ -306,6 +338,7 @@ remove_wifi() {
 	uci_remove wireless "$cfg" 2>/dev/null
 }
 
+restore_ports=""
 br_ifaces=""
 br_name="fflandhcp"
 lan_iface="lan"
@@ -342,7 +375,7 @@ if [ "$br" == "1" ] ; then
 		OCTET_4="$((OCTET_4 + 1))"
 		ipaddr="$OCTET_1_3.$OCTET_4/$PREFIX"
 	fi
-	setup_bridge "$br_name" "$ipaddr" "$br_ifaces"
+	setup_bridge "$br_name" "$ipaddr"
 else
 	uci_remove network "$br_name" 2>/dev/null
 	br_name="lan"
@@ -377,6 +410,31 @@ if [ -n "$wan_iface" ] ; then
 	uci_set network wan proto "dhcp"
 	uci_set network wan6 proto "dhcpv6"
 fi
+
+if [ "$br" == "1" ] ; then
+	uci_remove network br$br_name ports
+	config_load network
+	for device in $br_ifaces ; do
+		fports=""
+		config_foreach get_ports device "$device"
+		if [ -z "$fports" ] ; then
+			uci_add_list network br$br_name ports "$device"
+		else
+			for port in $fports ; do
+				uci_add_list network br$br_name ports "$port"
+			done
+		fi
+	done
+fi
+
+if [ -n "$restore_ports" ] ; then
+	config_load network
+	for device in $restore_ports ; do
+		fports=""
+		config_foreach restore_portlist device "$device"
+	done
+fi
+
 
 uci_commit network
 uci_commit wireless
