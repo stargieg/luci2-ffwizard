@@ -53,7 +53,22 @@ setup_dhcp_ignore() {
 setup_ether() {
 	local cfg="$1"
 	config_get enabled $cfg enabled "0"
-	[ "$enabled" == "0" ] && return
+	if [ "$enabled" == "0" ] ; then
+		if [ "$cfg" == "lan" ] ; then
+			uci_set dhcp $cfg ignore "0"
+			uci_set dhcp $cfg start "100"
+			uci_set dhcp $cfg limit "150"
+			uci_set dhcp $cfg ignore "0"
+			uci_set dhcp $cfg leasetime "15m"
+			uci_add_list dhcp $cfg dhcp_option "119,olsr"
+			uci_add_list dhcp $cfg domain "olsr"
+			uci_set dhcp $cfg dhcpv6 "server"
+			uci_set dhcp $cfg ra "server"
+			uci_set dhcp $cfg ra_preference "low"
+			uci_set dhcp $cfg ra_default "1"
+		fi
+		return
+	fi
 	config_get dhcp_ip $cfg dhcp_ip "0"
 	cfg_dhcp=$cfg"_dhcp"
 	uci_remove dhcp $cfg_dhcp 2>/dev/null
@@ -111,6 +126,7 @@ setup_odhcpbase() {
 	uci_set dhcp $cfg maindhcp "0"
 }
 
+restore_iface=""
 br_name="fflandhcp"
 lan_iface="lan"
 wan_iface="wan"
