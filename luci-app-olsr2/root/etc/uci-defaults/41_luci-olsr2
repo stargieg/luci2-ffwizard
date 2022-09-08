@@ -10,9 +10,4 @@ EOF
 rm -f /tmp/luci-indexcache
 rm -f /tmp/luci-modulecache/*
 
-grep -q "olsr2hosts.lua" /etc/crontabs/root || \
-echo "*/5 * * * *     olsr2hosts.lua > /tmp/hosts/olsr2.tmp && mv /tmp/hosts/olsr2.tmp /tmp/hosts/olsr2" >> /etc/crontabs/root
-grep -q "rm /tmp/hosts/olsr2" /etc/crontabs/root || \
-echo "1 */1 * * *     rm /tmp/hosts/olsr2" >> /etc/crontabs/root
-
 exit 0

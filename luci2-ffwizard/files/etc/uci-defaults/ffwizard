@@ -61,3 +61,10 @@ fi
 /etc/init.d/freifunk disable
 grep -v '/usr/sbin/ff_olsr_watchdog' /etc/crontabs/root > /etc/crontabs/root_new
 mv /etc/crontabs/root_new /etc/crontabs/root
+
+if [ -f /usr/sbin/olsr2hosts.sh ] ; then
+	grep -q "olsr2hosts.sh" /etc/crontabs/root || \
+	echo "*/5 * * * *     olsr2hosts.sh > /tmp/hosts/olsr2.tmp && mv /tmp/hosts/olsr2.tmp /tmp/hosts/olsr2" >> /etc/crontabs/root
+	grep -q "rm /tmp/hosts/olsr2" /etc/crontabs/root || \
+	echo "1 */1 * * *     rm /tmp/hosts/olsr2" >> /etc/crontabs/root
+fi
