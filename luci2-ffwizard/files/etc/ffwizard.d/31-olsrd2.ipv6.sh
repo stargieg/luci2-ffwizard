@@ -176,6 +176,8 @@ if [ "$olsr_enabled" == "1" ] ; then
 	config_load olsrd2
 	config_foreach setup_olsrv2 olsrv2
 	uci_commit olsrd2
+	#Cron search for public prefix greater than 56
+	grep -q 'olsrv2-dyn-addr' /etc/crontabs/root || echo '*/8 * * * * /usr/sbin/olsrv2-dyn-addr.sh' >> /etc/crontabs/root
 	#Disable olsrd6
 	if [ -s /etc/rc.d/S*olsrd6 ] ; then
 		/etc/init.d/olsrd6 stop

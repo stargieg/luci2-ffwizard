@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=54
+PKG_RELEASE:=55
 PKG_BUILD_DEPENDS += LUCI_APP_FFWIZARD_GEN_SRCDIET:luasrcdiet/host
 PKG_CONFIG_DEPENDS += CONFIG_LUCI_APP_FFWIZARD_GEN_SRCDIET
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
@@ -189,9 +189,10 @@ define Package/luci2-ffwizard-olsrd-ipv6/install
 endef
 
 define Package/luci2-ffwizard-olsrv2-ipv6/install
-	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/etc/odhcp6c.user.d
+	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/usr/sbin $(1)/etc/odhcp6c.user.d
 	$(INSTALL_BIN) files/etc/ffwizard.d/31-olsrd2.ipv6.sh $(1)/etc/ffwizard.d/
 	$(INSTALL_BIN) files/etc/odhcp6c.user.d/olsrv2_lan.sh $(1)/etc/odhcp6c.user.d/
+	$(INSTALL_BIN) files/usr/sbin/olsrv2-dyn-addr.sh $(1)/usr/sbin/
 endef
 
 define Package/luci2-ffwizard-batadv/install
