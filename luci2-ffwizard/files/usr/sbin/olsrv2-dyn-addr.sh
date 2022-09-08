@@ -143,6 +143,7 @@ else
 		ubus call uci "reload_config"
 		#netconfig is a reload triger for olsrv2
 		sleep 5
+		/etc/init.d/dnsmasq restart
 	fi
 
 	addr="$(printf '/config get olsrv2_lan[dynaddr].prefix' | nc ::1 2009 | tail -1)"
