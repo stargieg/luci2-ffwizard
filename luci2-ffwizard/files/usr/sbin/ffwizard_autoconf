@@ -51,6 +51,10 @@ fi
 
 json_cleanup
 
+#fuckup
+ctmode=""
+opkg list_installed | grep -q kmod-ath10k-ct && ctmode="1"
+
 for ifc in $wlan_ifc ; do
 	log "ubus call iwinfo $ifc scan"
 	scan_data=$(ubus call iwinfo scan '{ "device": "'$ifc'" }')
@@ -88,7 +92,7 @@ for ifc in $wlan_ifc ; do
 				fi
 			fi
 			# Mesh Point scan
-			if [ $sta_mode == "Mesh Point" ] ; then
+			if [ -z $ctmode ] && [ $sta_mode == "Mesh Point" ] ; then
 				json_get_var sta_quality quality
 				if [ $sta_quality -gt $quality ] ; then
 					quality=$sta_quality
@@ -112,14 +116,15 @@ for ifc in $wlan_ifc ; do
 	uci_set ffwizard "$ifc" phy_idx $phy_idx
 	uci_set ffwizard "$ifc" channel $channel
 	uci_set ffwizard "$ifc" olsr_mesh 1
-	if [ "$mode" == "adhoc" ] ; then
+	if [ -z $ctmode ] && [ "$mode" == "mesh" ] ; then
+		log "scan result for $ifc channel: $channel"
+		uci_set ffwizard "$ifc" iface_mode "mesh"
+	else
 		# Depricated Ad-Hoc config
 		log "scan result for $ifc ssid: $ssid bssid: $bssid channel: $channel"
 		uci_set ffwizard "$ifc" ssid $ssid
 		uci_set ffwizard "$ifc" bssid $bssid
 		uci_set ffwizard "$ifc" iface_mode "adhoc"
-	else
-		uci_set ffwizard "$ifc" iface_mode "mesh"
 	fi
 done
 
