@@ -115,6 +115,7 @@ setup_ether() {
 				br_ifaces="$br_ifaces $device"
 			fi
 			uci_set network $cfg proto "none"
+			uci_remove network $cfg ip6prefix 2>/dev/null
 			uci_remove network $cfg type 2>/dev/null
 		fi
 	else
@@ -122,6 +123,8 @@ setup_ether() {
 		config_get ipaddr $cfg mesh_ip
 		setup_ip "$cfg" "$ipaddr"
 		config_get ipaddr $cfg dhcp_ip "0"
+		uci_remove network $cfg ip6class
+		uci_add_list network $cfg ip6class "local"
 		if [ "$ipaddr" != "0" ] ; then
 			eval "$(ipcalc.sh $ipaddr)"
 			OCTET_4="${NETWORK##*.}"
@@ -130,6 +133,7 @@ setup_ether() {
 			ipaddr="$OCTET_1_3.$OCTET_4"
 			setup_ip "$cfg_dhcp" "$ipaddr/$PREFIX"
 			uci_set network $cfg_dhcp device "@$cfg"
+			uci_remove network $cfg_dhcp ip6prefix 2>/dev/null
 		fi
 	fi
 	case $cfg in
