@@ -53,7 +53,9 @@ json_cleanup
 
 #fuckup
 ctmode=""
-opkg list_installed | grep -q kmod-ath10k-ct && ctmode="1"
+opkg list_installed | grep -q "kmod-ath10k-ct -" && ctmode="1"
+nonectmode=""
+opkg list_installed | grep -q "kmod-ath10k -" && nonectmode="1"
 
 for ifc in $wlan_ifc ; do
 	log "ubus call iwinfo $ifc scan"
@@ -74,7 +76,7 @@ for ifc in $wlan_ifc ; do
 		if [ $sta_encryption == 0 ] ; then
 			json_get_var sta_mode mode
 			# Depricated Ad-Hoc scan
-			if [ $sta_mode == "Ad-Hoc" ] ; then
+			if [ -z $nonectmode ] && [ $sta_mode == "Ad-Hoc" ] ; then
 				json_get_var sta_ssid ssid
 				if echo "$sta_ssid" | grep -q "freifunk\.net" ; then
 					json_get_var sta_quality quality
