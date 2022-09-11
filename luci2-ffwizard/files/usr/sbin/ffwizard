@@ -23,4 +23,4 @@ sleep 3
 [ -f /etc/init.d/olsrd2 ] && /etc/init.d/olsrd2 restart
 [ -f /etc/init.d/uhttpd ] && /etc/init.d/uhttpd restart
 [ -f /etc/init.d/dnsmasq ] && /etc/init.d/dnsmasq restart
-[ -f /etc/init.d/crontab ] && /etc/init.d/crontab restart
+[ -f /etc/init.d/cron ] && /etc/init.d/cron restart
