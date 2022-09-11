@@ -8,7 +8,7 @@ log() {
 }
 
 wlan_ifc=""
-wifi_restart=1
+wifi_restart=0
 
 log "ubus call network.wireless status"
 wifi_data=`ubus call network.wireless status`
@@ -22,9 +22,9 @@ for i in $wifi_res ; do
 		uci set wireless.$i.disabled=0
 		uci set wireless.$i.country=DE
 		#uci commit wireless
+		wifi_restart=1
 	else
 		log "wifi $i allready enabled leave it untouch"
-		wifi_restart=0
 	fi
 	json_select ".."
 done
@@ -35,19 +35,19 @@ if [ $wifi_restart == 1 ] ; then
 	log "wifi restart and sleep 20s"
 	/etc/init.d/network reload
 	/bin/sleep 20
-	log "ubus call network.wireless status"
-	wifi_data=`ubus call network.wireless status`
-	json_load "$wifi_data"
-	json_get_keys wifi_res
-	for i in $wifi_res ; do
-		json_select $i
-		json_get_var wifi_disabled disabled
-		if [ $wifi_disabled == 0 ] ; then
-			wlan_ifc="$wlan_ifc $i"
-		fi
-		json_select ".."
-	done
 fi
+log "ubus call network.wireless status"
+wifi_data=`ubus call network.wireless status`
+json_load "$wifi_data"
+json_get_keys wifi_res
+for i in $wifi_res ; do
+	json_select $i
+	json_get_var wifi_disabled disabled
+	if [ $wifi_disabled == 0 ] ; then
+		wlan_ifc="$wlan_ifc $i"
+	fi
+	json_select ".."
+done
 
 json_cleanup
 
@@ -58,15 +58,23 @@ nonectmode=""
 opkg list_installed | grep -q "kmod-ath10k -" && nonectmode="1"
 
 for ifc in $wlan_ifc ; do
-	log "ubus call iwinfo $ifc scan"
+	band=$(uci_get wireless $ifc band)
+	if [ "$band" == "5g" ] ; then
+		minchannel=36
+	else
+		minchannel=1
+	fi
+	log "ubus call iwinfo $ifc first scan"
+	ubus call iwinfo scan '{ "device": "'$ifc'" }' >/dev/null
+	log "ubus call iwinfo $ifc second scan"
 	scan_data=$(ubus call iwinfo scan '{ "device": "'$ifc'" }')
 	json_load "$scan_data"
 	json_select results
 	json_get_keys scan_res
-	quality=0
-	ssid=""
-	bssid=""
-	channel=""
+	cfgquality=0
+	cfgssid=""
+	cfgbssid=""
+	cfgchannel=""
 	mode="mesh"
 	for i in $scan_res ; do
 		json_select $i
@@ -76,56 +84,60 @@ for ifc in $wlan_ifc ; do
 		if [ $sta_encryption == 0 ] ; then
 			json_get_var sta_mode mode
 			# Depricated Ad-Hoc scan
-			if [ -z $nonectmode ] && [ $sta_mode == "Ad-Hoc" ] ; then
+			if [ -z $nonectmode ] && [ "$sta_mode" == "Ad-Hoc" ] ; then
 				json_get_var sta_ssid ssid
 				if echo "$sta_ssid" | grep -q "freifunk\.net" ; then
 					json_get_var sta_quality quality
-					if [ $sta_quality -gt $quality ] ; then
-						quality=$sta_quality
-						json_get_var sta_bssid bssid
-						json_get_var sta_channel channel
-						#json_get_var sta_signal signal
-						#json_get_var sta_quality_max quality_max
-						ssid=$sta_ssid
-						bssid=$sta_bssid
-						channel=$sta_channel
-						mode="adhoc"
+					json_get_var sta_channel channel
+					if [ $sta_channel -ge $minchannel ] ; then
+						if [ $sta_quality -gt $cfgquality ] ; then
+							cfgquality=$sta_quality
+							json_get_var sta_bssid bssid
+							#json_get_var sta_signal signal
+							#json_get_var sta_quality_max quality_max
+							cfgssid=$sta_ssid
+							cfgbssid=$sta_bssid
+							cfgchannel=$sta_channel
+							mode="adhoc"
+						fi
 					fi
 				fi
 			fi
 			# Mesh Point scan
-			if [ -z $ctmode ] && [ $sta_mode == "Mesh Point" ] ; then
+			if [ -z $ctmode ] && [ "$sta_mode" == "Mesh Point" ] ; then
 				json_get_var sta_quality quality
-				if [ $sta_quality -gt $quality ] ; then
-					quality=$sta_quality
-					json_get_var sta_channel channel
-					# Additional related Infos
-					#json_get_var sta_signal signal
-					#json_get_var sta_quality_max quality_max
-					channel=$sta_channel
-					mode="mesh"
+				json_get_var sta_channel channel
+				if [ $sta_channel -ge $minchannel ] ; then
+					if [ $sta_quality -gt $cfgquality ] ; then
+						cfgquality=$sta_quality
+						# Additional related Infos
+						#json_get_var sta_signal signal
+						#json_get_var sta_quality_max quality_max
+						cfgchannel=$sta_channel
+						mode="mesh"
+					fi
 				fi
 			fi
 		fi
 		json_select ".."
 	done
 	json_cleanup
-	log "scan result for $ifc channel: $channel"
+	log "scan result for $ifc channel: $cfgchannel"
 	if ! uci_get ffwizard $ifc >/dev/null ; then
 		uci_add ffwizard wifi "$ifc"
 	fi
 	phy_idx=$(echo $ifc | cut -b6)
 	uci_set ffwizard "$ifc" phy_idx $phy_idx
-	uci_set ffwizard "$ifc" channel $channel
+	uci_set ffwizard "$ifc" channel $cfgchannel
 	uci_set ffwizard "$ifc" olsr_mesh 1
 	if [ -z $ctmode ] && [ "$mode" == "mesh" ] ; then
-		log "scan result for $ifc channel: $channel"
+		log "scan result for $ifc channel: $cfgchannel"
 		uci_set ffwizard "$ifc" iface_mode "mesh"
 	else
 		# Depricated Ad-Hoc config
-		log "scan result for $ifc ssid: $ssid bssid: $bssid channel: $channel"
-		uci_set ffwizard "$ifc" ssid $ssid
-		uci_set ffwizard "$ifc" bssid $bssid
+		log "scan result for $ifc ssid: $cfgssid bssid: $cfgbssid channel: $cfgchannel"
+		uci_set ffwizard "$ifc" ssid $cfgssid
+		uci_set ffwizard "$ifc" bssid $cfgbssid
 		uci_set ffwizard "$ifc" iface_mode "adhoc"
 	fi
 done
