@@ -17,3 +17,9 @@ for file in $files; do
 done
 
 ubus call uci "reload_config"
+
+#TODO reload config does not work for olsrd2, uhttpd, dnsmasq
+sleep 3
+[ -f /etc/init.d/olsrd2 ] && /etc/init.d/olsrd2 restart
+[ -f /etc/init.d/uhttpd ] && /etc/init.d/uhttpd restart
+[ -f /etc/init.d/dnsmasq ] && /etc/init.d/dnsmasq restart
