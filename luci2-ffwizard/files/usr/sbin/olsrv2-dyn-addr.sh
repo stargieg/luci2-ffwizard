@@ -293,7 +293,8 @@ else
 		uci_set network $cfg_ip6prefix srcip6prefix "$srcip6prefix_new"
 		uci_commit network
 
-		ubus call uci "reload_config"
+		#ubus call uci "reload_config"
+                /etc/init.d/network reload
 		#netconfig is a reload triger for olsrv2
 		sleep 5
 		/etc/init.d/dnsmasq restart
