@@ -16,11 +16,23 @@ for file in $files; do
 	. "$wdir/$file"
 done
 
-ubus call uci "reload_config"
+#ubus call uci "reload_config"
 
 #TODO reload config does not work for olsrd2, uhttpd, dnsmasq, crontab
+#sleep 3
+log_ffwizard "restart network"
+ubus call rc init '{"name":"network","action":"restart"}'
 sleep 3
-[ -f /etc/init.d/olsrd2 ] && /etc/init.d/olsrd2 restart
-[ -f /etc/init.d/uhttpd ] && /etc/init.d/uhttpd restart
-[ -f /etc/init.d/dnsmasq ] && /etc/init.d/dnsmasq restart
-[ -f /etc/init.d/cron ] && /etc/init.d/cron restart
+log_ffwizard "restart olsrd"
+ubus call rc init '{"name":"olsrd2","action":"restart"}'
+sleep 3                                                                                      
+log_ffwizard "restart uhttpd"
+ubus call rc init '{"name":"uhttpd","action":"restart"}'
+sleep 3                                                                                      
+log_ffwizard "restart dnsmasq"
+ubus call rc init '{"name":"dnsmasq","action":"restart"}'
+sleep 3                                                                                      
+log_ffwizard "restart cron"
+ubus call rc init '{"name":"cron","action":"restart"}'
+sleep 3                                                                                      
+log_ffwizard "exit"

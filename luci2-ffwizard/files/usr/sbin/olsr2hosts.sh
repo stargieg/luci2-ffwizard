@@ -7,6 +7,17 @@ log() {
 	logger -s -t olsr2hosts $@
 }
 
+if pidof nc | grep -q ' ' >/dev/null ; then
+    log "killall nc"
+	killall -9 nc
+	ubus call rc init '{"name":"olsrd2","action":"restart"}'
+    return 1
+fi
+if pidof olsr2hosts.sh | grep -q ' ' >/dev/null ; then
+    log "killall olsr2hosts.sh"
+	killall -9 olsr2hosts.sh
+	return 1
+fi
 json_init
 json_load "$(echo '/nhdpinfo json neighbor /quit' | nc ::1 2009)"
 if ! json_select neighbor ; then

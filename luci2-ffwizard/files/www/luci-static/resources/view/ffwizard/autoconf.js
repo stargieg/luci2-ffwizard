@@ -10,8 +10,8 @@ return view.extend({
 
 		s = m.section(form.TypedSection, 'autoconf', _('Autokonfiguration'));
 		s.anonymous = true;
-		s.addremove = true;
-		o = s.option(form.Value, "firstboot", _("Start der autokonfiguration"), "bool");
+		s.addremove = false;
+		o = s.option(form.Flag, "firstboot", _("Start der autokonfiguration"), "");
 		o.datatype = "bool";
 
 		return m.render();

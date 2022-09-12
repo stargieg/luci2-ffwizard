@@ -144,4 +144,4 @@ done
 
 uci_set ffwizard ffwizard enabled 1
 uci_commit ffwizard
-/etc/init.d/ffwizard restart
+ubus call rc init '{"name":"ffwizard","action":"restart"}'

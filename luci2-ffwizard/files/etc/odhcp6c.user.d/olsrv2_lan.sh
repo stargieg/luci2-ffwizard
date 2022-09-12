@@ -45,6 +45,12 @@ set_iface_prefix() {
 
 case "$2" in
 	ra-updated)
+		if pidof nc | grep -q ' ' >/dev/null ; then
+   			log "killall nc"
+			killall -9 nc
+			ubus call rc init '{"name":"olsrd2","action":"restart"}'
+   			return
+		fi
 		if ! [ -z "$RA_ADDRESSES" ] ; then
 			for ra in $RA_ADDRESSES ; do
 				newlan=1

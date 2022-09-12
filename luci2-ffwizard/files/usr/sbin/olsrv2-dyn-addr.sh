@@ -168,10 +168,22 @@ calc_from_48() {
         echo :
 }
 
+if pidof nc | grep -q ' ' >/dev/null ; then
+        log "killall nc"
+	killall -9 nc
+	ubus call rc init '{"name":"olsrd2","action":"restart"}'
+        return 1                 
+fi
+
+if pidof olsrv2-dyn-addr.sh | grep -q ' ' >/dev/null ; then
+        log "killall olsrv2-dyn-addr.sh"                                                                             
+	killall -9 olsrv2-dyn-addr.sh
+        return 1                                                                                                   
+fi
 
 if [ -z $(pidof olsrd2) ] ; then
 	log "restart olsrd"
-	/etc/init.d/olsrd2 restart
+	ubus call rc init '{"name":"olsrd2","action":"restart"}'
 	return 1
 fi
 
