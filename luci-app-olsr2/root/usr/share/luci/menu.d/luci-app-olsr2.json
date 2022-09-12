@@ -2,7 +2,7 @@
 	"admin/services/olsr2": {
 		"title": "OLSR2",
 		"action": {
-			"type": "firstchild",
+			"type": "firstchild"
 		},
 		"depends": {
 			"acl": [ "luci-app-olsr2" ]
@@ -13,7 +13,7 @@
 		"order": 1,
 		"action": {
 			"type": "view",
-			"path": "olsr2/global",
+			"path": "olsr2/global"
 		}
 	},
 	"admin/services/olsr2/log": {
@@ -21,7 +21,7 @@
 		"order": 2,
 		"action": {
 			"type": "view",
-			"path": "olsr2/log",
+			"path": "olsr2/log"
 		}
 	},
 	"admin/services/olsr2/olsrv2": {
@@ -29,7 +29,7 @@
 		"order": 3,
 		"action": {
 			"type": "view",
-			"path": "olsr2/olsrv2",
+			"path": "olsr2/olsrv2"
 		}
 	},
 	"admin/services/olsr2/olsrv2_lan": {
@@ -37,7 +37,7 @@
 		"order": 4,
 		"action": {
 			"type": "view",
-			"path": "olsr2/olsrv2_lan",
+			"path": "olsr2/olsrv2_lan"
 		}
 	},
 	"admin/services/olsr2/domain": {
@@ -45,7 +45,7 @@
 		"order": 5,
 		"action": {
 			"type": "view",
-			"path": "olsr2/domain",
+			"path": "olsr2/domain"
 		}
 	},
 	"admin/services/olsr2/mesh": {
@@ -53,7 +53,7 @@
 		"order": 6,
 		"action": {
 			"type": "view",
-			"path": "olsr2/mesh",
+			"path": "olsr2/mesh"
 		}
 	},
 	"admin/services/olsr2/lan_import": {
@@ -61,7 +61,7 @@
 		"order": 7,
 		"action": {
 			"type": "view",
-			"path": "olsr2/lan_import",
+			"path": "olsr2/lan_import"
 		}
 	},
 	"admin/services/olsr2/interface": {
@@ -69,13 +69,13 @@
 		"order": 8,
 		"action": {
 			"type": "view",
-			"path": "olsr2/interface",
+			"path": "olsr2/interface"
 		}
 	},
 	"admin/services/olsr2": {
 		"title": "olsr2",
 		"action": {
-			"type": "firstchild",
+			"type": "firstchild"
 		},
 		"depends": {
 			"acl": [ "luci-app-olsr2" ]
@@ -92,7 +92,7 @@
 		"order": 1,
 		"action": {
 			"type": "view",
-			"path": "olsr2/overview",
+			"path": "olsr2/overview"
 		}
 	},
 	"admin/status/olsr2/node": {
@@ -142,7 +142,7 @@
 		"order": 4,
 		"action": {
 			"type": "view",
-			"path": "olsr2/overview",
+			"path": "olsr2/overview"
 		}
 	},
 	"public/status/olsr2/node": {
