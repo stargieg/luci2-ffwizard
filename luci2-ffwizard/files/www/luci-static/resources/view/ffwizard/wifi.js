@@ -1,0 +1,46 @@
+'use strict';
+'require view';
+'require form';
+
+return view.extend({
+	render: function() {
+		var m, s, o;
+
+		m = new form.Map('ffwizard', 'Kabel');
+
+		s = m.section(form.TypedSection, 'wifi', _('Drahtlose Schnittstellen'));
+		s.anonymous = true;
+		s.addremove = true;
+		o = s.option(form.Flag, "enabled", _("freigegeben"), "");
+		o.datatype = "bool";
+		o = s.option(form.Value, "phy_idx", _("Wifi Physical Index"), "0-254");
+		o.placeholder = "0";
+		o.datatype = "range(0,254)";
+		o = s.option(form.Value, "channel", _("Der Funkkanal oder die Funk Kanalliste sind abhängieg von dem Gerät"), "0-300");
+		o.placeholder = "0";
+		o.datatype = "range(0,300)";
+		o = s.option(form.ListValue, "iface_mode", _("IBSS/Ad-Hoc oder 802.11s-Mesh"), "");
+		o.value("adhoc");
+		o.value("");
+		o = s.option(form.Flag, "olsr_mesh", _("OLSR Meshprotokoll"), "");
+		o.datatype = "bool";
+		o = s.option(form.Flag, "bat_mesh", _("B.A.T.M.A.N Meshprotokoll"), "");
+		o.datatype = "bool";
+		o = s.option(form.Value, "mesh_ip", _("Mesh IPv4 Addresse"), "");
+		o.placeholder = "104.1.1.1/8";
+		o.datatype = "cidr4";
+		o.optional = true;
+		o = s.option(form.Flag, "vap", _("AP für Mobilgeräte"), "");
+		o.datatype = "bool";
+		o.optional = true;
+		o = s.option(form.Flag, "vap_br", _("AP für Mobilgeräte brücken"), "");
+		o.datatype = "bool";
+		o.optional = true;
+		o = s.option(form.Value, "dhcp_ip", _("IP Netz DHCP Netz Batman Gateway mode und olsr Hna4"), "");
+		o.placeholder = "192.168.112.0/28";
+		o.datatype = "cidr4";
+		o.optional = true;
+
+		return m.render();
+	}
+});

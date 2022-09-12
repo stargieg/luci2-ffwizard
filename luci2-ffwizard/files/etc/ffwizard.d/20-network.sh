@@ -393,8 +393,10 @@ config_foreach setup_wifi wifi "$br_name"
 config_get ip6prefix ffwizard ip6prefix
 if [ -n "$ip6prefix" ] ; then
 	uci_set network loopback ip6prefix "$ip6prefix"
+	uci_remove network loopback srcip6prefix
 else
 	uci_remove network loopback ip6prefix
+	uci_remove network loopback srcip6prefix
 fi
 
 #Set lan defaults if not an freifunk interface
@@ -404,6 +406,8 @@ if [ -n "$lan_iface" ] ; then
 	uci_set network lan ipaddr "192.168.42.1"
 	uci_set network lan netmask "255.255.255.0"
 	uci_set network lan ip6assign '64'
+	uci_remove network lan ip6class
+	uci_add_list network lan ip6class "local"
 fi
 
 #Set wan defaults if not an freifunk interface
@@ -411,6 +415,7 @@ if [ -n "$wan_iface" ] ; then
 	uci_remove network wan ipaddr 2>/dev/null
 	uci_remove network wan netmask 2>/dev/null
 	uci_remove network wan ip6assign 2>/dev/null
+	uci_remove network wan ip6class 2>/dev/null
 	uci_set network wan proto "dhcp"
 	uci_set network wan6 proto "dhcpv6"
 fi

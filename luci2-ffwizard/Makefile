@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=67
+PKG_RELEASE:=68
 PKG_BUILD_DEPENDS += LUCI_APP_FFWIZARD_GEN_SRCDIET:luasrcdiet/host
 PKG_CONFIG_DEPENDS += CONFIG_LUCI_APP_FFWIZARD_GEN_SRCDIET
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
@@ -163,11 +163,12 @@ define Package/luci2-ffwizard-angular/install
 endef
 
 define Package/luci2-ffwizard-lua/install
-	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/controller
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/luasrc/controller/ffwizard.lua $(1)/usr/lib/lua/luci/controller
-	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/model/cbi
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/luasrc/model/cbi/ffwizard.lua $(1)/usr/lib/lua/luci/model/cbi
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/luasrc/model/cbi/ffwizard_autoconf.lua $(1)/usr/lib/lua/luci/model/cbi
+	$(INSTALL_DIR) $(1)/www/luci-static/resources/view/ffwizard
+	$(INSTALL_DATA) files/www/luci-static/resources/view/ffwizard/* $(1)/www/luci-static/resources/view/ffwizard
+	$(INSTALL_DIR) $(1)/usr/share/luci/menu.d
+	$(INSTALL_DATA) files/usr/share/luci/menu.d/luci-app-ffwizard.json $(1)/usr/share/luci/menu.d
+	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
+	$(INSTALL_DATA) files/usr/share/rpcd/acl.d/luci-app-ffwizard.json $(1)/usr/share/rpcd/acl.d
 endef
 
 define Package/luci2-ffwizard-fw/install

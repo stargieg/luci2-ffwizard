@@ -1,0 +1,43 @@
+{
+	"admin/services/ffwizard": {
+		"title": "FFWIZARD",
+		"action": {
+			"type": "firstchild"
+		},
+		"depends": {
+			"acl": [ "luci-app-ffwizard" ]
+		}
+	},
+	"admin/services/ffwizard/admin": {
+		"title": "Global",
+		"order": 1,
+		"action": {
+			"type": "view",
+			"path": "ffwizard/admin"
+		}
+	},
+	"admin/services/ffwizard/ether": {
+		"title": "Ethernet",
+		"order": 2,
+		"action": {
+			"type": "view",
+			"path": "ffwizard/ether"
+		}
+	},
+	"admin/services/ffwizard/wifi": {
+		"title": "Wifi",
+		"order": 3,
+		"action": {
+			"type": "view",
+			"path": "ffwizard/wifi"
+		}
+	},
+	"admin/services/ffwizard/autoconf": {
+		"title": "Autoconf",
+		"order": 4,
+		"action": {
+			"type": "view",
+			"path": "ffwizard/autoconf"
+		}
+	}
+}
