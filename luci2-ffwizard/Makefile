@@ -1,10 +1,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=68
-PKG_BUILD_DEPENDS += LUCI_APP_FFWIZARD_GEN_SRCDIET:luasrcdiet/host
-PKG_CONFIG_DEPENDS += CONFIG_LUCI_APP_FFWIZARD_GEN_SRCDIET
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
+PKG_RELEASE:=69
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -97,26 +95,12 @@ define Package/luci2-ffwizard-kadnode
   EXTRA_DEPENDS:=kadnode, ca-bundle
 endef
 
-define Package/luci2-ffwizard-lua/config
-  config LUCI_APP_FFWIZARD_GEN_SRCDIET
-    bool "ffwizard Minify Lua sources"
-    default n
-endef
-
-define SrcDiet
-  $(FIND) $(1) -type f -name '*.lua' | while read src; do \
-    if LUA_PATH="$(STAGING_DIR_HOSTPKG)/lib/lua/5.1/?.lua" luasrcdiet --noopt-binequiv -o "$$$$src.o" "$$$$src"; \
-    then mv "$$$$src.o" "$$$$src"; fi; \
-  done
-endef
-
 define Build/Prepare
-	mkdir -p $(PKG_BUILD_DIR)/ffwizard
-	$(CP) ./luasrc $(PKG_BUILD_DIR)/
+	mkdir -p $(PKG_BUILD_DIR)
 endef
-
+define Build/Configure
+endef
 define Build/Compile
-	$(if $(CONFIG_LUCI_APP_LINKNX_GEN_SRCDIET),$(call SrcDiet,$(PKG_BUILD_DIR)/luasrc/),true);
 endef
 
 define Package/luci2-ffwizard-lua/postinst
