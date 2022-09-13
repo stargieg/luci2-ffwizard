@@ -398,6 +398,11 @@ else
 	uci_remove network loopback ip6prefix
 	uci_remove network loopback srcip6prefix
 fi
+r1=$(dd if=/dev/urandom bs=1 count=1 |hexdump -e '1/1 "%02x"')
+r2=$(dd if=/dev/urandom bs=2 count=1 |hexdump -e '2/1 "%02x"')
+r3=$(dd if=/dev/urandom bs=2 count=1 |hexdump -e '2/1 "%02x"')
+uci_set network globals ula_prefix "fd$r1:$r2:$r3::/48"
+uci_set dhcp frei_funk_ipv6 ip "fd$r1:$r2:$r3::1"
 
 #Set lan defaults if not an freifunk interface
 if [ -n "$lan_iface" ] ; then
@@ -446,4 +451,5 @@ fi
 
 
 uci_commit network
+uci_commit dhcp
 uci_commit wireless

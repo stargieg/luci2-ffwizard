@@ -13,6 +13,12 @@ if pidof nc | grep -q ' ' >/dev/null ; then
 	ubus call rc init '{"name":"olsrd2","action":"restart"}'
     return 1
 fi
+hostname="$(cat /proc/sys/kernel/hostname)"
+if ! nslookup $hostname | grep -q 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' ; then
+        log "restart dnsmasq nslookup $hostname fail"
+        ubus call rc init '{"name":"dnsmasq","action":"restart"}'
+        return 1
+fi
 if pidof olsr2hosts.sh | grep -q ' ' >/dev/null ; then
     log "killall olsr2hosts.sh"
 	killall -9 olsr2hosts.sh

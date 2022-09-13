@@ -64,7 +64,7 @@ mv /etc/crontabs/root_new /etc/crontabs/root
 
 if [ -f /usr/sbin/olsr2hosts.sh ] ; then
 	grep -q "olsr2hosts.sh" /etc/crontabs/root || \
-	echo "*/5 * * * *     olsr2hosts.sh > /tmp/hosts/olsr2.tmp && mv /tmp/hosts/olsr2.tmp /tmp/hosts/olsr2 || rm /tmp/hosts/olsr2.tmp" >> /etc/crontabs/root
+	echo "*/5 * * * *     olsr2hosts.sh > /tmp/olsr2.tmp && mv /tmp/olsr2.tmp /tmp/hosts/olsr2 || rm /tmp/olsr2.tmp" >> /etc/crontabs/root
 	grep -q "rm /tmp/hosts/olsr2" /etc/crontabs/root || \
 	echo "1 */1 * * *     rm /tmp/hosts/olsr2" >> /etc/crontabs/root
 fi
