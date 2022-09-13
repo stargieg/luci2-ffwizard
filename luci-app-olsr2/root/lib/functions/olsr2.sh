@@ -33,7 +33,7 @@ network_get_neighbour_by_ip()
 	dev=''
 	lladdr=''
 	local ipaddr="$1"
-	hostname=$(nslookup "$ipaddr" "$ipaddr" | grep name | cut -d " " -f 3)
+	hostname=$(nslookup "$ipaddr" "$ipaddr" | grep name | cut -d " " -f 3 | cut -d '.' -f -1)
 	[ -z "$__NEIGH_CACHE" ] && {
 		__tmp="$(ip -6 neigh)"
 		export __NEIGH_CACHE="$__tmp"

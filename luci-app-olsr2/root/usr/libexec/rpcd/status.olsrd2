@@ -40,6 +40,8 @@ case "$1" in
 				echo '/olsrv2info json node /quit' | nc ::1 2009 2>/dev/null
 			;;
 			getNeighbors)
+				domain="$(uci_get luci_olsr2 general domain)"
+				[ -z "$domain" ] || domain=".$domain"
 				json_init
 				json_add_array "neighbors"
 				OLDIFS="$IFS"
@@ -54,7 +56,7 @@ case "$1" in
 							1) json_add_string "originator" "${value}"
 								network_get_neighbour_by_ip "${value}"
 								json_add_string "lladdr" "${lladdr}"
-								json_add_string "hostname" "${hostname}"
+								json_add_string "hostname" "${hostname}${domain}"
 								network_get_name_by_device interface $dev
 								json_add_string "interface" "${interface}"
 								;;
