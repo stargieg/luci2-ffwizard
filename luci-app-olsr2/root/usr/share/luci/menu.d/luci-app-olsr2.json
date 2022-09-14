@@ -72,6 +72,14 @@
 			"path": "olsr2/interface"
 		}
 	},
+	"admin/services/olsr2/luci": {
+		"title": "LUCI",
+		"order": 8,
+		"action": {
+			"type": "view",
+			"path": "olsr2/luci"
+		}
+	},
 	"admin/services/olsr2": {
 		"title": "olsr2",
 		"action": {
