@@ -62,9 +62,11 @@ fi
 grep -v '/usr/sbin/ff_olsr_watchdog' /etc/crontabs/root > /etc/crontabs/root_new
 mv /etc/crontabs/root_new /etc/crontabs/root
 
-if [ -f /usr/sbin/olsr2hosts.sh ] ; then
-	grep -q "olsr2hosts.sh" /etc/crontabs/root || \
-	echo "*/5 * * * *     olsr2hosts.sh > /tmp/olsr2.tmp && mv /tmp/olsr2.tmp /tmp/hosts/olsr2 || rm /tmp/olsr2.tmp" >> /etc/crontabs/root
-	grep -q "rm /tmp/hosts/olsr2" /etc/crontabs/root || \
-	echo "1 */1 * * *     rm /tmp/hosts/olsr2" >> /etc/crontabs/root
+if [ -f /usr/sbin/olsrneighbor2hosts.sh ] ; then
+	grep -q "olsrneighbor2hosts.sh" /etc/crontabs/root || \
+	echo "*/5 * * * *     olsrneighbor2hosts.sh > /tmp/olsrneighbor2hosts.tmp && mv /tmp/olsrneighbor2hosts.tmp /tmp/hosts/olsrneighbor || rm /tmp/olsrneighbor2hosts.tmp" >> /etc/crontabs/root
+fi
+if [ -f /usr/sbin/olsrnode2hosts.sh ] ; then
+	grep -q "olsrnode2hosts.sh" /etc/crontabs/root || \
+	echo "*/10 * * * *     olsrnode2hosts.sh > /tmp/olsrnode2hosts.tmp && mv /tmp/olsrnode2hosts.tmp /tmp/hosts/olsrnode || rm /tmp/olsrnode2hosts.tmp" >> /etc/crontabs/root
 fi
