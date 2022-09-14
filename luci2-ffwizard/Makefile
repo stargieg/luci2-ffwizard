@@ -178,7 +178,8 @@ define Package/luci2-ffwizard-olsrv2-ipv6/install
 	$(INSTALL_BIN) files/etc/ffwizard.d/31-olsrd2.ipv6.sh $(1)/etc/ffwizard.d/
 	$(INSTALL_BIN) files/etc/odhcp6c.user.d/olsrv2_lan.sh $(1)/etc/odhcp6c.user.d/
 	$(INSTALL_BIN) files/usr/sbin/olsrv2-dyn-addr.sh $(1)/usr/sbin/
-	$(INSTALL_BIN) files/usr/sbin/olsr2hosts.sh $(1)/usr/sbin/
+	$(INSTALL_BIN) files/usr/sbin/olsrneighbor2hosts.sh $(1)/usr/sbin/
+	$(INSTALL_BIN) files/usr/sbin/olsrnode2hosts.sh $(1)/usr/sbin/
 endef
 
 define Package/luci2-ffwizard-batadv/install
