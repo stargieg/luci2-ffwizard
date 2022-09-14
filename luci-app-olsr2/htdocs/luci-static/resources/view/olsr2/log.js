@@ -10,12 +10,12 @@ return view.extend({
 
 		s = m.section(form.TypedSection, 'log', _('OONF Logging'));
 		s.anonymous = true;
-		s.addremove = true;
+		s.addremove = false;
 
-		o = s.option(form.Value, "syslog", _("syslog are boolean options that activate or deactivate the syslog Logging Target."), "bool");
+		o = s.option(form.Flag, "syslog", _("syslog are boolean options that activate or deactivate the syslog Logging Target."), "");
 		o.optional = true;
 		o.datatype = "bool";
-		o = s.option(form.Value, "stderr", _("stderr are boolean options that activate or deactivate the stderr Logging Target."), "bool");
+		o = s.option(form.Flag, "stderr", _("stderr are boolean options that activate or deactivate the stderr Logging Target."), "");
 		o.optional = true;
 		o.datatype = "bool";
 		o = s.option(form.Value, "file", _("file asks for a filename for logging output"),"Filename");

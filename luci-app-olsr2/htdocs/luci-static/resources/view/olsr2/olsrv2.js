@@ -10,7 +10,7 @@ return view.extend({
 
 		s = m.section(form.TypedSection, 'olsrv2', _('the OLSRv2 implementation including the OLSRv2 API for other plugins.'));
 		s.anonymous = true;
-		s.addremove = true;
+		s.addremove = false;
 
 		o = s.option(form.Value, "tc_interval", _("defines the time between two TC messages."), "s");
 		o.optional = true;

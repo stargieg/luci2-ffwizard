@@ -8,7 +8,7 @@ return view.extend({
 
 		m = new form.Map('olsrd2', 'OLSR2 Daemon');
 
-		s = m.section(form.TypedSection, 'olsrv2_lan', _('domain configuration section'));
+		s = m.section(form.TypedSection, 'olsrv2_lan', _('Prefix configuration section'));
 		s.anonymous = true;
 		s.addremove = true;
 		o = s.option(form.Value, "name", _("Name"), "Text");
@@ -23,8 +23,7 @@ return view.extend({
 		o.optional = true;
 		o.placeholder = 2;
 		o.datatype = "range(0,254)";
-		o = s.option(form.Value, "source_prefix", _("source prefix for lan (source specific routing)"), "bool");
-		o.placeholder = 1;
+		o = s.option(form.Flag, "source_prefix", _("source prefix for lan (source specific routing)"), "");
 		o.optional = true;
 		o.datatype = "bool";
 

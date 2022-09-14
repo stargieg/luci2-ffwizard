@@ -10,9 +10,9 @@ return view.extend({
 
 		s = m.section(form.TypedSection, 'global', _('It controls the basic behavior of the OONF core.'));
 		s.anonymous = true;
-		s.addremove = true;
+		s.addremove = false;
 
-		o = s.option(form.Value, "failfast", _("failfast is another boolean setting which can activate an error during startup if a requested plugin does not load or an unknown configuration variable is set."), "bool");
+		o = s.option(form.Flag, "failfast", _("failfast is another boolean setting which can activate an error during startup if a requested plugin does not load or an unknown configuration variable is set."), "");
 		o.optional = true;
 		o.rmempty = true;
 		o.datatype = 'bool';

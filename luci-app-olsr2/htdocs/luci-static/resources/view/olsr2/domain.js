@@ -10,7 +10,7 @@ return view.extend({
 
 		s = m.section(form.TypedSection, 'domain', _('domain configuration section'));
 		s.anonymous = true;
-		s.addremove = true;
+		s.addremove = false;
 		o = s.option(form.Value, "table", _("table defines the routing table for the local routing entries."), "0-254");
 		o.optional = true;
 		o.placeholder = 254;
@@ -23,7 +23,7 @@ return view.extend({
 		o.optional = true;
 		o.placeholder = 2;
 		o.datatype = "range(0,254)";
-		o = s.option(form.Value, "srcip_routes", _("srcip_routes defines if the router sets the originator address as the source-ip entry into the local routing entries."), "bool");
+		o = s.option(form.Flag, "srcip_routes", _("srcip_routes defines if the router sets the originator address as the source-ip entry into the local routing entries."), "");
 		o.optional = true;
 		o.datatype = "bool";
 

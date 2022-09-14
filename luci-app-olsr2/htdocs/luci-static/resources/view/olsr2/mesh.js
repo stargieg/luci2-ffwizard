@@ -10,7 +10,7 @@ return view.extend({
 
 		s = m.section(form.TypedSection, 'mesh', _('mesh configuration section'));
 		s.anonymous = true;
-		s.addremove = true;
+		s.addremove = false;
 		o = s.option(form.Value, "port", _("port defines the UDP port number of the RFC5444 socket."), "1-65535");
 		o.optional = true;
 		o.placeholder = 269;
