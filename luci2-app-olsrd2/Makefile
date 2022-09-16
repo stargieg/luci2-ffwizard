@@ -26,6 +26,7 @@ define Package/luci2-app-olsrd2
   TITLE:=LuCI2 support for olsrd2 status
   MAINTAINER:=patrick@lunatiki.de
   DEPENDS:=+luci2-ui-base +oonf-olsrd2
+  PKGARCH:=all
 endef
 
 define Package/luci2-app-olsrd2/description

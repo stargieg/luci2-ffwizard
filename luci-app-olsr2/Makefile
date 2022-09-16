@@ -14,6 +14,7 @@ define Package/luci-app-olsr2
   SUBMENU:=3. Applications
   TITLE:=OLSR2 configuration and status module
   EXTRA_DEPENDS:=oonf-olsrd2, luci-mod-admin-full, luci-mod-public
+  PKGARCH:=all
 endef
 
 define Build/Prepare

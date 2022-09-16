@@ -13,6 +13,7 @@ define Package/luci-theme-material
   CATEGORY:=LuCI
   SUBMENU:=4. Themes
   TITLE:=Material Theme
+  PKGARCH:=all
 endef
 
 define Build/Prepare

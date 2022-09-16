@@ -10,6 +10,7 @@ define Package/luci2-ffwizard/template
   SECTION:=luci2
   CATEGORY:=LuCI2
   TITLE:=LuCI2 ffwizard module
+  PKGARCH:=all
 endef
 
 define Package/luci2-ffwizard/description

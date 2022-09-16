@@ -12,6 +12,7 @@ define Package/luci-mod-public
   CATEGORY:=LuCI
   SUBMENU:=3. Applications
   TITLE:=public status module
+  PKGARCH:=all
 endef
 
 define Build/Prepare

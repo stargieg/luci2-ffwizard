@@ -19,6 +19,7 @@ define Package/luci-mod-freifunk
   SUBMENU:=2. Modules
   TITLE:=LuCI Freifunk module
   EXTRA_DEPENDS:=freifunk-common, luci-mod-public
+  PKGARCH:=all
 endef
 
 define Build/Prepare

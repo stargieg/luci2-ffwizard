@@ -14,6 +14,7 @@ define Package/luci-app-statistics-public
   SUBMENU:=3. Applications
   TITLE:=Statistics Public view
   EXTRA_DEPENDS:=luci-app-statistics, luci-mod-public
+  PKGARCH:=all
 endef
 
 define Build/Prepare

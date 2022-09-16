@@ -14,6 +14,7 @@ define Package/luci-app-olsr-public
   SUBMENU:=3. Applications
   TITLE:=OLSR Public view
   EXTRA_DEPENDS:=luci-app-olsr, luci-mod-public
+  PKGARCH:=all
 endef
 
 define Build/Prepare
