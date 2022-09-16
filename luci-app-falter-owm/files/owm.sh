@@ -42,6 +42,18 @@ if [ -n "$CMD_1" ] && [ "$CMD_1" != "--dry-run" ]; then
 fi
 
 
+# calback function: This function aggregates all items of the 'contact'
+# option list from /etc/config/freifunk into one single string for better
+# transport
+handle_contact() {
+    local value="$1"
+
+    if [ -n "$value" ]; then
+        CONTACT_AGGREGATOR="$CONTACT_AGGREGATOR|$value"
+    fi
+}
+
+
 ######################
 #                    #
 #  Collect OWM-Data  #
@@ -69,12 +81,13 @@ olsr4_links() {
 	json_get_var localIP localIP
 	json_get_var remoteIP remoteIP
 	remotehost="$(nslookup $remoteIP | grep name | sed -e 's/.*name = \(.*\)/\1/' | sed 's/^mid\d*\.//' )"
-	[ -z "$remotehost" ] && remotehost="$remoteIP"
 	json_get_var linkQuality linkQuality
 	json_get_var olsrInterface olsrInterface
 	json_get_var ifName ifName
 	json_select ..
+	if ! echo "$olsrInterface" | grep -q '.*wg_.*'; then
 	olsr4links="$olsr4links$localIP $remoteIP $remotehost $linkQuality $ifName;"
+	fi
 }
 
 olsr6_links() {
@@ -86,7 +99,9 @@ olsr6_links() {
 	json_get_var olsrInterface olsrInterface
 	json_get_var ifName ifName
 	json_select ..
+	if ! echo "$olsrInterface" | grep -q '.*wg_.*'; then
 	olsr6links="$olsr6links$localIP $remoteIP $remotehost $linkQuality $ifName;"
+	fi
 }
 
 # This section is relevant for hopglass statistics feature (isUplink/isHotspot)
@@ -104,7 +119,10 @@ if [ -z "$latitude" ] || [ -z "$longitude" ]; then
 	printf "latitude/longitude is not set.\nStopping now...\n"
 	exit 2
 fi
-
+domain=""                                                                                                               
+domain="$(uci_get luci_olsr2 general domain)"                                                                           
+[ -z "$domain" ] && domain="olsr"                                                                                       
+domain=".$domain"
 
 # collect data on OLSR-links
 json_load "$(printf "/nhdpinfo json link" | nc ::1 2009 2>/dev/null)" 2>/dev/null
@@ -164,8 +182,8 @@ load15=$(int2float $3)
 
 # Date when the firmware was build.
 kernelString=$(cat /proc/version)
-buildDate=$(echo $kernelString | cut -d'#' -f2 | cut -c 3-)
-kernelVersion=$(echo $kernelString | cut -d' ' -f3)
+buildDate=$(echo "$kernelString" | cut -d'#' -f2 | cut -c 3-)
+kernelVersion=$(echo "$kernelString" | cut -d' ' -f3)
 
 # contact information
 uci_load freifunk
@@ -176,10 +194,17 @@ phone="$(uci_get freifunk contact phone)"
 homepage="$(uci_get freifunk contact homepage)" # whitespace-separated, with single quotes, if string contains whitspace
 note="$(uci_get freifunk contact note)"
 
+# aggregate contacts-list into one string
+config_load freifunk
+config_list_foreach contact contact handle_contact
+# omit the first pipe-symbol.
+contacts=$(echo "$CONTACT_AGGREGATOR" | sed 's/|//')
+
+
 # community info
 ssid="$(uci_get freifunk community ssid)"
 mesh_network="$(uci_get freifunk community mesh_network)"
-uci_owm_apis="$(uci_get freifunk community owm_api)"
+uci_owm_api="$(uci_get freifunk community owm_api)"
 com_name="$(uci_get freifunk community name)"
 com_homepage="$(uci_get freifunk community homepage)"
 com_longitude="$(uci_get freifunk community longitude)"
@@ -201,7 +226,12 @@ json_add_object freifunk
 
 	json_add_object contact
 		if [ -n "$name" ]; then json_add_string name "$name"; fi
+		# contact list superseeds the use of mail option
+		if [ -n "$contacts" ]; then
+			json_add_string mail "$contacts"
+		else
 		if [ -n "$mail" ]; then json_add_string mail "$mail"; fi
+		fi
 		if [ -n "$nick" ]; then json_add_string nickname "$nick"; fi
 		if [ -n "$phone" ]; then json_add_string phone "$phone"; fi
 		if [ -n "$homepage" ]; then json_add_string homepage "$homepage"; fi # was array of homepages
@@ -232,7 +262,7 @@ json_add_object system
 		json_add_string "" "system is deprecated"
 		json_add_string "" "$model"
 	json_close_array
-	json_add_array
+	json_add_array uptime
 		json_add_int "" $uptime
 	json_close_array
 	json_add_array loadavg
@@ -290,7 +320,7 @@ json_close_array
 # but they disappear, if we send stuff to the server
 json_add_double latitude $latitude
 json_add_double longitude $longitude
-json_add_string hostname "$hostname"
+json_add_string hostname "$hostname""$domain"
 json_add_int updateInterval 3600
 json_add_string hardware "$system"
 json_add_object firmware
@@ -303,7 +333,7 @@ json_close_object
 json_close_object
 
 JSON_STRING=$(json_dump)
-#insert json-string from OLSR and repair wrong syntax at string-borders (shell-quotes...)
+# insert json-string from OLSR and repair wrong syntax at string-borders (shell-quotes...)
 JSON_STRING=$(echo "$JSON_STRING" | sed -e 's|$OLSRCONFIG|'"$OLSRCONFIG"'|; s|"{|{|; s|}"|}|' )
 
 # just print data to stdout, if we have test-run.
@@ -321,7 +351,7 @@ fi
 
 #echo $JSON_STRING
 # get message lenght for request
-LEN=$(echo $JSON_STRING | wc -m) 
+LEN=${#JSON_STRING}
 
 MSG="\
 PUT /update_node/$hostname.olsr HTTP/1.1\r
