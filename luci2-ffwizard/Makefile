@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=73
+PKG_RELEASE:=74
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
@@ -45,7 +45,7 @@ define Package/luci2-ffwizard-lua
   MENU:=1
   DEPENDS:=luci2-ffwizard
   EXTRA_DEPENDS:=luci-mod-admin-full, luci-i18n-base-de, \
-  luci-theme-material, luci-proto-ipv6, \
+  luci-proto-ipv6, \
   luci-lib-json, libiwinfo-lua
 endef
 
