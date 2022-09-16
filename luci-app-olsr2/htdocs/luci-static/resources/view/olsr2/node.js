@@ -25,11 +25,13 @@ return view.extend({
 			E('div', { 'class': 'td left' }, [ 'IP Address' ])
 		]));
 
-		for (var idx = 0; idx < data[0].node.length; idx++) {
-			tr.appendChild(E('div', { 'class': 'tr' }, [
-				//E('div', { 'class': 'td left', 'width': '33%' }, [ 'Node' ]),
-				E('div', { 'class': 'td left' }, [ E('a',{ 'href': 'https://[' + data[0].node[idx].node + ']/'},data[0].node[idx].node) ])
-			]));
+		if ( data && data[0] && data[0].node ) {
+			for (var idx = 0; idx < data[0].node.length; idx++) {
+				tr.appendChild(E('div', { 'class': 'tr' }, [
+					//E('div', { 'class': 'td left', 'width': '33%' }, [ 'Node' ]),
+					E('div', { 'class': 'td left' }, [ E('a',{ 'href': 'https://[' + data[0].node[idx].node + ']/'},data[0].node[idx].node) ])
+				]));
+			}
 		}
 
 		return tr;

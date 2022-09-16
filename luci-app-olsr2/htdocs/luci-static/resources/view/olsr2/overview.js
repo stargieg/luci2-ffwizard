@@ -25,29 +25,41 @@ return view.extend({
 	render: function(data) {
 
 		var fields = [];
-		if ( data[1] && data[1].lan[0] && data[1].lan[0].lan != undefined ) {
-				fields.push(_('LAN IP'));
-				fields.push(data[1].lan[0].lan);
+		if ( data && data[0] && data[0].version && data[0].version[0] ) {
+			if ( data[0].version[0].version_text != undefined ) {
+					fields.push(_('Version'));
+					fields.push(data[0].version[0].version_text);
+			}
+			if ( data[0].version[0].version_commit != undefined) {
+					fields.push(_('GIT commit'));
+					fields.push(data[0].version[0].version_commit);
+			}
 		}
-		if ( data[1] && data[1].lan[0] && data[1].lan[0].domain != undefined) {
-				fields.push(_('Domain'));
-				fields.push(data[1].lan[0].domain);
-		}
-		if ( data[1] && data[1].lan[0] && data[1].lan[0].domain_metric != undefined) {
-				fields.push(_('Domain metric'));
-				fields.push(data[1].lan[0].domain_metric);
-		}
-		if ( data[1] && data[1].lan[0] && data[1].lan[0].domain_metric_out != undefined) {
-				fields.push(_('Domain metric outgoing'));
-				fields.push(data[1].lan[0].domain_metric_out);
-		}
-		if ( data[1] && data[1].lan[0] && data[1].lan[0].domain_metric_out_raw != undefined) {
-				fields.push(_('domain_metric_out_raw'));
-				fields.push(data[1].lan[0].domain_metric_out_raw);
-		}
-		if ( data[1] && data[1].lan[0] && data[1].lan[0].domain_distance != undefined) {
-				fields.push(_('Domain distance'));
-				fields.push(data[1].lan[0].domain_distance);
+		if ( data && data[1] && data[1].lan && data[1].lan[0] ) {
+			if ( data[1].lan[0].lan != undefined ) {
+					fields.push(_('LAN IP'));
+					fields.push(data[1].lan[0].lan);
+			}
+			if ( data[1].lan[0].domain != undefined) {
+					fields.push(_('Domain'));
+					fields.push(data[1].lan[0].domain);
+			}
+			if ( data[1].lan[0].domain_metric != undefined) {
+					fields.push(_('Domain metric'));
+					fields.push(data[1].lan[0].domain_metric);
+			}
+			if ( data[1].lan[0].domain_metric_out != undefined) {
+					fields.push(_('Domain metric outgoing'));
+					fields.push(data[1].lan[0].domain_metric_out);
+			}
+			if ( data[1].lan[0].domain_metric_out_raw != undefined) {
+					fields.push(_('domain_metric_out_raw'));
+					fields.push(data[1].lan[0].domain_metric_out_raw);
+			}
+			if ( data[1].lan[0].domain_distance != undefined) {
+					fields.push(_('Domain distance'));
+					fields.push(data[1].lan[0].domain_distance);
+			}
 		}
 		var tr = E('div',{ 'class': 'table'});
 		for (var i = 0; i < fields.length; i += 2) {

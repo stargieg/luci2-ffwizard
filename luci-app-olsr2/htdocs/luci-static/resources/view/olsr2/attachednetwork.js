@@ -27,13 +27,15 @@ return view.extend({
 			E('div', { 'class': 'td left' }, [ 'Metric' ])
 		]));
 
-		for (var idx = 0; idx < data[0].attached_network.length; idx++) {
-			tr.appendChild(E('div', { 'class': 'tr' }, [
-				E('div', { 'class': 'td left' }, [ E('a',{ 'href': 'https://[' + data[0].attached_network[idx].node + ']/'},data[0].attached_network[idx].node) ]),
-				E('div', { 'class': 'td left' }, [ data[0].attached_network[idx].attached_net ]),
-				E('div', { 'class': 'td left' }, [ data[0].attached_network[idx].attached_net_src ]),
-				E('div', { 'class': 'td left' }, [ data[0].attached_network[idx].domain_metric_out ])
-			]));
+		if ( data && data[0] && data[0].attached_network ) {
+			for (var idx = 0; idx < data[0].attached_network.length; idx++) {
+				tr.appendChild(E('div', { 'class': 'tr' }, [
+					E('div', { 'class': 'td left' }, [ E('a',{ 'href': 'https://[' + data[0].attached_network[idx].node + ']/'},data[0].attached_network[idx].node) ]),
+					E('div', { 'class': 'td left' }, [ data[0].attached_network[idx].attached_net ]),
+					E('div', { 'class': 'td left' }, [ data[0].attached_network[idx].attached_net_src ]),
+					E('div', { 'class': 'td left' }, [ data[0].attached_network[idx].domain_metric_out ])
+				]));
+			}
 		}
 
 		return tr;
