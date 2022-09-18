@@ -1,0 +1,65 @@
+{
+  "public/freifunk": {
+    "title": "Freifunk",
+    "order": 5,
+    "action": {
+      "type": "firstchild",
+      "recurse": true
+    },
+    "auth": {}
+  },
+  "public/freifunk/index": {
+    "title": "Overview",
+    "order": 10,
+    "action": {
+      "type": "view",
+      "path": "freifunk/frontend/index"
+    }
+  },
+  "public/freifunk/contact": {
+    "title": "Contact",
+    "order": 15,
+    "action": {
+      "type": "view",
+      "path": "freifunk/frontend/contact"
+    }
+  },
+  "public/freifunk/status.json": {
+    "action": {
+      "type": "call",
+      "module": "luci.controller.freifunk.freifunk",
+      "function": "jsonstatus"
+    }
+  },
+  "public/freifunk/status": {
+    "title": "Status",
+    "order": 20,
+    "action": {
+      "type": "firstchild"
+    }
+  },
+  "public/freifunk/status/status": {
+    "title": "Status",
+    "order": 25,
+    "action": {
+      "type": "view",
+      "path": "freifunk/frontend/public_status"
+    }
+  },
+  "public/freifunk/status/zeroes": {
+    "title": "Testdownload",
+    "action": {
+      "type": "call",
+      "module": "luci.controller.freifunk.freifunk",
+      "function": "zeroes"
+    }
+  },
+  "public/freifunk/map": {
+    "title": "Map",
+    "order": 50,
+    "action": {
+      "type": "view",
+      "path": "freifunk/frontend/map/frame"
+    }
+  }
+}

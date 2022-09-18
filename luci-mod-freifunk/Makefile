@@ -43,16 +43,12 @@ endef
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/controller/freifunk
 	$(INSTALL_DATA) ./luasrc/controller/freifunk/* $(1)/usr/lib/lua/luci/controller/freifunk
-	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/model/cbi/freifunk
-	$(INSTALL_DATA) ./luasrc/model/cbi/freifunk/* $(1)/usr/lib/lua/luci/model/cbi/freifunk
-	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/view/freifunk
-	$(INSTALL_DATA) ./luasrc/view/freifunk/* $(1)/usr/lib/lua/luci/view/freifunk
 	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
 	$(INSTALL_DATA) ./root/usr/share/rpcd/acl.d/* $(1)/usr/share/rpcd/acl.d
-	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/view/freifunk-map
-	$(INSTALL_DATA) ./luasrc/view/freifunk-map/* $(1)/usr/lib/lua/luci/view/freifunk-map
-	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/view/cbi
-	$(INSTALL_DATA) ./luasrc/view/cbi/* $(1)/usr/lib/lua/luci/view/cbi
+	$(INSTALL_DIR) $(1)/usr/share/luci/menu.d
+	$(INSTALL_DATA) ./root/usr/share/luci/menu.d/* $(1)/usr/share/luci/menu.d
+	$(INSTALL_DIR) $(1)/usr/libexec/rpcd
+	$(INSTALL_DATA) ./root/usr/libexec/rpcd/* $(1)/usr/libexec/rpcd
 	$(INSTALL_DIR) $(1)/www/
 	cp -pR ./htdocs/* $(1)/www/
 endef
