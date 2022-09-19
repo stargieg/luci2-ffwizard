@@ -201,9 +201,9 @@ return view.extend({
         option.rmempty = false;
 
         let deflat = uci.get_first(communityName, "community", "latitude");
-        deflat = (deflat === undefined) ? 52 : deflat;
+        deflat = (deflat === undefined || deflat === null) ? 52 : deflat;
         let deflon = uci.get_first(communityName, "community", "longitude");
-        deflon = (deflon === undefined) ? 10 : deflon;
+        deflon = (deflon === undefined || deflon === null) ? 10 : deflon;
         let zoom = 12
         if (deflat == 52 && deflon == 10) {
             zoom = 4
@@ -214,8 +214,8 @@ return view.extend({
         let osm = systemSection.option(OsmValue, 'latlon', _('Find your coordinates with OpenStreetMap'), _('Select your location with a mouse click on the map. The map will only show up if you are connected to the Internet.'));
         osm.latfield = 'latitude';
         osm.lonfield = 'longitude';
-        osm.centerlat = (lat === undefined) ? deflat : lat;
-        osm.centerlon = (lon === undefined) ? deflon : lon;
+        osm.centerlat = (lat === undefined || lat === null) ? deflat : lat;
+        osm.centerlon = (lon === undefined || lon === null) ? deflon : lon;
         osm.zoom = zoom
         osm.width = '100%';
         osm.height = '400';

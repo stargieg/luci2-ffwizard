@@ -9,7 +9,7 @@
 			}
 		},
 		"write": {
-			"uci": [ "freifunk", "profile_*" ],
+			"uci": [ "freifunk", "profile_*", "system" ],
 			"file" : {
 				"/etc/config/profile_*": ["write"],
 				"/www/luci-static/index_user.html": ["write"]
