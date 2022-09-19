@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-falter-owm
-PKG_VERSION:=2022.09.16
+PKG_VERSION:=2022.09.19
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
@@ -22,31 +22,18 @@ define Package/luci-app-falter-owm/default
   PKGARCH:=all
 endef
 
-define Package/luci-app-falter-owm
-  $(call Package/luci-app-falter-owm/default)
-  EXTRA_DEPENDS:=luci-lib-json, luci-lib-ip
-  TITLE:=Luci JSON Export for Open Wireless Map
-endef
-
-define Package/luci-app-falter-owm/description
-  Luci JSON Export for Open Wireless Map
-endef
-
 define Package/luci-app-falter-owm-cmd
   $(call Package/luci-app-falter-owm/default)
   TITLE:=luci-app-falter-owm-cmd - Commandline update tool
 endef
+define Package/luci-app-falter-owm-cmd/description
+  Luci JSON Export for Open Wireless Map
+endef
 
 define Package/luci-app-falter-owm-gui
   $(call Package/luci-app-falter-owm/default)
-  EXTRA_DEPENDS:=luci-app-falter-owm, luci-base
+  EXTRA_DEPENDS:=luci-app-falter-owm-cmd, luci-base
   TITLE:=luci-app-falter-owm-gui - GUI Open Wireless Map
-endef
-
-define Package/luci-app-falter-owm-ant
-  $(call Package/luci-app-falter-owm/default)
-  EXTRA_DEPENDS:=luci-app-falter-owm, luci-base
-  TITLE:=luci-app-falter-owm-ant - GUI Antenna settings
 endef
 
 define Build/Prepare
@@ -73,33 +60,20 @@ define Package/luci-app-falter-owm-cmd/install
 	$(CP) files/owm.sh $(1)/usr/sbin/owm.sh
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(CP) files/owm-defaults $(1)/etc/uci-defaults/owm
+	$(INSTALL_DIR) $(1)/etc/init.d $(1)/etc/config $(1)/etc/uci-defaults
+	$(INSTALL_DATA) files/antennas.config $(1)/etc/config/antennas
 endef
 
 define Package/luci-app-falter-owm-gui/install
-	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/controller
-	$(CP) $(PKG_BUILD_DIR)/luasrc/controller/owm.lua $(1)/usr/lib/lua/luci/controller/owm.lua
-	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/view
-	$(CP) $(PKG_BUILD_DIR)/luasrc/view/owm.htm $(1)/usr/lib/lua/luci/view/owm.htm
 	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
 	$(INSTALL_DATA) ./root/usr/share/rpcd/acl.d/* $(1)/usr/share/rpcd/acl.d
 	$(INSTALL_DIR) $(1)/usr/share/luci/menu.d
 	$(INSTALL_DATA) ./root/usr/share/luci/menu.d/* $(1)/usr/share/luci/menu.d
+	$(INSTALL_DIR) $(1)/www/
+	cp -pR ./htdocs/* $(1)/www/
 endef
 
-define Package/luci-app-falter-owm-ant/install
-	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/controller
-	$(CP) $(PKG_BUILD_DIR)/luasrc/controller/antennas.lua $(1)/usr/lib/lua/luci/controller/antennas.lua
-	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/model/cbi
-	$(CP) $(PKG_BUILD_DIR)/luasrc/model/cbi/antennas.lua $(1)/usr/lib/lua/luci/model/cbi/antennas.lua
-endef
 
-define Package/luci-app-falter-owm/install
-	$(INSTALL_DIR) $(1)/usr/lib/lua/luci
-	$(CP) $(PKG_BUILD_DIR)/luasrc/owm.lua $(1)/usr/lib/lua/luci/owm.lua
-endef
-
-$(eval $(call BuildPackage,luci-app-falter-owm))
 $(eval $(call BuildPackage,luci-app-falter-owm-cmd))
 $(eval $(call BuildPackage,luci-app-falter-owm-gui))
-$(eval $(call BuildPackage,luci-app-falter-owm-ant))
 

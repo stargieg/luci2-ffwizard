@@ -1,4 +1,19 @@
 {
+	"admin/system/antennas": {
+		"title": "Antennas",
+		"action": {
+			"type": "view",
+			"path": "antennas"
+		}
+	},
+	"admin/freifunk/owm": {
+		"title": "Karte",
+		"order": 30,
+		"action": {
+			"type": "view",
+			"path": "owm"
+		}
+	},
 	"public/freifunk": {
 		"title": "Freifunk",
 		"order": 20,
@@ -12,8 +27,8 @@
 		"title": "Karte",
 		"order": 30,
 		"action": {
-			"type": "template",
-			"path": "owm",
+			"type": "view",
+			"path": "owm"
 		}
 	}
 }
