@@ -99,52 +99,41 @@ function createWifiTable(wifiArray) {
     return tableData;
 }
 
-return view.extend({
-    handleSaveApply: null,
-    handleSave: null,
-    handleReset: null,
-    render: (data) => {
-        poll.add(() => {
-            Promise.all([
-                network.getWifiNetworks(),
-                getSystemInfo(),
-                getSystemBoard()
-            ]).then((results) => {
-                console.log(results[1]);
-                cbi_update_table('#wirelessTable', createWifiTable(extractWifiInformation(results[0])));
-                cbi_update_table('#infoTable', createSystemTable(results[1], results[2]));
-            })
-        }, 30);
-        return E([], {}, [
-            E('style', { 'type': 'text/css' }, [css]),
-            E('div', { 'class': 'cbi-map' }, [
-                E('h2', {}, _('System')),
-                E('fieldset', {'class': 'cbi-section'}, [
-                    E('table', { 'id': 'infoTable' }, [
-                        E('tr', { 'class': 'tr table-titles' }, [
-                            E('td', { 'class': 'th', 'width': '33%' }),
-                            E('td', { 'class': 'th' }),
-                        ])
-                    ])
-                ])        
-            ]),
-            E('div', { 'class': 'cbi-map' }, [
-                E('h2', {}, _('Wireless Overview')),
-                E('fieldset', {'class': 'cbi-section'}, [
-                    E('table', { 'id': 'wirelessTable', 'width': '100%' }, [
-                        E('tr', { 'class': 'tr table-titles' }, [
-                            E('td', { 'class': 'th' }, _('Signal')),
-                            E('td', { 'class': 'th' }, _('Bitrate')),
-                            E('td', { 'class': 'th' }, _('SSID')),
-                            E('td', { 'class': 'th' }, _('BSSID')),
-                            E('td', { 'class': 'th' }, _('Channel')),
-                            E('td', { 'class': 'th' }, _('Mode')),
-                            E('td', { 'class': 'th' }, _('TX') + '-' + _('Power')),
-                            E('td', { 'class': 'th' }, _('Interface'))
-                        ])
-                    ])    
-                ])
-            ])
-        ]);
-    }
+return view.extend({                                                                                      
+    handleSaveApply: null,                                                                                
+    handleSave: null,                                                                                     
+    handleReset: null,                                                                                    
+    render: (data) => {                                                                                   
+        var infoTable = E('table', { 'class': 'table' }, [                                                
+                E('tr', { 'class': 'tr table-titles' }, [                                                 
+                        E('th', { 'class': 'th col-1 middle left' }),                                     
+                        E('th', { 'class': 'th col-2 middle left' })                                      
+                ])                                                                                        
+        ]);                                                                                               
+        var wirelessTable = E('table', { 'class': 'table' });                                             
+        wirelessTable.appendChild(E('tr', { 'class': 'tr table-titles' }, [                           
+            E('th', { 'class': 'th col-1' }, _('Signal')),                                                
+            E('th', { 'class': 'th col-2' }, _('Bitrate')),                                               
+            E('th', { 'class': 'th col-3 middle left' }, _('SSID')),                                      
+            E('th', { 'class': 'th col-4' }, _('BSSID')),                                                 
+            E('th', { 'class': 'th col-5' }, _('Channel')),                                               
+            E('th', { 'class': 'th col-6' }, _('Mode')),                                                  
+            E('th', { 'class': 'th col-7' }, _('TX') + '-' + _('Power')),                                 
+            E('th', { 'class': 'th col-8' }, _('Interface'))                                              
+        ]));                                                                                              
+        poll.add(() => {                                                                                  
+            Promise.all([                                                                                 
+                getSystemInfo(),                                                                          
+                getSystemBoard(),                                                                         
+                network.getWifiNetworks()                                                                 
+            ]).then((results) => {                                                                        
+                cbi_update_table(infoTable, createSystemTable(results[0], results[1]));                                                                         
+                cbi_update_table(wirelessTable, createWifiTable(extractWifiInformation(results[2])));     
+            })                                                                                                                                                  
+        }, 30);                                                                                           
+        return E([], {}, [                                                                                                                                      
+            infoTable,    
+            wirelessTable        
+        ]);                   
+    }                                       
 });
