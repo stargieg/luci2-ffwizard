@@ -46,14 +46,6 @@
       "path": "freifunk/frontend/public_status"
     }
   },
-  "public/freifunk/status/zeroes": {
-    "title": "Testdownload",
-    "action": {
-      "type": "call",
-      "module": "luci.controller.freifunk.freifunk",
-      "function": "zeroes"
-    }
-  },
   "public/freifunk/map": {
     "title": "Map",
     "order": 50,

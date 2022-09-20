@@ -8,7 +8,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-mod-freifunk
 PKG_VERSION:=git-99.000.0-0
-PKG_RELEASE:=6
+PKG_RELEASE:=7
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
@@ -41,8 +41,6 @@ fi
 endef
 
 define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/controller/freifunk
-	$(INSTALL_DATA) ./luasrc/controller/freifunk/* $(1)/usr/lib/lua/luci/controller/freifunk
 	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
 	$(INSTALL_DATA) ./root/usr/share/rpcd/acl.d/* $(1)/usr/share/rpcd/acl.d
 	$(INSTALL_DIR) $(1)/usr/share/luci/menu.d
