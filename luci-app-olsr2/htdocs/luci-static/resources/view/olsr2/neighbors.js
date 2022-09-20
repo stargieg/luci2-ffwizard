@@ -2,50 +2,57 @@
 'require view';
 'require ui';
 'require rpc';
+'require poll';
 
-var callgetNeighbors = rpc.declare({
+var callgetData = rpc.declare({
 	object: 'status.olsrd2',
 	method: 'getNeighbors'
 });
 
+function createTable(data) {
+    let tableData = [];
+    data.neighbors.forEach(row => {
+		let hostname = [ E('a',{ 'href': 'https://' + row.hostname + '/cgi-bin-olsr2-neigh.html'},row.hostname) ];
+		let orginator = [ E('a',{ 'href': 'https://[' + row.originator + ']/cgi-bin-olsr2-neigh.html'},row.originator) ];
+        tableData.push([
+            hostname,
+            orginator,
+            row.lladdr,
+            row.interface,
+            row.metric_in,
+            row.metric_in_raw
+        ])
+    });
+    return tableData;
+};
+
 return view.extend({
 	title: _('OLSR2 mesh neighbors'),
+	handleSaveApply: null,
+	handleSave: null,
+	handleReset: null,
 
-	load: function() {
-		return Promise.all([
-			L.resolveDefault(callgetNeighbors(), {}),
-		]);
-	},
 
 	render: function(data) {
 
-		var tr = E('div', { 'class': 'table' });
-		tr.appendChild(E('div', { 'class': 'tr cbi-section-table-titles' }, [
-			E('div', { 'class': 'td left' }, [ 'Hostname' ]),
-			E('div', { 'class': 'td left' }, [ 'Orginator' ]),
-			E('div', { 'class': 'td left' }, [ 'MAC' ]),
-			E('div', { 'class': 'td left' }, [ 'Interface' ]),
-			E('div', { 'class': 'td left' }, [ 'Metric' ]),
-			E('div', { 'class': 'td left' }, [ 'raw' ])
+		var tr = E('table', { 'class': 'table' });
+		tr.appendChild(E('tr', { 'class': 'tr cbi-section-table-titles' }, [
+			E('th', { 'class': 'th left' }, [ 'Hostname' ]),
+			E('th', { 'class': 'th left' }, [ 'Orginator' ]),
+			E('th', { 'class': 'th left' }, [ 'MAC' ]),
+			E('th', { 'class': 'th left' }, [ 'Interface' ]),
+			E('th', { 'class': 'th left' }, [ 'Metric' ]),
+			E('th', { 'class': 'th left' }, [ 'raw' ])
 		]));
+        poll.add(() => {
+            Promise.all([
+				callgetData()
+            ]).then((results) => {
+                cbi_update_table(tr, createTable(results[0]));
+            })
+        }, 30);
+        return tr
 
-		if ( data && data[0] && data[0].neighbors ) {
-			for (var idx = 0; idx < data[0].neighbors.length; idx++) {
-				tr.appendChild(E('div', { 'class': 'tr' }, [
-					E('div', { 'class': 'td left' }, [ E('a',{ 'href': 'https://' + data[0].neighbors[idx].hostname + '/cgi-bin-olsr2-neigh.html'},data[0].neighbors[idx].hostname) ]),
-					E('div', { 'class': 'td left' }, [ E('a',{ 'href': 'https://[' + data[0].neighbors[idx].originator + ']/cgi-bin-olsr2-neigh.html'},data[0].neighbors[idx].originator) ]),
-					E('div', { 'class': 'td left' }, [ data[0].neighbors[idx].lladdr ]),
-					E('div', { 'class': 'td left' }, [ data[0].neighbors[idx].interface ]),
-					E('div', { 'class': 'td left' }, [ data[0].neighbors[idx].metric_in ]),
-					E('div', { 'class': 'td left' }, [ data[0].neighbors[idx].metric_in_raw ])
-				]));
-			}
-		}
+	}
 
-		return tr;
-	},
-
-	handleSaveApply: null,
-	handleSave: null,
-	handleReset: null
 });

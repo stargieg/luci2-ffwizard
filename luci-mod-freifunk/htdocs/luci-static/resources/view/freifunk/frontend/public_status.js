@@ -2,7 +2,7 @@
 'require rpc';
 'require view';
 'require poll';
-'require network'
+'require network';
 
 const css = '\
     #infoTable > tr > .td {\

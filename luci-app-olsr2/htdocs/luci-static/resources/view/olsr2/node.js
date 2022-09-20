@@ -2,42 +2,45 @@
 'require view';
 'require ui';
 'require rpc';
+'require poll';
 
-var callgetNode = rpc.declare({
+var callgetData = rpc.declare({
 	object: 'status.olsrd2',
 	method: 'getNode'
 });
 
+function createTable(data) {
+    let tableData = [];
+    data.node.forEach(row => {
+		let node = [ E('a',{ 'href': 'https://' + row.node + '/cgi-bin-olsr2-neigh.html'},row.node) ];
+        tableData.push([
+            node
+        ])
+    });
+    return tableData;
+};
+
 return view.extend({
 	title: _('OLSR2 mesh nodes'),
-
-	load: function() {
-		return Promise.all([
-			L.resolveDefault(callgetNode(), {})
-		]);
-	},
+	handleSaveApply: null,
+	handleSave: null,
+	handleReset: null,
 
 	render: function(data) {
 
-		var tr = E('div', { 'class': 'table' });
-		tr.appendChild(E('div', { 'class': 'tr cbi-section-table-titles' }, [
-			//E('div', { 'class': 'td left', 'width': '33%' }, [ 'node' ]),
-			E('div', { 'class': 'td left' }, [ 'IP Address' ])
+		var tr = E('table', { 'class': 'table' });
+		tr.appendChild(E('tr', { 'class': 'tr cbi-section-table-titles' }, [
+			E('th', { 'class': 'th left' }, [ 'IP Address' ])
 		]));
-
-		if ( data && data[0] && data[0].node ) {
-			for (var idx = 0; idx < data[0].node.length; idx++) {
-				tr.appendChild(E('div', { 'class': 'tr' }, [
-					//E('div', { 'class': 'td left', 'width': '33%' }, [ 'Node' ]),
-					E('div', { 'class': 'td left' }, [ E('a',{ 'href': 'https://[' + data[0].node[idx].node + ']/'},data[0].node[idx].node) ])
-				]));
-			}
-		}
+        poll.add(() => {
+            Promise.all([
+				callgetData()
+            ]).then((results) => {
+                cbi_update_table(tr, createTable(results[0]));
+            })
+        }, 30);
 
 		return tr;
-	},
+	}
 
-	handleSaveApply: null,
-	handleSave: null,
-	handleReset: null
 });

@@ -2,46 +2,50 @@
 'require view';
 'require ui';
 'require rpc';
+'require poll';
 
-var callgetAttached_network = rpc.declare({
+var callgetData = rpc.declare({
 	object: 'status.olsrd2',
 	method: 'getAttached_network'
 });
 
+function createTable(data) {
+    let tableData = [];
+    data.attached_network.forEach(row => {
+		let node = [ E('a',{ 'href': 'https://' + row.node + '/cgi-bin-olsr2-neigh.html'},row.node) ];
+        tableData.push([
+            node,
+            row.attached_net,
+            row.attached_net_src,
+            row.domain_metric_out
+        ])
+    });
+    return tableData;
+}
+
 return view.extend({
 	title: _('OLSR2 networks'),
-
-	load: function() {
-		return Promise.all([
-			L.resolveDefault(callgetAttached_network(), {})
-		]);
-	},
+	handleSaveApply: null,
+	handleSave: null,
+	handleReset: null,
 
 	render: function(data) {
 
-		var tr = E('div', { 'class': 'table' });
+		var tr = E('table', { 'class': 'table' });
 		tr.appendChild(E('div', { 'class': 'tr cbi-section-table-titles' }, [
-			E('div', { 'class': 'td left' }, [ 'IP address' ]),
-			E('div', { 'class': 'td left' }, [ 'Network' ]),
-			E('div', { 'class': 'td left' }, [ 'Source' ]),
-			E('div', { 'class': 'td left' }, [ 'Metric' ])
+			E('th', { 'class': 'th left' }, [ 'IP address' ]),
+			E('th', { 'class': 'th left' }, [ 'Network' ]),
+			E('th', { 'class': 'th left' }, [ 'Source' ]),
+			E('th', { 'class': 'th left' }, [ 'Metric' ])
 		]));
+        poll.add(() => {
+            Promise.all([
+				callgetData()
+            ]).then((results) => {
+                cbi_update_table(tr, createTable(results[0]));
+            })
+        }, 30);
+        return tr
+	}
 
-		if ( data && data[0] && data[0].attached_network ) {
-			for (var idx = 0; idx < data[0].attached_network.length; idx++) {
-				tr.appendChild(E('div', { 'class': 'tr' }, [
-					E('div', { 'class': 'td left' }, [ E('a',{ 'href': 'https://[' + data[0].attached_network[idx].node + ']/'},data[0].attached_network[idx].node) ]),
-					E('div', { 'class': 'td left' }, [ data[0].attached_network[idx].attached_net ]),
-					E('div', { 'class': 'td left' }, [ data[0].attached_network[idx].attached_net_src ]),
-					E('div', { 'class': 'td left' }, [ data[0].attached_network[idx].domain_metric_out ])
-				]));
-			}
-		}
-
-		return tr;
-	},
-
-	handleSaveApply: null,
-	handleSave: null,
-	handleReset: null
 });
