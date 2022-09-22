@@ -290,6 +290,8 @@ setup_wifi() {
 		uci_set wireless $sec mcast_rate "18000"
 		config_get ipaddr $cfg mesh_ip
 		setup_ip "$cfg_mesh" "$ipaddr"
+		uci_remove network $cfg_mesh ip6class
+		uci_add_list network $cfg_mesh ip6class "local"
 	else
 		if uci_get network $cfg >/dev/null ; then
 			cfg_mesh=$cfg"_mesh"

@@ -173,4 +173,7 @@ if [ -n "$wan_iface" ] ; then
 	setup_dhcp_ignore $wan_iface
 fi
 
+#Disable dhcp on loopback and get ip for dns
+setup_dhcp_ignore loopback
+
 uci_commit dhcp

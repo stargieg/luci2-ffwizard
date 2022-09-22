@@ -44,19 +44,19 @@ i=1;while json_is_a ${i} object;do
 		for j in $neighborips ; do
 			[ -z $ret ] || return
 			nodename=$(nslookup $node $j | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
-			nodeips=$(nslookup $nodename $j | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ' ' -f 2)
+			nodeips=$(nslookup $nodename $j | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 			for k in $nodeips ; do
 				echo "$k $nodename $nodename.olsr"
 				ret="1"
 			done
 		done
-		if [ -z $ret ] ; then                                                                                  
-			nodename=$(nslookup $node $node | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)          
-			nodeips=$(nslookup $nodename $node | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ' ' -f 2)
-			for k in $nodeips ; do                                                                         
-				echo "$k $nodename $nodename.olsr"                                                     
-				ret="1"                                                                                
-			done                                                                                           
+		if [ -z $ret ] ; then
+			nodename=$(nslookup $node $node | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
+			nodeips=$(nslookup $nodename $node | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
+			for k in $nodeips ; do
+				echo "$k $nodename $nodename.olsr"
+				ret="1"
+			done
 		fi
 	fi
 	json_select ..

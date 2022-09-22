@@ -10,13 +10,13 @@ log() {
 if pidof nc | grep -q ' ' >/dev/null ; then
     log "killall nc"
 	killall -9 nc
-	ubus call rc init '{"name":"olsrd2","action":"restart"}'
+	ubus call rc init '{"name":"olsrd2","action":"restart"}' || /etc/init.d/olsrd2 restart
     return 1
 fi
 hostname="$(cat /proc/sys/kernel/hostname)"
 if ! nslookup $hostname | grep -q 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' ; then
         log "restart dnsmasq nslookup $hostname fail"
-        ubus call rc init '{"name":"dnsmasq","action":"restart"}'
+        ubus call rc init '{"name":"dnsmasq","action":"restart"}' || /etc/init.d/dnsmasq restart
         return 1
 fi
 if pidof olsrneighbor2hosts.sh | grep -q ' ' >/dev/null ; then
@@ -35,7 +35,7 @@ i=1;while json_is_a ${i} object;do
 	json_select ${i}
 	json_get_var neighborip neighbor_originator
 	neighborname=$(nslookup $neighborip $neighborip | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
-	neighborips=$(nslookup $neighborname $neighborip | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ' ' -f 2)
+	neighborips=$(nslookup $neighborname $neighborip | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 	for j in $neighborips ; do
 		echo "$j $neighborname $neighborname.olsr"
 	done
