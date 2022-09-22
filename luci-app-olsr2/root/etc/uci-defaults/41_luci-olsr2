@@ -10,4 +10,10 @@ EOF
 rm -f /tmp/luci-indexcache
 rm -f /tmp/luci-modulecache/*
 
+if ! grep -q "olsrd2" /etc/rc.local ; then
+        sed -i /etc/rc.local -e 's/exit 0//'
+        echo "( sleep 15 ; ubus call rc init '{\"name\":\"olsrd2\",\"action\":\"restart\"}' || /etc/init.d/olsrd2 restart ) &" >> /etc/rc.local
+        echo "exit 0" >> /etc/rc.local
+fi
+
 exit 0
