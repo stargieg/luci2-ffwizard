@@ -80,15 +80,6 @@
 			"path": "olsr2/luci"
 		}
 	},
-	"admin/services/olsr2": {
-		"title": "olsr2",
-		"action": {
-			"type": "firstchild"
-		},
-		"depends": {
-			"acl": [ "luci-app-olsr2" ]
-		}
-	},
 	"admin/status/olsr2": {
 		"title": "OLSR2",
 		"action": {
