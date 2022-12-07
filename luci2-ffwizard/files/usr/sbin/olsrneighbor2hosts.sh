@@ -30,14 +30,14 @@ if ! json_select neighbor ; then
 	log "Exit no neighbor entry"
 	return 1
 fi
-
+domain="$(uci_get luci_olsr2 general domain olsr)"
 i=1;while json_is_a ${i} object;do
 	json_select ${i}
 	json_get_var neighborip neighbor_originator
 	neighborname=$(nslookup $neighborip $neighborip | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
 	neighborips=$(nslookup $neighborname $neighborip | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 	for j in $neighborips ; do
-		echo "$j $neighborname $neighborname.olsr"
+		echo "$j $neighborname $neighborname.$domain"
 	done
 	json_select ..
 	i=$(( i + 1 ))

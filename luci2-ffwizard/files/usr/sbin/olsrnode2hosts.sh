@@ -34,6 +34,7 @@ if ! json_select node ; then
 	log "Exit no node entry"
 	return 1
 fi
+domain="$(uci_get luci_olsr2 general domain olsr)"
 i=1;while json_is_a ${i} object;do
 	json_select ${i}
 	json_get_var neighbor node_neighbor
@@ -46,7 +47,7 @@ i=1;while json_is_a ${i} object;do
 			nodename=$(nslookup $node $j | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
 			nodeips=$(nslookup $nodename $j | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 			for k in $nodeips ; do
-				echo "$k $nodename $nodename.olsr"
+				echo "$k $nodename $nodename.$domain"
 				ret="1"
 			done
 		done
@@ -54,7 +55,7 @@ i=1;while json_is_a ${i} object;do
 			nodename=$(nslookup $node $node | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
 			nodeips=$(nslookup $nodename $node | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 			for k in $nodeips ; do
-				echo "$k $nodename $nodename.olsr"
+				echo "$k $nodename $nodename.$domain"
 				ret="1"
 			done
 		fi
