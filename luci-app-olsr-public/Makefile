@@ -3,7 +3,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-olsr-public
 PKG_VERSION:=0.2.5
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
@@ -13,7 +13,7 @@ define Package/luci-app-olsr-public
   CATEGORY:=LuCI
   SUBMENU:=3. Applications
   TITLE:=OLSR Public view
-  EXTRA_DEPENDS:=luci-app-olsr, luci-mod-public
+  EXTRA_DEPENDS:=luci-mod-public
   PKGARCH:=all
 endef
 
@@ -37,7 +37,7 @@ endef
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/www/luci-static/resources/view/olsr
-	$(INSTALL_DATA) ./htdocs/cgi-bin-olsr2-neigh.html $(1)/www
+	$(INSTALL_DATA) ./htdocs/cgi-bin-olsr-neigh.html $(1)/www
 	$(INSTALL_DATA) ./htdocs/luci-static/resources/view/olsr/* $(1)/www/luci-static/resources/view/olsr
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DATA) ./root/etc/config/* $(1)/etc/config
