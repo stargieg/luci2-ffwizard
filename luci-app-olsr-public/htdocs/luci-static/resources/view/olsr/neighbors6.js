@@ -19,6 +19,9 @@ function createTable(data) {
             orginator,
             row.lladdr,
             row.interface,
+            row.lq,
+            row.nlq,
+            row.cost,
             row.signal,
             row.noise,
             row.snr
@@ -41,7 +44,13 @@ return view.extend({
 			E('th', { 'class': 'th left' }, [ 'Hostname' ]),
 			E('th', { 'class': 'th left' }, [ 'Orginator' ]),
 			E('th', { 'class': 'th left' }, [ 'MAC' ]),
-			E('th', { 'class': 'th left' }, [ 'Interface' ])
+			E('th', { 'class': 'th left' }, [ 'Interface' ]),
+			E('th', { 'class': 'th left' }, [ 'LQ' ]),
+			E('th', { 'class': 'th left' }, [ 'NLQ' ]),
+			E('th', { 'class': 'th left' }, [ 'ETX' ]),
+			E('th', { 'class': 'th left' }, [ 'Signal' ]),
+			E('th', { 'class': 'th left' }, [ 'Noise' ]),
+			E('th', { 'class': 'th left' }, [ 'SNR' ])
 		]));
         poll.add(() => {
             Promise.all([

@@ -33,7 +33,7 @@ network_get_neighbour_by_ip()
 	dev=''
 	lladdr=''
 	local ipaddr="$1"
-	hostname=$(nslookup "$ipaddr" | grep name | cut -d " " -f 3 | cut -d '.' -f -1)
+	hostname=$(nslookup "$ipaddr" | grep name | cut -d " " -f 3 | sed -e 's/mid[0-9]*\./\1/' -e 's/\(.*\)\..*$/\1/')
 	[ -z "$__NEIGH_CACHE" ] && {
 		__tmp="$(ip -6 neigh)"
 		export __NEIGH_CACHE="$__tmp"
@@ -60,7 +60,7 @@ network_get_neighbour_by_ip4()
 	dev=''
 	lladdr=''
 	local ipaddr="$1"
-	hostname=$(nslookup "$ipaddr" | grep name | cut -d " " -f 3 | cut -d '.' -f -1)
+	hostname=$(nslookup "$ipaddr" | grep name | cut -d " " -f 3 | sed -e 's/mid[0-9]*\./\1/' -e 's/\(.*\)\..*$/\1/')
 	[ -z "$__NEIGH_CACHE" ] && {
 		__tmp="$(ip -4 neigh)"
 		export __NEIGH_CACHE="$__tmp"
