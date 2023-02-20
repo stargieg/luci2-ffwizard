@@ -1,0 +1,154 @@
+{
+	"admin/status/olsr1": {
+		"title": "OLSR1",
+		"action": {
+			"type": "firstchild"
+		}
+	},
+	"admin/status/olsr1/overview": {
+		"title": "Overview",
+		"order": 1,
+		"action": {
+			"type": "view",
+			"path": "olsr/overview"
+		}
+	},
+	"admin/status/olsr1/overview6": {
+		"title": "Overview IP6",
+		"order": 2,
+		"action": {
+			"type": "view",
+			"path": "olsr/overview6"
+		}
+	},
+	"admin/status/olsr1/node": {
+		"title": "Nodes",
+		"order": 3,
+		"action": {
+			"type": "view",
+			"path": "olsr/node"
+		}
+	},
+	"admin/status/olsr1/node6": {
+		"title": "Nodes IP6",
+		"order": 4,
+		"action": {
+			"type": "view",
+			"path": "olsr/node6"
+		}
+	},
+	"admin/status/olsr1/attachednetwork": {
+		"title": "Attachednetwork",
+		"order": 5,
+		"action": {
+			"type": "view",
+			"path": "olsr/attachednetwork"
+		}
+	},
+	"admin/status/olsr1/attachednetwork6": {
+		"title": "Attachednetwork IP6",
+		"order": 6,
+		"action": {
+			"type": "view",
+			"path": "olsr/attachednetwork6"
+		}
+	},
+	"admin/status/olsr1/neighbors": {
+		"title": "Neighbors",
+		"order": 7,
+		"action": {
+			"type": "view",
+			"path": "olsr/neighbors"
+		}
+	},
+	"admin/status/olsr1/neighbors6": {
+		"title": "Neighbors IP6",
+		"order": 8,
+		"action": {
+			"type": "view",
+			"path": "olsr/neighbors6"
+		}
+	},
+	"public/status": {
+		"title": "Status",
+		"order": 10,
+		"action": {
+			"type": "firstchild",
+			"recurse": true
+		},
+		"auth": {}
+	},
+	"public/status/olsr1": {
+		"title": "OLSR1",
+		"order": 30,
+		"action": {
+			"type": "firstchild",
+			"recurse": true
+		},
+		"auth": {}
+	},
+	"public/status/olsr1/overview": {
+		"title": "Overview",
+		"order": 1,
+		"action": {
+			"type": "view",
+			"path": "olsr/overview"
+		}
+	},
+	"public/status/olsr1/overview6": {
+		"title": "Overview IP6",
+		"order": 2,
+		"action": {
+			"type": "view",
+			"path": "olsr/overview6"
+		}
+	},
+	"public/status/olsr1/node": {
+		"title": "Nodes",
+		"order": 3,
+		"action": {
+			"type": "view",
+			"path": "olsr/node"
+		}
+	},
+	"public/status/olsr1/node6": {
+		"title": "Nodes IP6",
+		"order": 4,
+		"action": {
+			"type": "view",
+			"path": "olsr/node6"
+		}
+	},
+	"public/status/olsr1/attachednetwork": {
+		"title": "Attachednetwork",
+		"order": 5,
+		"action": {
+			"type": "view",
+			"path": "olsr/attachednetwork"
+		}
+	},
+	"public/status/olsr1/attachednetwork6": {
+		"title": "Attachednetwork IP6",
+		"order": 6,
+		"action": {
+			"type": "view",
+			"path": "olsr/attachednetwork6"
+		}
+	},
+	"public/status/olsr1/neighbors": {
+		"title": "Neighbors",
+		"order": 7,
+		"action": {
+			"type": "view",
+			"path": "olsr/neighbors"
+		}
+	},
+	"public/status/olsr1/neighbors6": {
+		"title": "Neighbors IP6",
+		"order": 8,
+		"action": {
+			"type": "view",
+			"path": "olsr/neighbors6"
+		}
+	}
+}

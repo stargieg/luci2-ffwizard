@@ -36,8 +36,21 @@ fi
 endef
 
 define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/controller
-	$(INSTALL_BIN) ./luasrc/controller/* $(1)/usr/lib/lua/luci/controller
+	$(INSTALL_DIR) $(1)/www/luci-static/resources/view/olsr
+	$(INSTALL_DATA) ./htdocs/cgi-bin-olsr2-neigh.html $(1)/www
+	$(INSTALL_DATA) ./htdocs/luci-static/resources/view/olsr/* $(1)/www/luci-static/resources/view/olsr
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_DATA) ./root/etc/config/* $(1)/etc/config
+	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	$(INSTALL_DATA) ./root/etc/uci-defaults/* $(1)/etc/uci-defaults
+	$(INSTALL_DIR) $(1)/usr/libexec/rpcd
+	$(INSTALL_BIN) ./root/usr/libexec/rpcd/status.olsr $(1)/usr/libexec/rpcd/status.olsr
+	$(INSTALL_DIR) $(1)/usr/share/luci/menu.d
+	$(INSTALL_DATA) ./root/usr/share/luci/menu.d/* $(1)/usr/share/luci/menu.d
+	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
+	$(INSTALL_DATA) ./root/usr/share/rpcd/acl.d/* $(1)/usr/share/rpcd/acl.d
+	$(INSTALL_DIR) $(1)/lib/functions
+	$(INSTALL_DATA) ./root/lib/functions/* $(1)/lib/functions
 endef
 
 $(eval $(call BuildPackage,luci-app-olsr-public))

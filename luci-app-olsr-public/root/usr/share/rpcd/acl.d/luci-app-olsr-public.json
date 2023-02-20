@@ -1,0 +1,15 @@
+{
+	"unauthenticated": {
+		"description": "Allow system feature probing",
+		"read": {
+			"file": {
+				"/www/luci-static/resources/view/olsr": [ "list" ]
+			},
+			"ubus": {
+				"status.olsr": [ "getVersion", "getNode", "getNeighbors", "getAttached_network", "getVersion6", "getNode6", "getNeighbors6", "getAttached_network6" ],
+				"file": [ "list" ]
+
+			}
+		}
+	}
+}

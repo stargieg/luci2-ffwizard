@@ -1,0 +1,75 @@
+#!/bin/sh
+# Copyright (C) 2016 OpenWrt.org
+
+. /lib/functions.sh
+. /usr/share/libubox/jshn.sh
+. /lib/functions/olsr.sh
+
+case "$1" in
+	list)
+		json_init
+
+		json_add_object "getVersion"
+		json_close_object
+		json_add_object "getNode"
+		json_close_object
+		json_add_object "getNeighbors"
+		json_close_object
+		json_add_object "getAttached_network"
+		json_close_object
+		json_add_object "getVersion6"
+		json_close_object
+		json_add_object "getNode6"
+		json_close_object
+		json_add_object "getNeighbors6"
+		json_close_object
+		json_add_object "getAttached_network6"
+		json_close_object
+
+		json_dump
+	;;
+	call)
+		case "$2" in
+			getVersion6)
+				eval "$(echo /all | nc ::1 9090 | sed -n '/^[}{ ]/p' | jsonfilter -e 'version_text=@.version.releaseVersion' -e 'version_commit=@.version.sourceHash')"
+				json_init
+				json_add_array "version"
+				json_add_object 0
+				json_add_string "version_text" "${version_text}"
+				json_add_string "version_commit" "${version_commit}"
+				json_close_object
+				json_close_array
+				json_dump
+			;;
+			getVersion)
+				eval "$(echo /all | nc 127.0.0.1 9090 | sed -n '/^[}{ ]/p' | jsonfilter -e 'version_text=@.version.releaseVersion' -e 'version_commit=@.version.sourceHash')"
+				json_init
+				json_add_array "version"
+				json_add_object 0
+				json_add_string "version_text" "${version_text}"
+				json_add_string "version_commit" "${version_commit}"
+				json_close_object
+				json_close_array
+				json_dump
+			;;
+			getNode6)
+				echo /topology | nc ::1 9090 | sed -n '/^[}{ ]/p' 2>/dev/null
+			;;
+			getNode)
+				echo /topology | nc 127.0.0.1 9090 | sed -n '/^[}{ ]/p' 2>/dev/null
+			;;
+			getNeighbors6)
+				echo /neighbors | nc ::1 9090 | sed -n '/^[}{ ]/p' 2>/dev/null
+			;;
+			getNeighbors)
+				echo /neighbors | nc 127.0.0.1 9090 | sed -n '/^[}{ ]/p' 2>/dev/null
+			;;
+			getAttached_network6)
+				echo /hna | nc ::1 9090 | sed -n '/^[}{ ]/p' 2>/dev/null
+			;;
+			getAttached_network)
+				echo /hna | nc 127.0.0.1 9090 | sed -n '/^[}{ ]/p' 2>/dev/null
+			;;
+		esac
+	;;
+esac
