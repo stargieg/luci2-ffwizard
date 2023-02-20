@@ -33,7 +33,7 @@ network_get_neighbour_by_ip()
 	dev=''
 	lladdr=''
 	local ipaddr="$1"
-	hostname=$(nslookup "$ipaddr" "$ipaddr" | grep name | cut -d " " -f 3 | cut -d '.' -f -1)
+	hostname=$(nslookup "$ipaddr" | grep name | cut -d " " -f 3 | cut -d '.' -f -1)
 	[ -z "$__NEIGH_CACHE" ] && {
 		__tmp="$(ip -6 neigh)"
 		export __NEIGH_CACHE="$__tmp"
@@ -44,6 +44,34 @@ network_get_neighbour_by_ip()
 	}
 	local gwaddr=$(echo "$__ROUTE_CACHE" | grep "^$ipaddr" | cut -d ' ' -f 3)
 	[ -z "$gwaddr" ] && return
+	ping -c 1 -I $gwaddr $ipaddr >/dev/null 2>/dev/null
+	local neigh=$(echo "$__NEIGH_CACHE" | grep "$gwaddr")
+	[ -z "$neigh" ] && return
+	set -- $neigh
+	eval "neighbour=$1;dev=$3;lladdr=$5"
+}
+
+# 1: addr
+# 2: export var neighbour dev lladdr
+network_get_neighbour_by_ip4()
+{
+	local __tmp
+	neighbour=''
+	dev=''
+	lladdr=''
+	local ipaddr="$1"
+	hostname=$(nslookup "$ipaddr" | grep name | cut -d " " -f 3 | cut -d '.' -f -1)
+	[ -z "$__NEIGH_CACHE" ] && {
+		__tmp="$(ip -4 neigh)"
+		export __NEIGH_CACHE="$__tmp"
+	}
+	[ -z "$__ROUTE_CACHE" ] && {
+		__tmp="$(ip -4 route)"
+		export __ROUTE_CACHE="$__tmp"
+	}
+	local gwaddr=$(echo "$__ROUTE_CACHE" | grep "^$ipaddr" | cut -d ' ' -f 3)
+	[ -z "$gwaddr" ] && return
+	ping -c 1 -I $gwaddr $ipaddr >/dev/null 2>/dev/null
 	local neigh=$(echo "$__NEIGH_CACHE" | grep "$gwaddr")
 	[ -z "$neigh" ] && return
 	set -- $neigh

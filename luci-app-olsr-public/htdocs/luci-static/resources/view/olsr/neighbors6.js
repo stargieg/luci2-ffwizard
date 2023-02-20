@@ -12,9 +12,16 @@ var callgetData = rpc.declare({
 function createTable(data) {
     let tableData = [];
     data.neighbors.forEach(row => {
-		let hostname = E('a',{ 'href': 'https://' + row.ipAddress + '/cgi-bin-olsr-neigh.html'},row.ipAddress);
+		let hostname = E('a',{ 'href': 'https://' + row.hostname + '/cgi-bin-olsr2-neigh.html'},row.hostname);
+		let orginator = E('a',{ 'href': 'https://[' + row.originator + ']/cgi-bin-olsr2-neigh.html'},row.originator);
         tableData.push([
             hostname,
+            orginator,
+            row.lladdr,
+            row.interface,
+            row.signal,
+            row.noise,
+            row.snr
         ])
     });
     return tableData;
@@ -31,7 +38,10 @@ return view.extend({
 
 		var tr = E('table', { 'class': 'table' });
 		tr.appendChild(E('tr', { 'class': 'tr cbi-section-table-titles' }, [
-			E('th', { 'class': 'th left' }, [ 'Hostname' ])
+			E('th', { 'class': 'th left' }, [ 'Hostname' ]),
+			E('th', { 'class': 'th left' }, [ 'Orginator' ]),
+			E('th', { 'class': 'th left' }, [ 'MAC' ]),
+			E('th', { 'class': 'th left' }, [ 'Interface' ])
 		]));
         poll.add(() => {
             Promise.all([

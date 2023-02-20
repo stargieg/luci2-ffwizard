@@ -59,10 +59,65 @@ case "$1" in
 				echo /topology | nc 127.0.0.1 9090 | sed -n '/^[}{ ]/p' 2>/dev/null
 			;;
 			getNeighbors6)
-				echo /neighbors | nc ::1 9090 | sed -n '/^[}{ ]/p' 2>/dev/null
+				domain="$(uci_get luci_olsr general domain)"
+				[ -z "$domain" ] || domain=".$domain"
+				eval $(echo /neighbors | nc ::1 9090 | sed -n '/^[}{ ]/p' | jsonfilter -e 'neighbors=@["neighbors"][*].ipAddress')
+				json_init
+				json_add_array "neighbors"
+				for neighbor in $neighbors ; do
+					dev=""
+					lladdr=""
+					hostname=""
+					signal=0
+					noise=0
+					snr=0
+					interface=""
+					json_add_object 0
+					json_add_string "originator" "${neighbor}"
+					network_get_neighbour_by_ip "${neighbor}"
+					json_add_string "lladdr" "${lladdr}"
+					json_add_string "hostname" "${hostname}${domain}"
+					eval $(ubus call iwinfo assoclist '{"device":"'$dev'","mac":"'$lladdr'"}' | jsonfilter -e 'noise=@.noise' -e 'signal=@.signal')
+					snr=$((((noise*-1)) - ((signal*-1))))
+					network_get_name_by_device interface $dev
+					json_add_string "interface" "${interface}"
+					json_add_string "signal" "${signal}"
+					json_add_string "noise" "${noise}"
+					json_add_string "snr" "${snr}"
+					json_close_object
+				done
+				json_close_array
+				json_dump
 			;;
 			getNeighbors)
-				echo /neighbors | nc 127.0.0.1 9090 | sed -n '/^[}{ ]/p' 2>/dev/null
+				domain="$(uci_get luci_olsr general domain)"
+				[ -z "$domain" ] || domain=".$domain"
+				eval $(echo /neighbors | nc 127.0.0.1 9090 | sed -n '/^[}{ ]/p' | jsonfilter -e 'neighbors=@["neighbors"][*].ipAddress')
+				json_init
+				json_add_array "neighbors"
+				for neighbor in $neighbors ; do
+					dev=""
+					lladdr=""
+					hostname=""
+					signal=0
+					noise=0
+					snr=0
+					interface=""
+					json_add_object 0
+					json_add_string "originator" "${neighbor}"
+					network_get_neighbour_by_ip4 "${neighbor}"
+					json_add_string "lladdr" "${lladdr}"
+					json_add_string "hostname" "${hostname}${domain}"
+					eval $(ubus call iwinfo assoclist '{"device":"'$dev'","mac":"'$lladdr'"}' | jsonfilter -e 'noise=@.noise' -e 'signal=@.signal')
+					snr=$((((noise*-1)) - ((signal*-1))))
+					network_get_name_by_device interface $dev
+					json_add_string "interface" "${interface}"
+					json_add_string "signal" "${signal}"
+					json_add_string "noise" "${noise}"
+					json_add_string "snr" "${snr}"
+				done
+				json_close_array
+				json_dump
 			;;
 			getAttached_network6)
 				echo /hna | nc ::1 9090 | sed -n '/^[}{ ]/p' 2>/dev/null
