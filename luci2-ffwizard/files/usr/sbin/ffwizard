@@ -6,6 +6,8 @@
 log_ffwizard() {
 	logger -s -t ffwizard $@
 }
+. /etc/os-release
+echo $VERSION | grep -q ^19* && compat=1
 
 wdir="/etc/ffwizard.d"
 [ -d $wdir ] || return 0
@@ -33,6 +35,6 @@ log_ffwizard "restart dnsmasq"
 ubus call rc init '{"name":"dnsmasq","action":"restart"}' || /etc/init.d/dnsmasq restart
 sleep 3
 log_ffwizard "restart cron"
-ubus call rc init '{"name":"cron","action":"restart"}' || /etc/init.d/crond restart
+ubus call rc init '{"name":"cron","action":"restart"}' || /etc/init.d/cron restart
 sleep 3
 log_ffwizard "exit"

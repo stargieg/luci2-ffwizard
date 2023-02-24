@@ -80,16 +80,25 @@ setup_bridge() {
 	local cfg="$1"
 	local ipaddr="$2"
 	setup_ip $cfg "$ipaddr" "br-$cfg"
-	if ! uci_get network br$cfg >/dev/null ; then
-			uci_add network device "br$cfg"
+	if [ "$compat" == "1" ] ; then
+		uci_set network $cfg mtu "1532"
+		uci_set network $cfg force_link "1"
+		#TODO
+		#uci_set network $cfg macaddr "$random"?
+		uci_set network $cfg type "bridge"
+		uci_set network $cfg ifname "$ifc"
+	else
+		if ! uci_get network br$cfg >/dev/null ; then
+				uci_add network device "br$cfg"
+		fi
+		uci_set network br$cfg name "br-$cfg"
+		uci_set network br$cfg type "bridge"
+		#for batman
+		uci_set network br$cfg bridge_empty "1"
+		uci_set network br$cfg mtu "1532"
+		#TODO
+		#uci_set network br$cfg macaddr "$random"?
 	fi
-	uci_set network br$cfg name "br-$cfg"
-	uci_set network br$cfg type "bridge"
-	#for batman
-	uci_set network br$cfg bridge_empty "1"
-	uci_set network br$cfg mtu "1532"
-	#TODO
-	#uci_set network br$cfg macaddr "$random"?
 }
 
 setup_ether() {
@@ -97,7 +106,11 @@ setup_ether() {
 	config_get enabled $cfg enabled "0"
 	config_get dhcp_br $cfg dhcp_br "0"
 	if [ "$dhcp_br" == "0" ] || [ "$enabled" == "0" ] ; then
-		device="$(uci_get network $cfg device)"
+		if [ "$compat" == "1" ] ; then
+			device="$(uci_get network $cfg ifname)"
+		else
+			device="$(uci_get network $cfg device)"
+		fi
 		if [ -n "$device" ] ; then
 			log_net "Setup $cfg with device $device"
 			restore_ports="$restore_ports $device"
@@ -109,7 +122,11 @@ setup_ether() {
 	if [ "$dhcp_br" == "1" ] ; then
 		log_net "Setup $cfg as DHCP Bridge member"
 		if uci_get network $cfg >/dev/null ; then
-			device="$(uci_get network $cfg device)"
+			if [ "$compat" == "1" ] ; then
+				device="$(uci_get network $cfg ifname)"
+			else
+				device="$(uci_get network $cfg device)"
+			fi
 			if [ -n "$device" ] ; then
 				log_net "Setup $cfg with device $device"
 				br_ifaces="$br_ifaces $device"
@@ -408,7 +425,11 @@ uci_set dhcp frei_funk_ipv6 ip "fd$r1:$r2:$r3::1"
 
 #Set lan defaults if not an freifunk interface
 if [ -n "$lan_iface" ] ; then
-	uci_set network lan device "br-lan"
+	if [ "$compat" == "1" ] ; then
+		uci_set network lan type "bridge"
+	else
+		uci_set network lan device "br-lan"
+	fi
 	uci_set network lan proto "static"
 	uci_set network lan ipaddr "192.168.42.1"
 	uci_set network lan netmask "255.255.255.0"
@@ -428,26 +449,37 @@ if [ -n "$wan_iface" ] ; then
 fi
 
 if [ "$br" == "1" ] ; then
-	uci_remove network br$br_name ports
-	config_load network
-	for device in $br_ifaces ; do
-		fports=""
-		config_foreach get_ports device "$device"
-		if [ -z "$fports" ] ; then
-			uci_add_list network br$br_name ports "$device"
-		else
-			for port in $fports ; do
-				uci_add_list network br$br_name ports "$port"
-			done
-		fi
-	done
+	if [ "$compat" == "1" ] ; then
+		config_load network
+		config_get ifname $br_name ifname
+		uci_set network $br_name _ifname "$ifname"
+	else
+		uci_remove network br$br_name ports
+		config_load network
+		for device in $br_ifaces ; do
+			fports=""
+			config_foreach get_ports device "$device"
+			if [ -z "$fports" ] ; then
+				uci_add_list network br$br_name ports "$device"
+			else
+				for port in $fports ; do
+					uci_add_list network br$br_name ports "$port"
+				done
+			fi
+		done
+	fi
 fi
 
 if [ -n "$restore_ports" ] ; then
 	config_load network
 	for device in $restore_ports ; do
-		fports=""
-		config_foreach restore_portlist device "$device"
+		if [ "$compat" == "1" ] ; then
+			config_get ifname $br_name _ifname
+			uci_set network $br_name ifname "$ifname"
+		else
+			fports=""
+			config_foreach restore_portlist device "$device"
+		fi
 	done
 fi
 
