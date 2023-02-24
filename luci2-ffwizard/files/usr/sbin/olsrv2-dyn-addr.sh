@@ -304,8 +304,8 @@ else
 		fi
 		uci_add_list network $cfg_ip6prefix ip6prefix "$ip6prefix_new/$ip6prefix_mask_new"
 		uci_set network $cfg_ip6prefix srcip6prefix "$srcip6prefix_new"
-		#uci_add_list network $cfg_ip6prefix ip6addr "$ip6prefix_new""1/128"
-		uci_set network $cfg_ip6prefix ip6addr "$ip6prefix_new""1/128"
+		#uci_add_list network $cfg_ip6prefix ip6addr "$ip6prefix_new""2/128"
+		uci_set network $cfg_ip6prefix ip6addr "$ip6prefix_new""2/128"
 		uci_commit network
 
 		#ubus call uci "reload_config"
