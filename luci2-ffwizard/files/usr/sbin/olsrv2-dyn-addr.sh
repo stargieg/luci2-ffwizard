@@ -300,9 +300,12 @@ else
 		log "ip6prefix_new:    $ip6prefix_new/$ip6prefix_mask_new"
 		if [ -n "$(uci_get network $cfg_ip6prefix ip6prefix)" ] ; then
 			uci_remove network $cfg_ip6prefix ip6prefix
+			uci_remove network $cfg_ip6prefix ip6addr
 		fi
 		uci_add_list network $cfg_ip6prefix ip6prefix "$ip6prefix_new/$ip6prefix_mask_new"
 		uci_set network $cfg_ip6prefix srcip6prefix "$srcip6prefix_new"
+		#uci_add_list network $cfg_ip6prefix ip6addr "$ip6prefix_new""1/128"
+		uci_set network $cfg_ip6prefix ip6addr "$ip6prefix_new""1/128"
 		uci_commit network
 
 		#ubus call uci "reload_config"
