@@ -79,15 +79,17 @@ restore_portlist() {
 setup_bridge() {
 	local cfg="$1"
 	local ipaddr="$2"
-	setup_ip $cfg "$ipaddr" "br-$cfg"
 	if [ "$compat" == "1" ] ; then
+		setup_ip $cfg "$ipaddr"
+		#for batman
+		uci_set network $cfg bridge_empty "1"
 		uci_set network $cfg mtu "1532"
-		uci_set network $cfg force_link "1"
 		#TODO
 		#uci_set network $cfg macaddr "$random"?
 		uci_set network $cfg type "bridge"
 		uci_set network $cfg ifname "$ifc"
 	else
+		setup_ip $cfg "$ipaddr" "br-$cfg"
 		if ! uci_get network br$cfg >/dev/null ; then
 				uci_add network device "br$cfg"
 		fi

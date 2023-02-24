@@ -18,7 +18,7 @@ return view.extend({
 		o.placeholder = "OpenWrt";
 		o = s.option(form.Flag, "br", _("Netzwerkbrücke für AP-DHCP und Batman"), "");
 		o.datatype = "bool";
-		o = s.option(form.Value, "dhco_ip", _("IPv4 DHCP Netz für Batman Gateway mode und olsr Hna4"), "");
+		o = s.option(form.Value, "dhcp_ip", _("IPv4 DHCP Netz für Batman Gateway mode und olsr Hna4"), "");
 		o.datatype = "cidr4";
 		o.placeholder = "192.168.111.0/28";
 		o.optional = true;
