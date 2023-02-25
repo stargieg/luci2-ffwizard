@@ -95,8 +95,9 @@ var OsmValue = form.Value.extend(/** @lends LuCI.form.ListValue.prototype */ {
         optionEl.addEventListener('widget-change',
             L.bind(this.map.checkDepends, this.map));
 
-        optionEl.addEventListener('widget-change',
-            L.bind(this.handleValueChange, this, section_id, {}));
+        //TODO Type error?
+        //optionEl.addEventListener('widget-change',
+        //    L.bind(this.handleValueChange, this, section_id, {}));
 
         dom.bindClassInstance(optionEl, this);
 
@@ -153,11 +154,13 @@ return view.extend({
             fs.list('/etc/config/').then((configs) => {
                 let communities = configs
                     .filter(file => file.name.startsWith('profile_'));
+                console.log(communities)
                 return communities;
             }).then((communities) => {
                 communities.forEach(community => {
                     uci.load(community.name);
                 });
+                console.log(communities)
                 return communities;
             }),
             uci.load('system')
