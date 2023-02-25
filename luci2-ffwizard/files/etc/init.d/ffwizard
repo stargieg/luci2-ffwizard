@@ -2,75 +2,14 @@
 # Copyright (C) 2015 OpenWrt.org
 
 START=99
-USE_PROCD=1
-
-validate_ffwizard_section()
-{
-	uci_validate_section ffwizard ffwizard "${1}" \
-		'enabled:bool' \
-		'hostname:string' \
-		'vpn:bool' \
-		'bbvpn:bool' \
-		'br:bool' \
-		'dhcp_ip:cidr4'
-		'ip6prefix:cidr6'
-}
-
-validate_ether_section()
-{
-	uci_validate_section ffwizard ether "${1}" \
-		'enabled:bool' \
-		'device:string' \
-		'dhcp_br:bool' \
-		'olsr_mesh:bool' \
-		'bat_mesh:bool' \
-		'dhcp_ip:cidr4' \
-		'mesh_ip:cidr4'
-}
-
-validate_wifi_section()
-{
-	uci_validate_section ffwizard wifi "${1}" \
-		'enabled:bool' \
-		'phy_idx:uinteger' \
-		'device:string' \
-		'olsr_mesh:bool' \
-		'bat_mesh:bool' \
-		'vap:bool' \
-		'dhcp_ip:cidr4' \
-		'mesh_ip:cidr4'
-}
 
 start_ffwizard() {
 	enabled=$(uci_get ffwizard ffwizard enabled "0")
 	[ "$enabled" == "0" ] && return
-	config_load ffwizard
-	config_foreach system_config system
 	/usr/sbin/ffwizard
-	uci_set ffwizard ffwizard enabled 0
-	uci_commit ffwizard
 }
 
-reload_service() {
-	logger -s -t ffwizard_init "Reload Service"
-	start_ffwizard
-}
-
-service_triggers()
-{
-	procd_open_trigger
-	procd_add_config_trigger "config.change" ffwizard /etc/init.d/ffwizard reload
-	procd_close_trigger
-
-	procd_open_validate
-	validate_ffwizard_section
-	validate_ether_section
-	validate_wifi_section
-	procd_close_validate
-}
-
-start_service() {
+start() {
 	logger -s -t ffwizard_init "Start Service"
-	procd_set_param watch ffwizard
 	start_ffwizard
 }

@@ -2,14 +2,6 @@
 # Copyright (C) 2015 Patrick Grimm
 
 START=98
-USE_PROCD=1
-
-validate_autoconf_section()
-{
-	uci_validate_section ffwizard autoconf "${1}" \
-		'firstboot:bool'
-}
-
 
 setup_ether() {
 	local cfg="$1"
@@ -68,24 +60,7 @@ start_autoconf() {
 	/usr/sbin/ffwizard_autoconf
 }
 
-reload_service() {
-	logger -s -t ffwizard_autoconf "Reload Service"
-	start_autoconf
-}
-
-service_triggers()
-{
-	procd_open_trigger
-	procd_add_config_trigger "config.change" ffwizard /etc/init.d/ffwizard_autoconf reload
-	procd_close_trigger
-
-	procd_open_validate
-	validate_autoconf_section
-	procd_close_validate
-}
-
-start_service() {
+start() {
 	logger -s -t ffwizard_autoconf_init "Start Service"
-	procd_set_param watch ffwizard
 	start_autoconf
 }

@@ -307,6 +307,7 @@ setup_wifi() {
 		#uci_set wireless $sec "doth"
 		uci_set wireless $sec network "$cfg_mesh"
 		uci_set wireless $sec mcast_rate "18000"
+		uci_set wireless $sec encryption='none'
 		config_get ipaddr $cfg mesh_ip
 		setup_ip "$cfg_mesh" "$ipaddr"
 		uci_remove network $cfg_mesh ip6class
@@ -336,6 +337,7 @@ setup_wifi() {
 		uci_set wireless $sec mcast_rate "6000"
 		#uci_set wireless $sec isolate 1
 		uci_set wireless $sec ssid "freifunk.net"
+		uci_set wireless $sec encryption='none'
 		config_get vap_br $cfg vap_br "0"
 		if [ $vap_br == 1 ] ; then
 			uci_set wireless $sec network "$br_name"
