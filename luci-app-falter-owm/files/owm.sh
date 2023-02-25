@@ -376,5 +376,5 @@ if [ "$compat" == "1" ] ; then
 	done
 else
 	printf "$MSG" | nc $server 80
-done
+fi
 printf "\n\n"
