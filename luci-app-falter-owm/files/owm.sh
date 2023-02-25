@@ -362,5 +362,12 @@ Content-length: $LEN\r
 \r
 $JSON_STRING\r\n"
 
-printf "$MSG" | nc api.openwifimap.net 80
+for server in $(nslookup api.openwifimap.net | grep '^Address ' | cut -d ' ' -f3) ; do
+	printf "$MSG" | nc $server 80 && {                                
+		echo ""                                                       
+		echo ""                                                         
+		echo "Server $server OK"                                                            
+		break                                         
+	}                                      
+done
 printf "\n\n"
