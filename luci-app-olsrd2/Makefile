@@ -1,19 +1,20 @@
 # call BuildPackage - OpenWrt buildroot signature
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=luci-app-olsr2
+PKG_NAME:=luci-app-olsrd2
 PKG_VERSION:=0.2.6
-PKG_RELEASE:=14
+PKG_RELEASE:=15
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/luci-app-olsr2
+define Package/luci-app-olsrd2
   SECTION:=luci
   CATEGORY:=LuCI
   SUBMENU:=3. Applications
   TITLE:=OLSR2 configuration and status module
-  EXTRA_DEPENDS:=oonf-olsrd2, luci-mod-admin-full, luci-mod-public
+  MAINTAINER:=Patrick Grimm <patrick@lunatiki.de>
+  EXTRA_DEPENDS:=oonf-olsrd2, luci-mod-admin-full
   PKGARCH:=all
 endef
 
@@ -36,9 +37,9 @@ fi
 endef
 
 define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/www/luci-static/resources/view/olsr2
-	$(INSTALL_DATA) ./htdocs/cgi-bin-olsr2-neigh.html $(1)/www
-	$(INSTALL_DATA) ./htdocs/luci-static/resources/view/olsr2/* $(1)/www/luci-static/resources/view/olsr2
+	$(INSTALL_DIR) $(1)/www/luci-static/resources/view/olsrd2
+	$(INSTALL_DATA) ./htdocs/cgi-bin-olsrd2-neigh.html $(1)/www
+	$(INSTALL_DATA) ./htdocs/luci-static/resources/view/olsrd2/* $(1)/www/luci-static/resources/view/olsrd2
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DATA) ./root/etc/config/* $(1)/etc/config
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
@@ -53,4 +54,4 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DATA) ./root/lib/functions/* $(1)/lib/functions
 endef
 
-$(eval $(call BuildPackage,luci-app-olsr2))
+$(eval $(call BuildPackage,luci-app-olsrd2))

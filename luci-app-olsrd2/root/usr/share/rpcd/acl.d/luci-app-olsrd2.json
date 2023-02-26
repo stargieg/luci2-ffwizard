@@ -3,7 +3,7 @@
 		"description": "Allow system feature probing",
 		"read": {
 			"file": {
-				"/www/luci-static/resources/view/olsr2": [ "list" ]
+				"/www/luci-static/resources/view/olsrd2": [ "list" ]
 			},
 			"ubus": {
 				"status.olsrd2": [ "getVersion", "getLan", "getNode", "getNeighbors", "getAttached_network" ],
@@ -12,8 +12,8 @@
 			}
 		}
 	},
-	"luci-app-olsr2": {
-		"description": "Grant UCI access for luci-app-olsr2",
+	"luci-app-olsrd2": {
+		"description": "Grant UCI access for luci-app-olsrd2",
 		"read": {
 			"uci": [ "olsrd2" ],
 			"ubus": {

@@ -6,7 +6,7 @@ return view.extend({
 	render: function() {
 		var m, s, o;
 
-		m = new form.Map('olsrd2', 'OLSR2 Daemon');
+		m = new form.Map('olsrd2', 'OLSRD2 Daemon');
 
 		s = m.section(form.TypedSection, 'log', _('OONF Logging'));
 		s.anonymous = true;

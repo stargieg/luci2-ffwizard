@@ -6,7 +6,7 @@ return view.extend({
 	render: function() {
 		var m, s, o;
 
-		m = new form.Map('olsrd2', 'OLSR2 Daemon');
+		m = new form.Map('olsrd2', 'OLSRD2 Daemon');
 
 		s = m.section(form.TypedSection, 'lan_import', _('Automatic import of routing tables as locally attached networks.'));
 		s.anonymous = true;

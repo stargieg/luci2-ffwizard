@@ -6,7 +6,7 @@ return view.extend({
 	render: function() {
 		var m, s, o;
 
-		m = new form.Map('olsrd2', 'OLSR2 Daemon');
+		m = new form.Map('olsrd2', 'OLSRD2 Daemon');
 
 		s = m.section(form.TypedSection, 'olsrv2', _('the OLSRv2 implementation including the OLSRv2 API for other plugins.'));
 		s.anonymous = true;

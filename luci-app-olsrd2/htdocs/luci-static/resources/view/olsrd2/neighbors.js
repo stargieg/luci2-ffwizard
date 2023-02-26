@@ -12,8 +12,8 @@ var callgetData = rpc.declare({
 function createTable(data) {
     let tableData = [];
     data.neighbors.forEach(row => {
-		let hostname = E('a',{ 'href': 'https://' + row.hostname + '/cgi-bin-olsr2-neigh.html'},row.hostname);
-		let orginator = E('a',{ 'href': 'https://[' + row.originator + ']/cgi-bin-olsr2-neigh.html'},row.originator);
+		let hostname = E('a',{ 'href': 'https://' + row.hostname + '/cgi-bin-olsrd2-neigh.html'},row.hostname);
+		let orginator = E('a',{ 'href': 'https://[' + row.originator + ']/cgi-bin-olsrd2-neigh.html'},row.originator);
         tableData.push([
             hostname,
             orginator,
@@ -27,7 +27,7 @@ function createTable(data) {
 };
 
 return view.extend({
-	title: _('OLSR2 mesh neighbors'),
+	title: _('OLSRD2 mesh neighbors'),
 	handleSaveApply: null,
 	handleSave: null,
 	handleReset: null,

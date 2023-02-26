@@ -6,22 +6,25 @@
 
 var callgetData = rpc.declare({
 	object: 'status.olsrd2',
-	method: 'getNode'
+	method: 'getAttached_network'
 });
 
 function createTable(data) {
     let tableData = [];
-    data.node.forEach(row => {
-		let node = E('a',{ 'href': 'https://' + row.node + '/cgi-bin-olsr2-neigh.html'},row.node);
+    data.attached_network.forEach(row => {
+		let node = E('a',{ 'href': 'https://' + row.node + '/cgi-bin-olsrd2-neigh.html'},row.node);
         tableData.push([
-            node
+            node,
+            row.attached_net,
+            row.attached_net_src,
+            row.domain_metric_out
         ])
     });
     return tableData;
-};
+}
 
 return view.extend({
-	title: _('OLSR2 mesh nodes'),
+	title: _('OLSRD2 networks'),
 	handleSaveApply: null,
 	handleSave: null,
 	handleReset: null,
@@ -29,8 +32,11 @@ return view.extend({
 	render: function(data) {
 
 		var tr = E('table', { 'class': 'table' });
-		tr.appendChild(E('tr', { 'class': 'tr cbi-section-table-titles' }, [
-			E('th', { 'class': 'th left' }, [ 'IP Address' ])
+		tr.appendChild(E('div', { 'class': 'tr cbi-section-table-titles' }, [
+			E('th', { 'class': 'th left' }, [ 'IP address' ]),
+			E('th', { 'class': 'th left' }, [ 'Network' ]),
+			E('th', { 'class': 'th left' }, [ 'Source' ]),
+			E('th', { 'class': 'th left' }, [ 'Metric' ])
 		]));
         poll.add(() => {
             Promise.all([
@@ -39,8 +45,7 @@ return view.extend({
                 cbi_update_table(tr, createTable(results[0]));
             })
         }, 30);
-
-		return tr;
+        return tr
 	}
 
 });

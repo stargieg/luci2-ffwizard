@@ -44,7 +44,6 @@ function createTableDomain(data) {
     return tableData;
 }
 
-
 return view.extend({
 	title: _('Version'),
 	handleSaveApply: null,

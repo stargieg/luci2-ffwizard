@@ -7,7 +7,7 @@ return view.extend({
 	render: function() {
 		var m, s, o;
 
-		m = new form.Map('olsrd2', 'OLSR2 Daemon');
+		m = new form.Map('olsrd2', 'OLSRD2 Daemon');
 		m.tabbed = true;
 		s = m.section(form.GridSection, 'interface', _('interface configuration section'));
 		s.anonymous = true;

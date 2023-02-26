@@ -6,9 +6,9 @@ return view.extend({
 	render: function() {
 		var m, s, o;
 
-		m = new form.Map('luci_olsr2', 'Luci options');
+		m = new form.Map('luci_olsrd2', 'Luci options');
 
-		s = m.section(form.TypedSection, 'olsr2', _('LUCI'));
+		s = m.section(form.TypedSection, 'olsrd2', _('LUCI'));
 		s.anonymous = true;
 		s.addremove = false;
 
