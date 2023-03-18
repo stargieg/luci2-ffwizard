@@ -3,7 +3,7 @@
 
 . /lib/functions.sh
 . /usr/share/libubox/jshn.sh
-. /lib/functions/olsr2.sh
+. /lib/functions/olsrd2.sh
 
 case "$1" in
 	list)
@@ -40,7 +40,7 @@ case "$1" in
 				echo '/olsrv2info json node /quit' | nc ::1 2009 2>/dev/null
 			;;
 			getNeighbors)
-				domain="$(uci_get luci_olsr2 general domain)"
+				domain="$(uci_get luci_olsrd2 general domain)"
 				[ -z "$domain" ] || domain=".$domain"
 				json_init
 				json_add_array "neighbors"
