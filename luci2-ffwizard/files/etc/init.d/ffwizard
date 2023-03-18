@@ -6,6 +6,8 @@ START=99
 start_ffwizard() {
 	enabled=$(uci_get ffwizard ffwizard enabled "0")
 	[ "$enabled" == "0" ] && return
+	uci_set ffwizard ffwizard enabled 0
+	uci_commit ffwizard
 	/usr/sbin/ffwizard
 }
 
