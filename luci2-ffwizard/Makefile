@@ -132,7 +132,7 @@ define Package/luci2-ffwizard/install
 	$(INSTALL_BIN) files/etc/init.d/ffwizard_autoconf $(1)/etc/init.d/
 
 	$(INSTALL_DIR) $(1)/etc/init.d $(1)/etc/config $(1)/etc/uci-defaults
-	$(INSTALL_BIN) files/etc/uci-defaults/ffwizard $(1)/etc/uci-defaults/
+	$(INSTALL_BIN) files/etc/uci-defaults/61_ffwizard $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/init.d/ffwizard $(1)/etc/init.d/
 	$(INSTALL_DATA) files/etc/config/ffwizard $(1)/etc/config/
 endef
@@ -158,7 +158,7 @@ endef
 
 define Package/luci2-ffwizard-fw/install
 	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/etc/uci-defaults/
-	$(INSTALL_BIN) files/etc/uci-defaults/ffwizard_fw $(1)/etc/uci-defaults/
+	$(INSTALL_BIN) files/etc/uci-defaults/60_ffwizard_fw $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/ffwizard.d/40-firewall.sh $(1)/etc/ffwizard.d/
 endef
 
@@ -191,7 +191,7 @@ endef
 define Package/luci2-ffwizard-kadnode/install
 	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/ffwizard.d/60-kadnode.sh $(1)/etc/ffwizard.d/
-	$(INSTALL_BIN) files/etc/uci-defaults/ffwizard_kadnode $(1)/etc/uci-defaults/
+	$(INSTALL_BIN) files/etc/uci-defaults/62_ffwizard_kadnode $(1)/etc/uci-defaults/
 endef
 
 $(eval $(call BuildPackage,luci2-ffwizard))
