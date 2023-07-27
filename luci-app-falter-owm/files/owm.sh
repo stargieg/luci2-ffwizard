@@ -120,7 +120,7 @@ if [ -z "$latitude" ] || [ -z "$longitude" ]; then
 	exit 2
 fi
 domain=""                                                                                                               
-domain="$(uci_get luci_olsr2 general domain)"                                                                           
+domain="$(uci_get luci_olsrd2 general domain)"                                                                           
 [ -z "$domain" ] && domain="olsr"                                                                                       
 domain=".$domain"
 
