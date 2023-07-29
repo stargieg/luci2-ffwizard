@@ -2,8 +2,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-olsr-public
-PKG_VERSION:=0.2.5
-PKG_RELEASE:=3
+PKG_VERSION:=0.2.6
+PKG_RELEASE:=1
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
@@ -29,6 +29,8 @@ endef
 define Package/$(PKG_NAME)/postinst
 #!/bin/sh
 if [ -z $${IPKG_INSTROOT} ] ; then
+	. /etc/uci-defaults/50_luci_olsr
+	rm /etc/uci-defaults/50_luci_olsr
 	rm -f /tmp/luci-indexcache
 	rm -rf /tmp/luci-modulecache/
 	killall -HUP rpcd 2>/dev/null
@@ -39,8 +41,8 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/www/luci-static/resources/view/olsr
 	$(INSTALL_DATA) ./htdocs/cgi-bin-olsr-neigh.html $(1)/www
 	$(INSTALL_DATA) ./htdocs/luci-static/resources/view/olsr/* $(1)/www/luci-static/resources/view/olsr
-	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_DATA) ./root/etc/config/* $(1)/etc/config
+	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	$(INSTALL_DATA) ./root/etc/uci-defaults/50_luci_olsr $(1)/etc/uci-defaults
 	$(INSTALL_DIR) $(1)/usr/libexec/rpcd
 	$(INSTALL_BIN) ./root/usr/libexec/rpcd/status.olsr $(1)/usr/libexec/rpcd/status.olsr
 	$(INSTALL_DIR) $(1)/usr/share/luci/menu.d
