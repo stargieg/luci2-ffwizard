@@ -88,7 +88,7 @@
 	},
 	"admin/status/olsrd2/overview": {
 		"title": "Overview",
-		"order": 1,
+		"order": 2,
 		"action": {
 			"type": "view",
 			"path": "olsrd2/overview"
@@ -96,7 +96,7 @@
 	},
 	"admin/status/olsrd2/node": {
 		"title": "Nodes",
-		"order": 2,
+		"order": 3,
 		"action": {
 			"type": "view",
 			"path": "olsrd2/node"
@@ -104,7 +104,7 @@
 	},
 	"admin/status/olsrd2/attachednetwork": {
 		"title": "Attachednetwork",
-		"order": 3,
+		"order": 4,
 		"action": {
 			"type": "view",
 			"path": "olsrd2/attachednetwork"
@@ -112,7 +112,7 @@
 	},
 	"admin/status/olsrd2/neighbors": {
 		"title": "Neighbors",
-		"order": 4,
+		"order": 1,
 		"action": {
 			"type": "view",
 			"path": "olsrd2/neighbors"
@@ -138,7 +138,7 @@
 	},
 	"public/status/olsrd2/overview": {
 		"title": "Overview",
-		"order": 4,
+		"order": 2,
 		"action": {
 			"type": "view",
 			"path": "olsrd2/overview"
@@ -146,7 +146,7 @@
 	},
 	"public/status/olsrd2/node": {
 		"title": "Nodes",
-		"order": 2,
+		"order": 3,
 		"action": {
 			"type": "view",
 			"path": "olsrd2/node"
@@ -154,7 +154,7 @@
 	},
 	"public/status/olsrd2/attachednetwork": {
 		"title": "Attachednetwork",
-		"order": 3,
+		"order": 4,
 		"action": {
 			"type": "view",
 			"path": "olsrd2/attachednetwork"
