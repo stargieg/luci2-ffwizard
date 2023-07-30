@@ -29,8 +29,6 @@ endef
 define Package/$(PKG_NAME)/postinst
 #!/bin/sh
 if [ -z $${IPKG_INSTROOT} ] ; then
-	. /etc/uci-defaults/50_luci_olsrd1
-	rm /etc/uci-defaults/50_luci_olsrd1
 	rm -f /tmp/luci-indexcache
 	rm -rf /tmp/luci-modulecache/
 	killall -HUP rpcd 2>/dev/null
