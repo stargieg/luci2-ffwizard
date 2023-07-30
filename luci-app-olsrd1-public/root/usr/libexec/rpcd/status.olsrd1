@@ -3,7 +3,7 @@
 
 . /lib/functions.sh
 . /usr/share/libubox/jshn.sh
-. /lib/functions/olsr.sh
+. /lib/functions/olsrd1.sh
 
 case "$1" in
 	list)
@@ -59,7 +59,7 @@ case "$1" in
 				echo /topology | nc 127.0.0.1 9090 | sed -n '/^[}{ ]/p' 2>/dev/null
 			;;
 			getNeighbors6)
-				domain="$(uci_get luci_olsr general domain)"
+				domain="$(uci_get luci_olsrd1 general domain)"
 				[ -z "$domain" ] || domain=".$domain"
 				eval $(echo /links | nc ::1 9090 | sed -n '/^[}{ ]/p' | jsonfilter -e 'neighbors=@.links[*].remoteIP')
 				json_init
@@ -98,7 +98,7 @@ case "$1" in
 				json_dump
 			;;
 			getNeighbors)
-				domain="$(uci_get luci_olsr general domain)"
+				domain="$(uci_get luci_olsrd1 general domain)"
 				[ -z "$domain" ] || domain=".$domain"
 				eval $(echo /links | nc 127.0.0.1 9090 | sed -n '/^[}{ ]/p' | jsonfilter -e 'neighbors=@.links[*].remoteIP')
 				json_init

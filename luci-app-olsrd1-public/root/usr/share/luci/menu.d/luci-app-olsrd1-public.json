@@ -1,72 +1,72 @@
 {
-	"admin/status/olsr1": {
-		"title": "OLSR1",
+	"admin/status/olsrd1": {
+		"title": "OLSRD1",
 		"action": {
 			"type": "firstchild"
 		}
 	},
-	"admin/status/olsr1/overview": {
+	"admin/status/olsrd1/overview": {
 		"title": "Overview",
 		"order": 1,
 		"action": {
 			"type": "view",
-			"path": "olsr/overview"
+			"path": "olsrd1/overview"
 		}
 	},
-	"admin/status/olsr1/overview6": {
+	"admin/status/olsrd1/overview6": {
 		"title": "Overview IP6",
 		"order": 2,
 		"action": {
 			"type": "view",
-			"path": "olsr/overview6"
+			"path": "olsrd1/overview6"
 		}
 	},
-	"admin/status/olsr1/node": {
+	"admin/status/olsrd1/node": {
 		"title": "Nodes",
 		"order": 3,
 		"action": {
 			"type": "view",
-			"path": "olsr/node"
+			"path": "olsrd1/node"
 		}
 	},
-	"admin/status/olsr1/node6": {
+	"admin/status/olsrd1/node6": {
 		"title": "Nodes IP6",
 		"order": 4,
 		"action": {
 			"type": "view",
-			"path": "olsr/node6"
+			"path": "olsrd1/node6"
 		}
 	},
-	"admin/status/olsr1/attachednetwork": {
+	"admin/status/olsrd1/attachednetwork": {
 		"title": "Attachednetwork",
 		"order": 5,
 		"action": {
 			"type": "view",
-			"path": "olsr/attachednetwork"
+			"path": "olsrd1/attachednetwork"
 		}
 	},
-	"admin/status/olsr1/attachednetwork6": {
+	"admin/status/olsrd1/attachednetwork6": {
 		"title": "Attachednetwork IP6",
 		"order": 6,
 		"action": {
 			"type": "view",
-			"path": "olsr/attachednetwork6"
+			"path": "olsrd1/attachednetwork6"
 		}
 	},
-	"admin/status/olsr1/neighbors": {
+	"admin/status/olsrd1/neighbors": {
 		"title": "Neighbors",
 		"order": 7,
 		"action": {
 			"type": "view",
-			"path": "olsr/neighbors"
+			"path": "olsrd1/neighbors"
 		}
 	},
-	"admin/status/olsr1/neighbors6": {
+	"admin/status/olsrd1/neighbors6": {
 		"title": "Neighbors IP6",
 		"order": 8,
 		"action": {
 			"type": "view",
-			"path": "olsr/neighbors6"
+			"path": "olsrd1/neighbors6"
 		}
 	},
 	"public/status": {
@@ -78,8 +78,8 @@
 		},
 		"auth": {}
 	},
-	"public/status/olsr1": {
-		"title": "OLSR1",
+	"public/status/olsrd1": {
+		"title": "OLSRD1",
 		"order": 30,
 		"action": {
 			"type": "firstchild",
@@ -87,20 +87,20 @@
 		},
 		"auth": {}
 	},
-	"public/status/olsr1/overview": {
+	"public/status/olsrd1/overview": {
 		"title": "Overview",
 		"order": 1,
 		"action": {
 			"type": "view",
-			"path": "olsr/overview"
+			"path": "olsrd1/overview"
 		}
 	},
-	"public/status/olsr1/overview6": {
+	"public/status/olsrd1/overview6": {
 		"title": "Overview IP6",
 		"order": 2,
 		"action": {
 			"type": "view",
-			"path": "olsr/overview6"
+			"path": "olsrd1/overview6"
 		}
 	},
 	"public/status/olsr1/node": {
@@ -108,47 +108,47 @@
 		"order": 3,
 		"action": {
 			"type": "view",
-			"path": "olsr/node"
+			"path": "olsrd1/node"
 		}
 	},
-	"public/status/olsr1/node6": {
+	"public/status/olsrd1/node6": {
 		"title": "Nodes IP6",
 		"order": 4,
 		"action": {
 			"type": "view",
-			"path": "olsr/node6"
+			"path": "olsrd1/node6"
 		}
 	},
-	"public/status/olsr1/attachednetwork": {
+	"public/status/olsrd1/attachednetwork": {
 		"title": "Attachednetwork",
 		"order": 5,
 		"action": {
 			"type": "view",
-			"path": "olsr/attachednetwork"
+			"path": "olsrd1/attachednetwork"
 		}
 	},
-	"public/status/olsr1/attachednetwork6": {
+	"public/status/olsrd1/attachednetwork6": {
 		"title": "Attachednetwork IP6",
 		"order": 6,
 		"action": {
 			"type": "view",
-			"path": "olsr/attachednetwork6"
+			"path": "olsrd1/attachednetwork6"
 		}
 	},
-	"public/status/olsr1/neighbors": {
+	"public/status/olsrd1/neighbors": {
 		"title": "Neighbors",
 		"order": 7,
 		"action": {
 			"type": "view",
-			"path": "olsr/neighbors"
+			"path": "olsrd1/neighbors"
 		}
 	},
-	"public/status/olsr1/neighbors6": {
+	"public/status/olsrd1/neighbors6": {
 		"title": "Neighbors IP6",
 		"order": 8,
 		"action": {
 			"type": "view",
-			"path": "olsr/neighbors6"
+			"path": "olsrd1/neighbors6"
 		}
 	}
 }

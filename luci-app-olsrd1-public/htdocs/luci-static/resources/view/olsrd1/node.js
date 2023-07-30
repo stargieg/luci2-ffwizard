@@ -5,14 +5,14 @@
 'require poll';
 
 var callgetData = rpc.declare({
-	object: 'status.olsr',
-	method: 'getNode6'
+	object: 'status.olsrd1',
+	method: 'getNode'
 });
 
 function createTable(data) {
     let tableData = [];
     data.topology.forEach(row => {
-		let node = E('a',{ 'href': 'https://' + row.destinationIP + '/cgi-bin-olsr-neigh.html'},row.destinationIP);
+		let node = E('a',{ 'href': 'https://' + row.destinationIP + '/cgi-bin-olsrd1-neigh.html'},row.destinationIP);
         tableData.push([
             node
         ])
@@ -21,7 +21,7 @@ function createTable(data) {
 };
 
 return view.extend({
-	title: _('OLSR mesh nodes IP6'),
+	title: _('OLSR mesh nodes'),
 	handleSaveApply: null,
 	handleSave: null,
 	handleReset: null,

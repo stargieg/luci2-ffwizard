@@ -5,15 +5,15 @@
 'require poll';
 
 var callgetData = rpc.declare({
-	object: 'status.olsr',
+	object: 'status.olsrd1',
 	method: 'getNeighbors'
 });
 
 function createTable(data) {
     let tableData = [];
     data.neighbors.forEach(row => {
-		let hostname = E('a',{ 'href': 'https://' + row.hostname + '/cgi-bin-olsr2-neigh.html'},row.hostname);
-		let orginator = E('a',{ 'href': 'https://' + row.originator + '/cgi-bin-olsr2-neigh.html'},row.originator);
+		let hostname = E('a',{ 'href': 'https://' + row.hostname + '/cgi-bin-olsrd1-neigh.html'},row.hostname);
+		let orginator = E('a',{ 'href': 'https://' + row.originator + '/cgi-bin-olsrd1-neigh.html'},row.originator);
         tableData.push([
             hostname,
             orginator,

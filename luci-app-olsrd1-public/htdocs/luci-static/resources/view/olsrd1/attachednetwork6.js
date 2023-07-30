@@ -5,14 +5,14 @@
 'require poll';
 
 var callgetData = rpc.declare({
-	object: 'status.olsr',
+	object: 'status.olsrd1',
 	method: 'getAttached_network6'
 });
 
 function createTable(data) {
     let tableData = [];
     data.hna.forEach(row => {
-		let node = E('a',{ 'href': 'https://' + row.gateway + '/cgi-bin-olsr-neigh.html'},row.gateway);
+		let node = E('a',{ 'href': 'https://' + row.gateway + '/cgi-bin-olsrd1-neigh.html'},row.gateway);
         let attached_net = row.destination + '/' + row.genmask;
         tableData.push([
             node,

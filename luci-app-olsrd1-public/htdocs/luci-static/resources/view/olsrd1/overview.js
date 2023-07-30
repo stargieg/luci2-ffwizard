@@ -5,8 +5,8 @@
 'require poll';
 
 var callgetVersion = rpc.declare({
-	object: 'status.olsr',
-	method: 'getVersion6'
+	object: 'status.olsrd1',
+	method: 'getVersion'
 });
 
 function createTable(data) {
@@ -23,7 +23,7 @@ function createTable(data) {
 }
 
 return view.extend({
-	title: _('Version IP6'),
+	title: _('Version'),
 	handleSaveApply: null,
 	handleSave: null,
 	handleReset: null,
