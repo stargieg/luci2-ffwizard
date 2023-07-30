@@ -41,8 +41,8 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/www/luci-static/resources/view/olsrd1
 	$(INSTALL_DATA) ./htdocs/cgi-bin-olsrd1-neigh.html $(1)/www
 	$(INSTALL_DATA) ./htdocs/luci-static/resources/view/olsrd1/* $(1)/www/luci-static/resources/view/olsrd1
-	$(INSTALL_DIR) $(1)/etc/uci-defaults
-	$(INSTALL_DATA) ./root/etc/uci-defaults/50_luci_olsrd1 $(1)/etc/uci-defaults
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_DATA) ./root/etc/config/luci_olsrd1 $(1)/etc/config
 	$(INSTALL_DIR) $(1)/usr/libexec/rpcd
 	$(INSTALL_BIN) ./root/usr/libexec/rpcd/status.olsrd1 $(1)/usr/libexec/rpcd/status.olsrd1
 	$(INSTALL_DIR) $(1)/usr/share/luci/menu.d
