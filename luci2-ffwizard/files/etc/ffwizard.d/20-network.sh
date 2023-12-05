@@ -261,6 +261,7 @@ setup_wifi() {
 	[ $hw_a == 1 ] && uci_set wireless $device doth "0"
 	#read from Luci_ui
 	uci_set wireless $device distance "1000"
+	uci_set wireless $device cell_density '0'
 	#Reduce the Broadcast distance and save Airtime
 	#Not working on wdr4300 with AP and ad-hoc
 	#[ $hw_n == 1 ] && uci_set wireless $device basic_rate "5500 6000 9000 11000 12000 18000 24000 36000 48000 54000"
@@ -278,7 +279,6 @@ setup_wifi() {
 		cfg_mesh=$cfg"_mesh"
 		uci_add wireless wifi-iface "$device"mesh ; sec="$CONFIG_SECTION"
 		uci_set wireless $sec device "$device"
-		uci_set wireless $sec encryption "none"
 		# Depricated Ad-Hoc config
 		if [ "$iface_mode" == "adhoc" ] ; then
 			uci_set wireless $sec mode "adhoc"
@@ -303,11 +303,12 @@ setup_wifi() {
 			uci_set wireless $sec mode "mesh"
 			uci_set wireless $sec mesh_id 'freifunk'
 			uci_set wireless $sec mesh_fwding '0'
+			uci_set wireless $sec mesh_rssi_threshold '0'
 		fi
 		#uci_set wireless $sec "doth"
 		uci_set wireless $sec network "$cfg_mesh"
 		uci_set wireless $sec mcast_rate "18000"
-		uci_set wireless $sec encryption='none'
+		uci_set wireless $sec encryption 'none'
 		config_get ipaddr $cfg mesh_ip
 		setup_ip "$cfg_mesh" "$ipaddr"
 		uci_remove network $cfg_mesh ip6class
@@ -337,7 +338,7 @@ setup_wifi() {
 		uci_set wireless $sec mcast_rate "6000"
 		#uci_set wireless $sec isolate 1
 		uci_set wireless $sec ssid "freifunk.net"
-		uci_set wireless $sec encryption='none'
+		uci_set wireless $sec encryption 'none'
 		config_get vap_br $cfg vap_br "0"
 		if [ $vap_br == 1 ] ; then
 			uci_set wireless $sec network "$br_name"
