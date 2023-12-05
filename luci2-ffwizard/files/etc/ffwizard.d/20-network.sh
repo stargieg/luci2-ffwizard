@@ -176,16 +176,16 @@ setup_wifi() {
 	local hw_g=0
 	local hw_n=0
 	local info_data
-	info_data=$(ubus call iwinfo info '{ "device": "wlan'$idx'" }' 2>/dev/null)
+	info_data=$(ubus call iwinfo info '{ "device": "phy'$idx'" }' 2>/dev/null)
 	[ -z "$info_data" ] && {
-		log_wifi "ERR No iwinfo data for wlan$idx"
+		log_wifi "ERR No iwinfo data for phy$idx"
 		return 1
 	}
 	json_load "$info_data"
 	json_select hwmodes
 	json_get_values hw_res
 	[ -z "$hw_res" ] && {
-		log_wifi "ERR No iwinfo hwmodes for wlan$idx"
+		log_wifi "ERR No iwinfo hwmodes for phy$idx"
 		return 1
 	}
 	for i in $hw_res ; do
@@ -204,9 +204,9 @@ setup_wifi() {
 	local channels
 	local valid_channel
 	local chan_data
-	chan_data=$(ubus call iwinfo freqlist '{ "device": "wlan'$idx'" }' 2>/dev/null)
+	chan_data=$(ubus call iwinfo freqlist '{ "device": "phy'$idx'" }' 2>/dev/null)
 	[ -z "$chan_data" ] && {
-		log_wifi "ERR No iwinfo freqlist for wlan$idx"
+		log_wifi "ERR No iwinfo freqlist for phy$idx"
 		return 1
 	}
 	json_load "$chan_data"

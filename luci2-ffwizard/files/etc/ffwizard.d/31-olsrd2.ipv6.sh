@@ -168,7 +168,7 @@ if [ "$olsr_enabled" == "1" ] ; then
 	#Add ula prefix
 	setup_olsrv2_lan ula $ula_prefix
 	#Setup IP6 Prefix
-	config_get ip6prefix ffwizard ip6prefix
+	config_get ip6prefix ffwizard ip6prefix 2>/dev/null
 	if [ -n "$ip6prefix" ] ; then
 		setup_olsrv2_lan lan "$ip6prefix"
 	fi

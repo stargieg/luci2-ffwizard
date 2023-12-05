@@ -80,7 +80,7 @@ config_load batman-adv
 #Remove mesh sections
 config_foreach remove_section mesh
 
-local bat_enabled=0
+bat_enabled=0
 #Setup ether and wifi
 config_load ffwizard
 config_foreach setup_ether ether "$bat_iface"
