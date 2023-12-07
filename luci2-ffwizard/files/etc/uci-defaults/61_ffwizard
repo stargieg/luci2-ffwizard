@@ -75,6 +75,10 @@ if [ -f /usr/sbin/olsrnode2hosts.sh ] ; then
 	grep -q "olsrnode2hosts.sh" /etc/crontabs/root || \
 	echo "*/10 * * * *     olsrnode2hosts.sh > /tmp/olsrnode2hosts.tmp && mv /tmp/olsrnode2hosts.tmp /tmp/hosts/olsrnode || rm /tmp/olsrnode2hosts.tmp" >> /etc/crontabs/root
 fi
+if [ -f /usr/sbin/olsrnode2hosts.sh ] ; then
+	grep -q "dnsmasq" /etc/crontabs/root || \
+	echo "*/5 * * * * killall -HUP dnsmasq" >> /etc/crontabs/root
+fi
 
 uci -q batch <<-EOF >/dev/null
 	delete ucitrack.@ffwizard[-1]
