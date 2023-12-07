@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=85
+PKG_RELEASE:=86
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
@@ -119,14 +119,11 @@ define Package/luci2-ffwizard/install
 
 	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/ffwizard.d
 	$(INSTALL_BIN) files/usr/sbin/ffwizard $(1)/usr/sbin/
+	$(INSTALL_BIN) files/usr/sbin/ffwizard_autoconf $(1)/usr/sbin/
 	$(INSTALL_BIN) files/etc/ffwizard.d/10-system-js.sh $(1)/etc/ffwizard.d/
 	$(INSTALL_BIN) files/etc/ffwizard.d/20-network.sh $(1)/etc/ffwizard.d/
 	$(INSTALL_BIN) files/etc/ffwizard.d/50-uhttpd.sh $(1)/etc/ffwizard.d/
 	$(INSTALL_BIN) files/etc/ffwizard.d/60-dhcp.sh $(1)/etc/ffwizard.d/
-
-	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d
-	$(INSTALL_BIN) files/usr/sbin/ffwizard_autoconf $(1)/usr/sbin/
-	$(INSTALL_BIN) files/etc/init.d/ffwizard_autoconf $(1)/etc/init.d/
 
 	$(INSTALL_DIR) $(1)/etc/init.d $(1)/etc/config $(1)/etc/uci-defaults
 	$(INSTALL_BIN) files/etc/uci-defaults/61_ffwizard $(1)/etc/uci-defaults/

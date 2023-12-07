@@ -26,6 +26,9 @@ log_ffwizard "restart network"
 ubus call rc init '{"name":"network","action":"restart"}' || /etc/init.d/network restart
 sleep 3
 log_ffwizard "restart olsrd"
+ubus call rc init '{"name":"olsrd","action":"restart"}' || /etc/init.d/olsrd restart
+sleep 3
+log_ffwizard "restart olsrd2"
 ubus call rc init '{"name":"olsrd2","action":"restart"}' || /etc/init.d/olsrd2 restart
 sleep 3
 log_ffwizard "restart uhttpd"

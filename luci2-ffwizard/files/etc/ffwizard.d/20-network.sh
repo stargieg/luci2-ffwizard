@@ -91,7 +91,7 @@ setup_bridge() {
 	else
 		setup_ip $cfg "$ipaddr" "br-$cfg"
 		if ! uci_get network br$cfg >/dev/null ; then
-				uci_add network device "br$cfg"
+			uci_add network device "br$cfg"
 		fi
 		uci_set network br$cfg name "br-$cfg"
 		uci_set network br$cfg type "bridge"
@@ -105,8 +105,8 @@ setup_bridge() {
 
 setup_ether() {
 	local cfg="$1"
-	config_get enabled $cfg enabled "0"
-	config_get dhcp_br $cfg dhcp_br "0"
+	config_get enabled $cfg enabled "0" 2>/dev/null
+	config_get dhcp_br $cfg dhcp_br "0" 2>/dev/null
 	if [ "$dhcp_br" == "0" ] || [ "$enabled" == "0" ] ; then
 		if [ "$compat" == "1" ] ; then
 			device="$(uci_get network $cfg ifname)"
@@ -139,10 +139,10 @@ setup_ether() {
 		fi
 	else
 		log_net "Setup $cfg IP"
-		config_get ipaddr $cfg mesh_ip
+		config_get ipaddr $cfg mesh_ip 2>/dev/null
 		setup_ip "$cfg" "$ipaddr"
-		config_get ipaddr $cfg dhcp_ip "0"
-		uci_remove network $cfg ip6class
+		config_get ipaddr $cfg dhcp_ip "0" 2>/dev/null
+		uci_remove network $cfg ip6class 2>/dev/null
 		uci_add_list network $cfg ip6class "local"
 		if [ "$ipaddr" != "0" ] ; then
 			eval "$(ipcalc.sh $ipaddr)"
@@ -164,9 +164,9 @@ setup_ether() {
 setup_wifi() {
 	local cfg="$1"
 	local br_name="$2"
-	config_get enabled $cfg enabled "0"
+	config_get enabled $cfg enabled "0" 2>/dev/null
 	[ "$enabled" == "0" ] && return
-	config_get idx $cfg phy_idx "-1"
+	config_get idx $cfg phy_idx "-1" 2>/dev/null
 	[ "$idx" == "-1" ] && return
 	local device="radio$idx"
 	log_wifi "Setup $cfg"
@@ -311,7 +311,7 @@ setup_wifi() {
 		uci_set wireless $sec encryption 'none'
 		config_get ipaddr $cfg mesh_ip
 		setup_ip "$cfg_mesh" "$ipaddr"
-		uci_remove network $cfg_mesh ip6class
+		uci_remove network $cfg_mesh ip6class 2>/dev/null
 		uci_add_list network $cfg_mesh ip6class "local"
 	else
 		if uci_get network $cfg >/dev/null ; then
@@ -422,9 +422,9 @@ else
 	uci_remove network loopback ip6prefix
 	uci_remove network loopback srcip6prefix
 fi
-r1=$(dd if=/dev/urandom bs=1 count=1 |hexdump -e '1/1 "%02x"')
-r2=$(dd if=/dev/urandom bs=2 count=1 |hexdump -e '2/1 "%02x"')
-r3=$(dd if=/dev/urandom bs=2 count=1 |hexdump -e '2/1 "%02x"')
+r1=$(dd if=/dev/urandom bs=1 count=1 2>/dev/null |hexdump -e '1/1 "%02x"')
+r2=$(dd if=/dev/urandom bs=2 count=1 2>/dev/null |hexdump -e '2/1 "%02x"')
+r3=$(dd if=/dev/urandom bs=2 count=1 2>/dev/null |hexdump -e '2/1 "%02x"')
 uci_set network globals ula_prefix "fd$r1:$r2:$r3::/48"
 uci_set dhcp frei_funk_ipv6 ip "fd$r1:$r2:$r3::1"
 
@@ -439,7 +439,7 @@ if [ -n "$lan_iface" ] ; then
 	uci_set network lan ipaddr "192.168.42.1"
 	uci_set network lan netmask "255.255.255.0"
 	uci_set network lan ip6assign '64'
-	uci_remove network lan ip6class
+	uci_remove network lan ip6class 2>/dev/null
 	uci_add_list network lan ip6class "local"
 fi
 
@@ -459,7 +459,7 @@ if [ "$br" == "1" ] ; then
 		config_get ifname $br_name ifname
 		uci_set network $br_name _ifname "$ifname"
 	else
-		uci_remove network br$br_name ports
+		uci_remove network br$br_name ports 2>/dev/null
 		config_load network
 		for device in $br_ifaces ; do
 			fports=""

@@ -141,7 +141,3 @@ for ifc in $wlan_ifc ; do
 		uci_set ffwizard "$ifc" iface_mode "adhoc"
 	fi
 done
-
-uci_set ffwizard ffwizard enabled 1
-uci_commit ffwizard
-ubus call rc init '{"name":"ffwizard","action":"restart"}'
