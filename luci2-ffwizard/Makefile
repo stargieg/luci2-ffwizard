@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=86
+PKG_RELEASE:=87
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
@@ -26,19 +26,7 @@ define Package/luci2-ffwizard/conffiles
 /etc/config/ffwizard
 endef
 
-define Package/luci2-ffwizard-angular
-  $(call Package/luci2-ffwizard/template)
-  MENU:=1
-  DEPENDS:=luci2-ffwizard
-  EXTRA_DEPENDS:=luci2-ui-base
-endef
-
-define Package/luci2-ffwizard-angular/description
-  LuCI2 Freifunk Wizard UI with angular
-  Depends https://github.com/jow-/luci-ng
-endef
-
-define Package/luci2-ffwizard-lua
+define Package/luci-app-ffwizard
   $(call Package/luci2-ffwizard/template)
   MENU:=1
   DEPENDS:=luci2-ffwizard
@@ -46,7 +34,7 @@ define Package/luci2-ffwizard-lua
   luci-proto-ipv6
 endef
 
-define Package/luci2-ffwizard-lua/description
+define Package/luci-app-ffwizard/description
   Freifunk Wizard UI with Luci
   Depends https://github.com/openwrt/luci
 endef
@@ -101,15 +89,6 @@ endef
 define Build/Compile
 endef
 
-define Package/luci2-ffwizard-lua/postinst
-#!/bin/sh
-if [ -z $${IPKG_INSTROOT} ] ; then
-	rm -f /tmp/luci-indexcache
-	rm -rf /tmp/luci-modulecache/
-	killall -HUP rpcd 2>/dev/null
-fi
-endef
-
 define Package/luci2-ffwizard/install
 	$(INSTALL_DIR) $(1)/usr/share/rpcd/menu.d
 	$(INSTALL_DATA) files/usr/share/rpcd/menu.d/services.ffwizard.json $(1)/usr/share/rpcd/menu.d/
@@ -120,7 +99,7 @@ define Package/luci2-ffwizard/install
 	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/ffwizard.d
 	$(INSTALL_BIN) files/usr/sbin/ffwizard $(1)/usr/sbin/
 	$(INSTALL_BIN) files/usr/sbin/ffwizard_autoconf $(1)/usr/sbin/
-	$(INSTALL_BIN) files/etc/ffwizard.d/10-system-js.sh $(1)/etc/ffwizard.d/
+	$(INSTALL_BIN) files/etc/ffwizard.d/10-system.sh $(1)/etc/ffwizard.d/
 	$(INSTALL_BIN) files/etc/ffwizard.d/20-network.sh $(1)/etc/ffwizard.d/
 	$(INSTALL_BIN) files/etc/ffwizard.d/50-uhttpd.sh $(1)/etc/ffwizard.d/
 	$(INSTALL_BIN) files/etc/ffwizard.d/60-dhcp.sh $(1)/etc/ffwizard.d/
@@ -131,17 +110,7 @@ define Package/luci2-ffwizard/install
 	$(INSTALL_DATA) files/etc/config/ffwizard $(1)/etc/config/
 endef
 
-define Package/luci2-ffwizard-angular/install
-	$(INSTALL_DIR) $(1)/www/luci-ng/controller/services
-	$(INSTALL_DATA) files/www/luci-ng/controller/services/ffwizard.js $(1)/www/luci-ng/controller/services/
-	$(INSTALL_DATA) files/www/luci-ng/controller/services/autoconf.js $(1)/www/luci-ng/controller/services/
-
-	$(INSTALL_DIR) $(1)/www/luci-ng/view/services
-	$(INSTALL_DATA) files/www/luci-ng/view/services/ffwizard.html $(1)/www/luci-ng/view/services/
-	$(INSTALL_DATA) files/www/luci-ng/view/services/autoconf.html $(1)/www/luci-ng/view/services/
-endef
-
-define Package/luci2-ffwizard-lua/install
+define Package/luci-app-ffwizard/install
 	$(INSTALL_DIR) $(1)/www/luci-static/resources/view/ffwizard
 	$(INSTALL_DATA) files/www/luci-static/resources/view/ffwizard/* $(1)/www/luci-static/resources/view/ffwizard
 	$(INSTALL_DIR) $(1)/usr/share/luci/menu.d
@@ -189,8 +158,7 @@ define Package/luci2-ffwizard-kadnode/install
 endef
 
 $(eval $(call BuildPackage,luci2-ffwizard))
-$(eval $(call BuildPackage,luci2-ffwizard-angular))
-$(eval $(call BuildPackage,luci2-ffwizard-lua))
+$(eval $(call BuildPackage,luci-app-ffwizard))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrd-ipv4))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrd-ipv6))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrv2-ipv6))
