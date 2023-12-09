@@ -169,16 +169,16 @@ calc_from_48() {
 }
 
 if pidof nc | grep -q ' ' >/dev/null ; then
-        log "killall nc"
+	log "killall nc"
 	killall -9 nc
 	ubus call rc init '{"name":"olsrd2","action":"restart"}' || /etc/init.d/olsrd2 restart
-        return 1
+	return 1
 fi
 
 if pidof olsrv2-dyn-addr.sh | grep -q ' ' >/dev/null ; then
-        log "killall olsrv2-dyn-addr.sh"
+	log "killall olsrv2-dyn-addr.sh"
 	killall -9 olsrv2-dyn-addr.sh
-        return 1
+	return 1
 fi
 
 if [ -z $(pidof olsrd2) ] ; then
@@ -298,18 +298,21 @@ else
 		log "Update network $cfg_ip6prefix ip6prefix"
 		log "ip6prefix:        $ip6prefix"
 		log "ip6prefix_new:    $ip6prefix_new/$ip6prefix_mask_new"
-		if [ -n "$(uci_get network $cfg_ip6prefix ip6prefix)" ] ; then
-			uci_remove network $cfg_ip6prefix ip6prefix
-			uci_remove network $cfg_ip6prefix ip6addr
-		fi
+		uci_remove network $cfg_ip6prefix ip6prefix 2>/dev/null
+		uci_remove network $cfg_ip6prefix ip6addr 2>/dev/null
 		uci_add_list network $cfg_ip6prefix ip6prefix "$ip6prefix_new/$ip6prefix_mask_new"
 		uci_set network $cfg_ip6prefix srcip6prefix "$srcip6prefix_new"
 		#uci_add_list network $cfg_ip6prefix ip6addr "$ip6prefix_new""2/128"
 		uci_set network $cfg_ip6prefix ip6addr "$ip6prefix_new""2/128"
+		#use unbound and jool on the gateway
+		uci_remove network lan dns 2>/dev/null
+		uci_remove dhcp @dnsmasq[-1] server 2>/dev/null
+		uci_add_list dhcp @dnsmasq[-1] server "$srcip6prefix_new""1#1053"
 		uci_commit network
+		uci_commit dhcp
 
 		#ubus call uci "reload_config"
-                /etc/init.d/network reload
+		/etc/init.d/network reload
 		#netconfig is a reload triger for olsrv2
 		sleep 5
 		/etc/init.d/dnsmasq restart
