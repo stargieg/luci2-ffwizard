@@ -19,7 +19,7 @@ setup_ip() {
 	local cfg="$1"
 	local ipaddr="$2"
 	local device="$3"
-	if ! uci_get network $cfg >/dev/null ; then
+	if ! uci_get network $cfg 2>/dev/null 1>/dev/null ; then
 		uci_add network interface "$cfg"
 	fi
 	if [ -n "$device" ] ; then
@@ -53,12 +53,22 @@ get_ports() {
 	local gname="$2"
 	config_get name $cfg name
 	[ "$name" == "$gname" ] || return
-	config_get ports $cfg ports
-	log_net "get_ports $cfg $gname $ports"
-	fports="$fports $ports"
-	uci_remove network $cfg ports
+	config_get type $cfg type 2>/dev/null
+	if [ "$type" == "bridge" ] ; then
+		config_get ports $cfg ports 2>/dev/null
+		if [ -z "$ports" ] ; then
+			config_get ports $cfg _ports 2>/dev/null
+		else
+			uci_remove network $cfg ports
+			for port in $ports ; do
+				uci_add_list network $cfg _ports $port
+			done
+		fi
+	else
+		ports="$name"
+	fi
 	for port in $ports ; do
-		uci_add_list network $cfg _ports $port
+		uci_add_list network br$br_name ports "$port"
 	done
 }
 
@@ -69,7 +79,7 @@ restore_portlist() {
 	[ "$name" == "$gname" ] || return
 	config_get ports $cfg _ports
 	fports="$fports $ports"
-	uci_remove network $cfg _ports
+	uci_remove network $cfg _ports 2>/dev/null
 	for port in $ports ; do
 		log_net "restore_portlist $cfg $gname $port"
 		uci_add_list network $cfg ports $port
@@ -99,7 +109,13 @@ setup_bridge() {
 		uci_set network br$cfg bridge_empty "1"
 		uci_set network br$cfg mtu "1532"
 		#TODO
-		#uci_set network br$cfg macaddr "$random"?
+		#r1=$(dd if=/dev/urandom bs=1 count=1 2>/dev/null |hexdump -e '1/1 "%02x"')
+		#r2=$(dd if=/dev/urandom bs=1 count=1 2>/dev/null |hexdump -e '1/1 "%02x"')
+		#r3=$(dd if=/dev/urandom bs=1 count=1 2>/dev/null |hexdump -e '1/1 "%02x"')
+		#r4=$(dd if=/dev/urandom bs=1 count=1 2>/dev/null |hexdump -e '1/1 "%02x"')
+		#r5=$(dd if=/dev/urandom bs=1 count=1 2>/dev/null |hexdump -e '1/1 "%02x"')
+		#r6=$(dd if=/dev/urandom bs=1 count=1 2>/dev/null |hexdump -e '1/1 "%02x"')
+		#uci_set network br$cfg macaddr "$r1:$r2:$r3:$r4:$r5:$r6"
 	fi
 }
 
@@ -109,9 +125,9 @@ setup_ether() {
 	config_get dhcp_br $cfg dhcp_br "0" 2>/dev/null
 	if [ "$dhcp_br" == "0" ] || [ "$enabled" == "0" ] ; then
 		if [ "$compat" == "1" ] ; then
-			device="$(uci_get network $cfg ifname)"
+			device="$(uci_get network $cfg _ifname)"
 		else
-			device="$(uci_get network $cfg device)"
+			device="$(uci_get network $cfg _device)"
 		fi
 		if [ -n "$device" ] ; then
 			log_net "Setup $cfg with device $device"
@@ -123,19 +139,32 @@ setup_ether() {
 	uci_remove network $cfg_dhcp 2>/dev/null
 	if [ "$dhcp_br" == "1" ] ; then
 		log_net "Setup $cfg as DHCP Bridge member"
-		if uci_get network $cfg >/dev/null ; then
+		if uci_get network $cfg 2>/dev/null 1>/dev/null ; then
 			if [ "$compat" == "1" ] ; then
 				device="$(uci_get network $cfg ifname)"
+				if [ -n "$device" ] ; then
+					uci_set network $cfg _ifname "$device"
+					uci_remove network $cfg type 2>/dev/null
+					uci_remove network $cfg ifname 2>/dev/null
+				else
+					device="$(uci_get network $cfg _ifname)"
+				fi
 			else
 				device="$(uci_get network $cfg device)"
+				if [ -n "$device" ] ; then
+					uci_set network $cfg _device "$device"
+					uci_remove network $cfg device 2>/dev/null
+				else
+					device="$(uci_get network $cfg _device)"
+				fi
 			fi
 			if [ -n "$device" ] ; then
-				log_net "Setup $cfg with device $device"
 				br_ifaces="$br_ifaces $device"
 			fi
 			uci_set network $cfg proto "none"
+			uci_set network "$cfg"6 proto "none"
+			uci_remove network "$cfg"6 device 2>/dev/null
 			uci_remove network $cfg ip6prefix 2>/dev/null
-			uci_remove network $cfg type 2>/dev/null
 		fi
 	else
 		log_net "Setup $cfg IP"
@@ -314,9 +343,9 @@ setup_wifi() {
 		uci_remove network $cfg_mesh ip6class 2>/dev/null
 		uci_add_list network $cfg_mesh ip6class "local"
 	else
-		if uci_get network $cfg >/dev/null ; then
+		if uci_get network $cfg 2>/dev/null 1>/dev/null ; then
 			cfg_mesh=$cfg"_mesh"
-			uci_remove network "$cfg_mesh"
+			uci_remove network "$cfg_mesh" 2>/dev/null
 		fi
 	fi
 	config_get vap $cfg vap "0"
@@ -417,10 +446,10 @@ config_foreach setup_wifi wifi "$br_name"
 config_get ip6prefix ffwizard ip6prefix
 if [ -n "$ip6prefix" ] ; then
 	uci_set network loopback ip6prefix "$ip6prefix"
-	uci_remove network loopback srcip6prefix
+	uci_remove network loopback srcip6prefix 2>/dev/null
 else
-	uci_remove network loopback ip6prefix
-	uci_remove network loopback srcip6prefix
+	uci_remove network loopback ip6prefix 2>/dev/null
+	uci_remove network loopback srcip6prefix 2>/dev/null
 fi
 r1=$(dd if=/dev/urandom bs=1 count=1 2>/dev/null |hexdump -e '1/1 "%02x"')
 r2=$(dd if=/dev/urandom bs=2 count=1 2>/dev/null |hexdump -e '2/1 "%02x"')
@@ -462,15 +491,7 @@ if [ "$br" == "1" ] ; then
 		uci_remove network br$br_name ports 2>/dev/null
 		config_load network
 		for device in $br_ifaces ; do
-			fports=""
 			config_foreach get_ports device "$device"
-			if [ -z "$fports" ] ; then
-				uci_add_list network br$br_name ports "$device"
-			else
-				for port in $fports ; do
-					uci_add_list network br$br_name ports "$port"
-				done
-			fi
 		done
 	fi
 fi

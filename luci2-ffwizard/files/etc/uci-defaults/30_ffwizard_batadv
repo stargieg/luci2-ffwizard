@@ -1,0 +1,38 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+setup_ether() {
+	local cfg="$1"
+	config_get enabled $cfg enabled "0" 2>/dev/null
+	[ "$enabled" == "0" ] && return
+	config_get dhcp_br $cfg dhcp_br "0"
+	[ "$dhcp_br" == "0" ] || return
+	config_get bat_mesh $cfg bat_mesh "0" 2>/dev/null
+	[ "$bat_mesh" == "0" ] && return
+	config_get device $cfg device "0" 2>/dev/null
+	[ "$device" == "0" ] && return
+	bat_enabled=1
+}
+
+setup_wifi() {
+	local cfg="$1"
+	config_get enabled $cfg enabled "0" 2>/dev/null
+	[ "$enabled" == "0" ] && return
+	config_get bat_mesh $cfg bat_mesh "0" 2>/dev/null
+	[ "$bat_mesh" == "0" ] && return
+	config_get idx $cfg phy_idx "-1" 2>/dev/null
+	[ "$idx" == "-1" ] && return
+	bat_enabled=1
+}
+
+
+bat_enabled=0
+#Setup ether and wifi
+config_load ffwizard
+config_foreach setup_ether ether
+config_foreach setup_wifi wifi
+
+if [ "$bat_enabled" == "0" ] ; then
+	echo "Disable batadv"
+fi

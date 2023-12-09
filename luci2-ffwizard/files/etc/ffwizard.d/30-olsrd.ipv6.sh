@@ -179,8 +179,6 @@ if [ "$olsr_enabled" == "1" ] ; then
 		uci_set olsrd6 "$sec" library "$library"
 		setup_Plugin_nameservice $sec
 	fi
-	#TODO remove it from freifunk-common luci package
-	crontab -l | grep -q 'ff_olsr_watchdog' && crontab -l | sed -e '/.*ff_olsr_watchdog.*/d' | crontab -
 	#TODO
 	#if ipv6 internet gateway then
 	#	grep -q 'olsrd-dyn-hna6' /etc/crontabs/root || echo '*/8 * * * * /usr/sbin/olsrd-dyn-hna6.sh' >> /etc/crontabs/root
@@ -191,6 +189,7 @@ else
 	if [ -s /etc/rc.d/S*olsrd6 ] ; then
 		/etc/init.d/olsrd6 stop
 		/etc/init.d/olsrd6 disable
+		crontab -l | grep -q 'olsrd-dyn-addr' && crontab -l | sed -e '/.*olsrd-dyn-addr.*/d' | crontab -
 	fi
 fi
 

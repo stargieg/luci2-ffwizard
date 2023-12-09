@@ -66,19 +66,8 @@ fi
 /etc/init.d/freifunk disable
 grep -v '/usr/sbin/ff_olsr_watchdog' /etc/crontabs/root > /etc/crontabs/root_new
 mv /etc/crontabs/root_new /etc/crontabs/root
-
-if [ -f /usr/sbin/olsrneighbor2hosts.sh ] ; then
-	grep -q "olsrneighbor2hosts.sh" /etc/crontabs/root || \
-	echo "*/5 * * * *     olsrneighbor2hosts.sh > /tmp/olsrneighbor2hosts.tmp && mv /tmp/olsrneighbor2hosts.tmp /tmp/hosts/olsrneighbor || rm /tmp/olsrneighbor2hosts.tmp" >> /etc/crontabs/root
-fi
-if [ -f /usr/sbin/olsrnode2hosts.sh ] ; then
-	grep -q "olsrnode2hosts.sh" /etc/crontabs/root || \
-	echo "*/10 * * * *     olsrnode2hosts.sh > /tmp/olsrnode2hosts.tmp && mv /tmp/olsrnode2hosts.tmp /tmp/hosts/olsrnode || rm /tmp/olsrnode2hosts.tmp" >> /etc/crontabs/root
-fi
-if [ -f /usr/sbin/olsrnode2hosts.sh ] ; then
-	grep -q "dnsmasq" /etc/crontabs/root || \
-	echo "*/5 * * * * killall -HUP dnsmasq" >> /etc/crontabs/root
-fi
+#TODO remove it from freifunk-common luci package
+crontab -l | grep -q 'ff_olsr_watchdog' && crontab -l | sed -e '/.*ff_olsr_watchdog.*/d' | crontab -
 
 uci -q batch <<-EOF >/dev/null
 	delete ucitrack.@ffwizard[-1]

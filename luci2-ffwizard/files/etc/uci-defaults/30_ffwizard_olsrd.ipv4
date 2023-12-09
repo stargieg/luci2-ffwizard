@@ -1,0 +1,48 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+setup_ether() {
+	local cfg="$1"
+	config_get enabled $cfg enabled "0" 2>/dev/null
+	[ "$enabled" == "0" ] && return
+	config_get dhcp_br $cfg dhcp_br "0"
+	[ "$dhcp_br" == "0" ] || return
+	config_get olsr_mesh $cfg olsr_mesh "0"
+	[ "$olsr_mesh" == "0" ] && return
+	config_get mesh_ip $cfg mesh_ip "0"
+	[ "$mesh_ip" == "0" ] && return
+	config_get device $cfg device "0" 2>/dev/null
+	[ "$device" == "0" ] && return
+	olsr_ipv4_enabled=1
+}
+
+setup_wifi() {
+	local cfg="$1"
+	config_get enabled $cfg enabled "0" 2>/dev/null
+	[ "$enabled" == "0" ] && return
+	config_get olsr_mesh $cfg olsr_mesh "0"
+	[ "$olsr_mesh" == "0" ] && return
+	config_get mesh_ip $cfg mesh_ip "0"
+	[ "$mesh_ip" == "0" ] && return
+	config_get idx $cfg phy_idx "-1" 2>/dev/null
+	[ "$idx" == "-1" ] && return
+	olsr_ipv4_enabled=1
+}
+
+
+olsr_ipv4_enabled=0
+#Setup ether and wifi
+config_load ffwizard
+config_foreach setup_ether ether
+config_foreach setup_wifi wifi
+
+if [ "$olsr_ipv4_enabled" == "0" ] ; then
+	/etc/init.d/olsrd disable
+fi
+if ! [ "$(opkg status luci2-ffwizard-olsrd-ipv6)" ] ; then
+	if [ -s /etc/rc.d/S*olsrd6 ] ; then
+		/etc/init.d/olsrd6 disable
+		crontab -l | grep -q 'olsrd-dyn-addr' && crontab -l | sed -e '/.*olsrd-dyn-addr.*/d' | crontab -
+	fi
+fi

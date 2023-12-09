@@ -37,7 +37,7 @@ setup_bat_base() {
 		uci_set batman-adv $cfg network_coding
 		uci_set batman-adv $cfg hop_penalty
 	else
-		if ! uci_get network "$cfg" 2>/dev/null ; then
+		if ! uci_get network "$cfg" 2>/dev/null 1>/dev/null ; then
 			uci_add network interface "$cfg"
 		fi
 		uci_set network $cfg proto 'batadv'
@@ -69,6 +69,8 @@ setup_ether() {
 	local bat_ifc="$2"
 	config_get enabled $cfg enabled "0" 2>/dev/null
 	[ "$enabled" == "0" ] && return
+	config_get dhcp_br $cfg dhcp_br "0"
+	[ "$dhcp_br" == "0" ] || return
 	config_get bat_mesh $cfg bat_mesh "0" 2>/dev/null
 	[ "$bat_mesh" == "0" ] && return
 	config_get device $cfg device "0" 2>/dev/null
@@ -77,9 +79,13 @@ setup_ether() {
 	if [ "$compat" == "1" ] ; then
 		uci_set network $cfg proto "batadv"
 		uci_set network $cfg mesh "$bat_ifc"
+		uci_set network $cfg mtu "1532"
 	else
 		uci_set network $cfg proto "batadv_hardif"
 		uci_set network $cfg master "$bat_ifc"
+		cfgdevice=$(uci_get network $cfg device)
+		#uci_set network $cfg mtu "1532"
+		br_ifaces="$cfgdevice $br_ifaces"
 	fi
 	bat_enabled=1
 }
@@ -98,17 +104,28 @@ setup_wifi() {
 	if [ "$compat" == "1" ] ; then
 		uci_set network $device proto "batadv"
 		uci_set network $device mesh "$bat_ifc"
-		uci_set network $device mtu "1532"
 	else
 		uci_set network $device proto "batadv_hardif"
 		uci_set network $device master "$bat_ifc"
 	fi
+	uci_set network $device mtu "1532"
 	bat_enabled=1
 }
 
 remove_section() {
 	local cfg="$1"
 	uci_remove batman-adv "$cfg"
+}
+
+setup_device() {
+	local cfg="$1"
+	local names="$2"
+	config_get name $cfg name
+	for i in $names ; do
+		if [ "$i" == "$name" ] ; then
+			uci_set network $cfg mtu "1532"
+		fi
+	done
 }
 
 br_ifaces=""
@@ -149,6 +166,9 @@ if [ "$bat_enabled" == "1" ] ; then
 			uci_remove network "$bat_br_name" 2>/dev/null
 		else
 			uci_add_list network br$br_name ports $bat_iface
+			uci_set network br$br_name stp '1'
+			uci_set network br$br_name igmp_snooping '1'
+			uci_set network br$br_name ipv6 '0'
 		fi
 		config_get ipaddr ffwizard dhcp_ip "0" 2>/dev/null
 		if [ "$ipaddr" != 0 ] ; then
@@ -156,20 +176,20 @@ if [ "$bat_enabled" == "1" ] ; then
 		fi
 	else
 		#Setup fflandhcp batman bridge
-		if ! uci_get network "$bat_br_name" 2>/dev/null ; then
+		if ! uci_get network "$bat_br_name" 2>/dev/null 1>/dev/null ; then
 			uci_add network interface "$bat_br_name"
 		fi
 		uci_set network $bat_br_name proto "static"
 		uci_set network $bat_br_name ip6assign "64"
-		uci_set network $bat_br_name mtu "1532"
 		uci_set network $bat_br_name force_link "1"
 		if [ "$compat" == "1" ] ; then
 			uci_set network $bat_br_name type "bridge"
 			#Set only bat0 interface to batman bridge
 			uci_set network $bat_br_name ifname "$bat_iface"
+			uci_set network $bat_br_name mtu "1532"
 		else
 			uci_set network $bat_br_name device "br-$bat_br_name"
-			if ! uci_get network br$bat_br_name 2>/dev/null ; then
+			if ! uci_get network br$bat_br_name 2>/dev/null 1>/dev/null ; then
 				uci_add network device "br$bat_br_name"
 			fi
 			uci_set network br$cfg name "br-$bat_br_name"
@@ -185,6 +205,9 @@ if [ "$bat_enabled" == "1" ] ; then
 	if [ "$compat" == "1" ] ; then
 		uci_commit batman-adv
 	fi
+	uci_commit network
+	config_load network
+	config_foreach setup_device device "$br_ifaces"
 	uci_commit network
 else
 	log_batadv "disabled"

@@ -55,10 +55,10 @@ setup_telnet() {
 }
 
 setup_olsrv2_lan() {
-        log_olsr "Setup $1 prefix $2"
-        uci_add olsrd2 olsrv2_lan ; cfg="$CONFIG_SECTION"
-        uci_set olsrd2 "$cfg" name "$1"
-        uci_set olsrd2 "$cfg" prefix "$2"
+	log_olsr "Setup $1 prefix $2"
+	uci_add olsrd2 olsrv2_lan ; cfg="$CONFIG_SECTION"
+	uci_set olsrd2 "$cfg" name "$1"
+	uci_set olsrd2 "$cfg" prefix "$2"
 }
 
 setup_loop() {
@@ -109,8 +109,6 @@ setup_wifi() {
 	local cfg="$1"
 	config_get enabled $cfg enabled "0"
 	[ "$enabled" == "0" ] && return
-	config_get dhcp_br $cfg dhcp_br "0"
-	[ "$dhcp_br" == "0" ] || return
 	config_get olsr_mesh $cfg olsr_mesh "0"
 	[ "$olsr_mesh" == "0" ] && return
 	config_get idx $cfg phy_idx "-1"
@@ -178,6 +176,19 @@ if [ "$olsr_enabled" == "1" ] ; then
 	uci_commit olsrd2
 	#Cron search for public prefix greater than 56
 	grep -q 'olsrv2-dyn-addr' /etc/crontabs/root || echo '*/8 * * * * /usr/sbin/olsrv2-dyn-addr.sh' >> /etc/crontabs/root
+	if [ -f /usr/sbin/olsrneighbor2hosts.sh ] ; then
+		grep -q "olsrneighbor2hosts.sh" /etc/crontabs/root || \
+		echo "*/5 * * * *     olsrneighbor2hosts.sh > /tmp/olsrneighbor2hosts.tmp && mv /tmp/olsrneighbor2hosts.tmp /tmp/hosts/olsrneighbor || rm /tmp/olsrneighbor2hosts.tmp" >> /etc/crontabs/root
+	fi
+	if [ -f /usr/sbin/olsrnode2hosts.sh ] ; then
+		grep -q "olsrnode2hosts.sh" /etc/crontabs/root || \
+		echo "*/10 * * * *     olsrnode2hosts.sh > /tmp/olsrnode2hosts.tmp && mv /tmp/olsrnode2hosts.tmp /tmp/hosts/olsrnode || rm /tmp/olsrnode2hosts.tmp" >> /etc/crontabs/root
+	fi
+	if [ -f /usr/sbin/olsrnode2hosts.sh ] ; then
+		grep -q "dnsmasq" /etc/crontabs/root || \
+		echo "*/5 * * * * killall -HUP dnsmasq" >> /etc/crontabs/root
+	fi
+
 	#Disable olsrd6
 	if [ -s /etc/rc.d/S*olsrd6 ] ; then
 		/etc/init.d/olsrd6 stop
@@ -188,5 +199,8 @@ else
 	if [ -s /etc/rc.d/S*olsrd2 ] ; then
 		/etc/init.d/olsrd2 stop
 		/etc/init.d/olsrd2 disable
+		crontab -l | grep -q 'olsrneighbor2hosts' && crontab -l | sed -e '/.*olsrneighbor2hosts.*/d' | crontab -
+		crontab -l | grep -q 'olsrnode2hosts' && crontab -l | sed -e '/.*olsrnode2hosts.*/d' | crontab -
+		crontab -l | grep -q 'olsrv2-dyn-addr' && crontab -l | sed -e '/.*olsrv2-dyn-addr.*/d' | crontab -
 	fi
 fi

@@ -18,8 +18,6 @@ setup_ether() {
 	[ "$enabled" == "0" ] && return
 	config_get dhcp_br $cfg dhcp_br "0"
 	[ "$dhcp_br" == "0" ] || return
-	config_get olsr_mesh $cfg olsr_mesh "0"
-	[ "$olsr_mesh" == "0" ] && return
 	config_get device $cfg device "0"
 	[ "$device" == "0" ] && return
 	log_fw "Setup ether $cfg"
@@ -28,19 +26,21 @@ setup_ether() {
 		lan) lan_iface="";;
 		wan) wan_iface="";;
 	esac
+	config_get bat_mesh $cfg bat_mesh "0" 2>/dev/null
+	[ "$bat_mesh" == "1" ] && bat_enabled=1
 }
 
 setup_wifi() {
 	local cfg="$1"
 	config_get enabled $cfg enabled "0"
 	[ "$enabled" == "0" ] && return
-	config_get olsr_mesh $cfg olsr_mesh "0"
-	[ "$olsr_mesh" == "0" ] && return
 	config_get idx $cfg phy_idx "-1"
 	[ "$idx" == "-1" ] && return
 	local device="radio"$idx"_mesh"
 	log_fw "Setup wifi $cfg"
 	ff_ifaces="$device $ff_ifaces"
+	config_get bat_mesh $cfg bat_mesh "0" 2>/dev/null
+	[ "$bat_mesh" == "1" ] && bat_enabled=1
 }
 
 zone_iface_add() {
@@ -70,6 +70,7 @@ br_name="fflandhcp"
 ff_ifaces=""
 lan_iface="lan"
 wan_iface="wan wan6"
+bat_enabled=0
 
 #Setup ether and wifi
 config_load ffwizard
@@ -80,6 +81,11 @@ config_foreach setup_wifi wifi
 config_get br ffwizard br "0"
 if [ "$br" == "1" ] ; then
 	ff_ifaces="$br_name $ff_ifaces"
+fi
+
+#Add bat0 interface to Zone freifunk
+if [ "$bat_enabled" == "1" ] ; then
+	ff_ifaces="bat0 $ff_ifaces"
 fi
 
 #Add interfaces to Zone freifunk

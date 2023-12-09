@@ -195,8 +195,6 @@ if [ "$olsr_enabled" == "1" ] ; then
 		uci_set olsrd "$sec" library "$library"
 		setup_Plugin_nameservice $sec
 	fi
-	#TODO remove it from freifunk-common luci package
-	crontab -l | grep -q 'ff_olsr_watchdog' && crontab -l | sed -e '/.*ff_olsr_watchdog.*/d' | crontab -
 	uci_commit olsrd
 else
 	/sbin/uci revert olsrd
