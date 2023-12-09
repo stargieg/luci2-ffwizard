@@ -31,6 +31,25 @@ if [ "$(uci_get system @system[0] hostname)" == "OpenWrt" ]; then
 	uci_set firewall $sec forward REJECT
 	uci_set firewall $sec drop_invalid 0
 
+	# Set Zone LAN
+	uci_add firewall zone ; sec="$CONFIG_SECTION"
+	uci_set firewall $sec input ACCEPT
+	uci_set firewall $sec forward ACCEPT
+	uci_set firewall $sec name lan
+	uci_set firewall $sec output ACCEPT
+
+	uci_add firewall forwarding ; sec="$CONFIG_SECTION"
+	uci_set firewall $sec dest lan
+	uci_set firewall $sec src lan
+
+	uci_add firewall forwarding ; sec="$CONFIG_SECTION"
+	uci_set firewall $sec dest wan
+	uci_set firewall $sec src lan
+
+	uci_add firewall forwarding ; sec="$CONFIG_SECTION"
+	uci_set firewall $sec dest freifunk
+	uci_set firewall $sec src lan
+
 	# Set Zone WAN
 	uci_add firewall zone ; sec="$CONFIG_SECTION"
 	uci_set firewall $sec name wan
@@ -93,6 +112,7 @@ if [ "$(uci_get system @system[0] hostname)" == "OpenWrt" ]; then
 	uci_set firewall $sec forward REJECT
 	uci_set firewall $sec name freifunk
 	uci_set firewall $sec output ACCEPT
+	uci_set firewall $sec masq 1
 
 	uci_add firewall forwarding ; sec="$CONFIG_SECTION"
 	uci_set firewall $sec dest freifunk

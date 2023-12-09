@@ -35,4 +35,7 @@ config_foreach setup_wifi wifi
 
 if [ "$bat_enabled" == "0" ] ; then
 	echo "Disable batadv"
+	if [ -s /etc/rc.d/S*alfred ] ; then
+		/etc/init.d/alfred disable
+	fi
 fi

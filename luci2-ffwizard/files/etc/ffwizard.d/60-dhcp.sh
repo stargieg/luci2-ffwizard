@@ -177,3 +177,6 @@ fi
 setup_dhcp_ignore loopback
 
 uci_commit dhcp
+mkdir -p /tmp/ff
+touch /tmp/ff/dnsmasq
+touch /tmp/ff/odhcpd

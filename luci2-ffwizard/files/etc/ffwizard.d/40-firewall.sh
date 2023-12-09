@@ -105,3 +105,6 @@ if [ -n "$wan_iface" ] ; then
 fi
 
 uci_commit firewall
+
+mkdir -p /tmp/ff
+touch /tmp/ff/firewall

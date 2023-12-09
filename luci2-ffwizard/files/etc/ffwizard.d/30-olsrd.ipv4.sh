@@ -168,8 +168,9 @@ if [ "$olsr_enabled" == "1" ] ; then
 	#read new olsrd config via ubus call uci "reload_config" in ffwizard
 	if ! [ -s /etc/rc.d/S*olsrd ] ; then
 		/etc/init.d/olsrd enable
-		/etc/init.d/olsrd restart
 	fi
+	mkdir -p /tmp/ff
+	touch /tmp/ff/olsrd
 	#Setup olsrd
 	config_load olsrd
 	config_foreach setup_olsrbase olsrd
@@ -196,17 +197,14 @@ if [ "$olsr_enabled" == "1" ] ; then
 		setup_Plugin_nameservice $sec
 	fi
 	uci_commit olsrd
+	grep -q "dnsmasq" /etc/crontabs/root || echo "*/5 * * * * killall -HUP dnsmasq" >> /etc/crontabs/root
 else
 	/sbin/uci revert olsrd
-	if [ -s /etc/rc.d/S*olsrd ] ; then
-		/etc/init.d/olsrd stop
-		/etc/init.d/olsrd disable
-	fi
+	ubus call rc init '{"name":"olsrd","action":"stop"}' || /etc/init.d/olsrd stop
+	ubus call rc init '{"name":"olsrd","action":"disable"}' || /etc/init.d/olsrd disable
 fi
 
 if ! [ "$(opkg status luci2-ffwizard-olsrd-ipv6)" ] ; then
-	if [ -s /etc/rc.d/S*olsrd6 ] ; then
-		/etc/init.d/olsrd6 stop
-		/etc/init.d/olsrd6 disable
-	fi
+	ubus call rc init '{"name":"olsrd6","action":"stop"}' || /etc/init.d/olsrd6 stop
+	ubus call rc init '{"name":"olsrd6","action":"disable"}' || /etc/init.d/olsrd6 disable
 fi

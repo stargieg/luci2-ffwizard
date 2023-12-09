@@ -75,3 +75,5 @@ config_load kadnode
 config_foreach setup_kadnode kadnode "$hostname" "$iface"
 
 uci_commit kadnode
+mkdir -p /tmp/ff
+touch /tmp/ff/kadnode

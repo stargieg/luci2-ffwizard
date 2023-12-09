@@ -36,7 +36,9 @@ config_foreach setup_ether ether
 config_foreach setup_wifi wifi
 
 if [ "$olsr_ipv6_enabled" == "0" ] ; then
-	/etc/init.d/olsrd disable
+	if [ -s /etc/rc.d/S*olsrd6 ] ; then
+		/etc/init.d/olsrd6 disable
+	fi
 	crontab -l | grep -q 'olsrd-dyn-addr' && crontab -l | sed -e '/.*olsrd-dyn-addr.*/d' | crontab -
 fi
 if ! [ "$(opkg status luci2-ffwizard-olsrd-ipv4)" ] ; then

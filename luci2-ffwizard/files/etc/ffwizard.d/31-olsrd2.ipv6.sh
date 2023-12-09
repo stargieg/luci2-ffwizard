@@ -150,11 +150,12 @@ config_foreach setup_wifi wifi
 ula_prefix="$(uci_get network globals ula_prefix 0)"
 
 if [ "$olsr_enabled" == "1" ] ; then
-	#If olsrd is disabled then start olsrd before write config
-	#read new olsrd config via ubus call uci "reload_config" in ffwizard
 	if ! [ -s /etc/rc.d/S*olsrd2 ] ; then
 		/etc/init.d/olsrd2 enable
 	fi
+	mkdir -p /tmp/ff
+	touch /tmp/ff/olsrd2
+	touch /tmp/ff/cron
 	#Setup OLSR1 IPv6 routen import
 	#setup_lan_import
 	#Setup loopback interface
@@ -176,31 +177,20 @@ if [ "$olsr_enabled" == "1" ] ; then
 	uci_commit olsrd2
 	#Cron search for public prefix greater than 56
 	grep -q 'olsrv2-dyn-addr' /etc/crontabs/root || echo '*/8 * * * * /usr/sbin/olsrv2-dyn-addr.sh' >> /etc/crontabs/root
-	if [ -f /usr/sbin/olsrneighbor2hosts.sh ] ; then
-		grep -q "olsrneighbor2hosts.sh" /etc/crontabs/root || \
+	grep -q "olsrneighbor2hosts.sh" /etc/crontabs/root || \
 		echo "*/5 * * * *     olsrneighbor2hosts.sh > /tmp/olsrneighbor2hosts.tmp && mv /tmp/olsrneighbor2hosts.tmp /tmp/hosts/olsrneighbor || rm /tmp/olsrneighbor2hosts.tmp" >> /etc/crontabs/root
-	fi
-	if [ -f /usr/sbin/olsrnode2hosts.sh ] ; then
-		grep -q "olsrnode2hosts.sh" /etc/crontabs/root || \
+	grep -q "olsrnode2hosts.sh" /etc/crontabs/root || \
 		echo "*/10 * * * *     olsrnode2hosts.sh > /tmp/olsrnode2hosts.tmp && mv /tmp/olsrnode2hosts.tmp /tmp/hosts/olsrnode || rm /tmp/olsrnode2hosts.tmp" >> /etc/crontabs/root
-	fi
-	if [ -f /usr/sbin/olsrnode2hosts.sh ] ; then
-		grep -q "dnsmasq" /etc/crontabs/root || \
-		echo "*/5 * * * * killall -HUP dnsmasq" >> /etc/crontabs/root
-	fi
+	grep -q "dnsmasq" /etc/crontabs/root || echo "*/5 * * * * killall -HUP dnsmasq" >> /etc/crontabs/root
 
 	#Disable olsrd6
-	if [ -s /etc/rc.d/S*olsrd6 ] ; then
-		/etc/init.d/olsrd6 stop
-		/etc/init.d/olsrd6 disable
-	fi
+	ubus call rc init '{"name":"olsrd6","action":"stop"}' || /etc/init.d/olsrd6 stop
+	ubus call rc init '{"name":"olsrd6","action":"disable"}' || /etc/init.d/olsrd6 disable
 else
 	/sbin/uci revert olsrd2
-	if [ -s /etc/rc.d/S*olsrd2 ] ; then
-		/etc/init.d/olsrd2 stop
-		/etc/init.d/olsrd2 disable
-		crontab -l | grep -q 'olsrneighbor2hosts' && crontab -l | sed -e '/.*olsrneighbor2hosts.*/d' | crontab -
-		crontab -l | grep -q 'olsrnode2hosts' && crontab -l | sed -e '/.*olsrnode2hosts.*/d' | crontab -
-		crontab -l | grep -q 'olsrv2-dyn-addr' && crontab -l | sed -e '/.*olsrv2-dyn-addr.*/d' | crontab -
-	fi
+	ubus call rc init '{"name":"olsrd2","action":"stop"}' || /etc/init.d/olsrd2 stop
+	ubus call rc init '{"name":"olsrd2","action":"disable"}' || /etc/init.d/olsrd2 disable
+	crontab -l | grep -q 'olsrneighbor2hosts' && crontab -l | sed -e '/.*olsrneighbor2hosts.*/d' | crontab -
+	crontab -l | grep -q 'olsrnode2hosts' && crontab -l | sed -e '/.*olsrnode2hosts.*/d' | crontab -
+	crontab -l | grep -q 'olsrv2-dyn-addr' && crontab -l | sed -e '/.*olsrv2-dyn-addr.*/d' | crontab -
 fi

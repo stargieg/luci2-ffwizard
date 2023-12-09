@@ -35,7 +35,9 @@ config_foreach setup_ether ether
 config_foreach setup_wifi wifi
 
 if [ "$olsrd2_ipv6_enabled" == "0" ] ; then
-	/etc/init.d/olsrd2 disable
+	if [ -s /etc/rc.d/S*olsrd2 ] ; then
+		/etc/init.d/olsrd2 disable
+	fi
 	crontab -l | grep -q 'olsrneighbor2hosts' && crontab -l | sed -e '/.*olsrneighbor2hosts.*/d' | crontab -
 	crontab -l | grep -q 'olsrnode2hosts' && crontab -l | sed -e '/.*olsrnode2hosts.*/d' | crontab -
 	crontab -l | grep -q 'olsrv2-dyn-addr' && crontab -l | sed -e '/.*olsrv2-dyn-addr.*/d' | crontab -

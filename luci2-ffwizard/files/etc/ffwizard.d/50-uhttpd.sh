@@ -30,4 +30,5 @@ if [ "$commonname" != "$sys_fqdn" ] ; then
 	uci_commit uhttpd
 fi
 
-[ -s /www/index.html ] || ln -s /www/luci-ng.html /www/index.html
+mkdir -p /tmp/ff
+touch /tmp/ff/uhttpd

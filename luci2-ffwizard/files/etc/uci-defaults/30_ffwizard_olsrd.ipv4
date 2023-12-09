@@ -38,7 +38,9 @@ config_foreach setup_ether ether
 config_foreach setup_wifi wifi
 
 if [ "$olsr_ipv4_enabled" == "0" ] ; then
-	/etc/init.d/olsrd disable
+	if [ -s /etc/rc.d/S*olsrd ] ; then
+		/etc/init.d/olsrd disable
+	fi
 fi
 if ! [ "$(opkg status luci2-ffwizard-olsrd-ipv6)" ] ; then
 	if [ -s /etc/rc.d/S*olsrd6 ] ; then

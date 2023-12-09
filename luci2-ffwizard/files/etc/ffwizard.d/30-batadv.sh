@@ -153,6 +153,11 @@ config_foreach setup_ether ether "$bat_iface"
 config_foreach setup_wifi wifi "$bat_iface"
 
 if [ "$bat_enabled" == "1" ] ; then
+	if ! [ -s /etc/rc.d/S*alfred ] ; then
+		/etc/init.d/alfred enable
+	fi
+	mkdir -p /tmp/ff
+	touch /tmp/ff/alfred
 	#Setup batman-adv
 	config_get br ffwizard br "0" 2>/dev/null
 	if [ "$br" == "1" ] ; then
@@ -215,4 +220,8 @@ else
 		/sbin/uci revert batman-adv
 	fi
 	/sbin/uci revert network
+	if [ -s /etc/rc.d/S*alfred ] ; then
+		/etc/init.d/alfred stop
+		/etc/init.d/alfred disable
+	fi
 fi

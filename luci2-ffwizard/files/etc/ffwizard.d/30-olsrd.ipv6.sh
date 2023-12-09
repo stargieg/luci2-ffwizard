@@ -152,8 +152,9 @@ if [ "$olsr_enabled" == "1" ] ; then
 	#read new olsrd config via ubus call uci "reload_config" in ffwizard
 	if ! [ -s /etc/rc.d/S*olsrd6 ] ; then
 		/etc/init.d/olsrd6 enable
-		/etc/init.d/olsrd6 restart
 	fi
+	mkdir -p /tmp/ff
+	touch /tmp/ff/olsrd6
 	#Setup olsrd6
 	config_load olsrd6
 	config_foreach setup_olsrbase olsrd
@@ -179,23 +180,21 @@ if [ "$olsr_enabled" == "1" ] ; then
 		uci_set olsrd6 "$sec" library "$library"
 		setup_Plugin_nameservice $sec
 	fi
+	uci_commit olsrd6
+	grep -q 'olsrd-dyn-addr' /etc/crontabs/root || echo '*/8 * * * * /usr/sbin/olsrd-dyn-addr.sh' >> /etc/crontabs/root
+	grep -q "dnsmasq" /etc/crontabs/root || echo "*/5 * * * * killall -HUP dnsmasq" >> /etc/crontabs/root
 	#TODO
 	#if ipv6 internet gateway then
 	#	grep -q 'olsrd-dyn-hna6' /etc/crontabs/root || echo '*/8 * * * * /usr/sbin/olsrd-dyn-hna6.sh' >> /etc/crontabs/root
 	#fi
-	uci_commit olsrd6
 else
 	/sbin/uci revert olsrd6
-	if [ -s /etc/rc.d/S*olsrd6 ] ; then
-		/etc/init.d/olsrd6 stop
-		/etc/init.d/olsrd6 disable
-		crontab -l | grep -q 'olsrd-dyn-addr' && crontab -l | sed -e '/.*olsrd-dyn-addr.*/d' | crontab -
-	fi
+	ubus call rc init '{"name":"olsrd6","action":"stop"}' || /etc/init.d/olsrd6 stop
+	ubus call rc init '{"name":"olsrd6","action":"disable"}' || /etc/init.d/olsrd6 disable
+	crontab -l | grep -q 'olsrd-dyn-addr' && crontab -l | sed -e '/.*olsrd-dyn-addr.*/d' | crontab -
 fi
 
 if ! [ "$(opkg status luci2-ffwizard-olsrd-ipv4)" ] ; then
-	if [ -s /etc/rc.d/S*olsrd ] ; then
-		/etc/init.d/olsrd stop
-		/etc/init.d/olsrd disable
-	fi
+	ubus call rc init '{"name":"olsrd","action":"stop"}' || /etc/init.d/olsrd stop
+	ubus call rc init '{"name":"olsrd","action":"disable"}' || /etc/init.d/olsrd disable
 fi
