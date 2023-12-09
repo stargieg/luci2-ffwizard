@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=89
+PKG_RELEASE:=99
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
@@ -126,13 +126,13 @@ define Package/luci2-ffwizard-fw/install
 endef
 
 define Package/luci2-ffwizard-olsrd-ipv4/install
-	$(INSTALL_DIR) $(1)/etc/ffwizard.d
+	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/ffwizard.d/30-olsrd.ipv4.sh $(1)/etc/ffwizard.d/
 	$(INSTALL_BIN) files/etc/uci-defaults/30_ffwizard_olsrd.ipv4 $(1)/etc/uci-defaults/
 endef
 
 define Package/luci2-ffwizard-olsrd-ipv6/install
-	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/usr/sbin
+	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/usr/sbin $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/ffwizard.d/30-olsrd.ipv6.sh $(1)/etc/ffwizard.d/
 	$(INSTALL_BIN) files/etc/uci-defaults/30_ffwizard_olsrd.ipv6 $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/usr/sbin/olsrd-dyn-hna6.sh $(1)/usr/sbin/
@@ -140,7 +140,7 @@ define Package/luci2-ffwizard-olsrd-ipv6/install
 endef
 
 define Package/luci2-ffwizard-olsrv2-ipv6/install
-	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/usr/sbin $(1)/etc/odhcp6c.user.d
+	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/usr/sbin $(1)/etc/odhcp6c.user.d $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/ffwizard.d/31-olsrd2.ipv6.sh $(1)/etc/ffwizard.d/
 	$(INSTALL_BIN) files/etc/uci-defaults/31_ffwizard_olsrd2.ipv6 $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/odhcp6c.user.d/olsrv2_lan.sh $(1)/etc/odhcp6c.user.d/
