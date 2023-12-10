@@ -308,6 +308,7 @@ else
 		uci_remove network lan dns 2>/dev/null
 		uci_remove dhcp @dnsmasq[-1] server 2>/dev/null
 		uci_add_list dhcp @dnsmasq[-1] server "$srcip6prefix_new""1#1053"
+                uci_set dhcp @dnsmasq[-1] filter_a '1'
 		uci_commit network
 		uci_commit dhcp
 
