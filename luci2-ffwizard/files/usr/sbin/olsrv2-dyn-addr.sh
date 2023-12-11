@@ -300,12 +300,12 @@ else
 		uci_remove network $cfg_ip6prefix ip6addr 2>/dev/null
 		uci_add_list network $cfg_ip6prefix ip6prefix "$ip6prefix_new/$ip6prefix_mask_new"
 		uci_set network $cfg_ip6prefix srcip6prefix "$srcip6prefix_new"
-		#uci_add_list network $cfg_ip6prefix ip6addr "$ip6prefix_new""2/128"
-		uci_set network $cfg_ip6prefix ip6addr "$ip6prefix_new""2/128"
+		uci_add_list network $cfg_ip6prefix ip6addr "::1/128"
+		uci_add_list network $cfg_ip6prefix ip6addr "$ip6prefix_new""2/128"
 		#use unbound and jool on the gateway
 		uci_remove network lan dns 2>/dev/null
 		uci_remove dhcp @dnsmasq[-1] server 2>/dev/null
-		uci_add_list dhcp @dnsmasq[-1] server "$srcip6prefix_new""1#1053"
+		uci_add_list dhcp @dnsmasq[-1] server "$srcip6prefix_new""1"
 		uci_set dhcp @dnsmasq[-1] filter_a '1'
 		uci_commit network
 		uci_commit dhcp

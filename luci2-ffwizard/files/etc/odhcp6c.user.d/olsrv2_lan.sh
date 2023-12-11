@@ -26,7 +26,7 @@ set_iface_prefix() {
 							json_select $m
 							json_get_var asg_m address
 							logger -t odhcp6c.user "change addr olsrv2_lan wan $m $asg_m/64"
-                			( printf "config set olsrv2_lan[$m].prefix=$asg_m/64\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
+							( printf "config set olsrv2_lan[$m].prefix=$asg_m/64\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
 							logger -t odhcp6c.user "change addr olsrv2_lan wan2 $m $asg_m/64"
 							json_select ".."
 						done
@@ -46,10 +46,10 @@ set_iface_prefix() {
 case "$2" in
 	ra-updated)
 		if pidof nc | grep -q ' ' >/dev/null ; then
-   			log "killall nc"
+			log "killall nc"
 			killall -9 nc
 			ubus call rc init '{"name":"olsrd2","action":"restart"}'
-   			return
+			return
 		fi
 		if ! [ -z "$RA_ADDRESSES" ] ; then
 			for ra in $RA_ADDRESSES ; do
@@ -89,7 +89,7 @@ case "$2" in
 							logger -t odhcp6c.user "change prefix olsrv2_lan wangw $1 $addr $newaddr"
 							set_iface_prefix "$newaddr"
 							( printf "config set olsrv2_lan[wangw].prefix=::/0\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null 
-                     		( printf "config set olsrv2_lan[wangw].source_prefix=$newaddr\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
+							( printf "config set olsrv2_lan[wangw].source_prefix=$newaddr\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
 							( printf "config commit\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
 						fi
 						#Public Domain
