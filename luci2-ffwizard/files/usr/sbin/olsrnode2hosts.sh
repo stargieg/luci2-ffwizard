@@ -8,7 +8,7 @@ log() {
 }
 
 if pidof olsrnode2hosts.sh | grep -q ' ' >/dev/null ; then
-    log "killall olsrnode2hosts.sh"
+	log "killall olsrnode2hosts.sh"
 	killall -9 olsrnode2hosts.sh
 	return 1
 fi
@@ -34,7 +34,7 @@ if ! json_select node ; then
 	log "Exit no node entry"
 	return 1
 fi
-domain="$(uci_get luci_olsr2 general domain olsr)"
+domain="$(uci_get luci_olsrd2 general domain olsr)"
 i=1;while json_is_a ${i} object;do
 	json_select ${i}
 	json_get_var neighbor node_neighbor
@@ -48,6 +48,12 @@ i=1;while json_is_a ${i} object;do
 			nodeips=$(nslookup $nodename $j | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 			for k in $nodeips ; do
 				echo "$k $nodename $nodename.$domain"
+				if [ -f /var/lib/unbound/unbound.conf ] ; then
+					echo "$nodename.olsr. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
+					if ! echo $k | grep -q ^fd ; then
+						echo "$nodename.$domain. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
+					fi
+				fi
 				ret="1"
 			done
 		done
@@ -56,6 +62,12 @@ i=1;while json_is_a ${i} object;do
 			nodeips=$(nslookup $nodename $node | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 			for k in $nodeips ; do
 				echo "$k $nodename $nodename.$domain"
+				if [ -f /var/lib/unbound/unbound.conf ] ; then
+					echo "$nodename.olsr. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
+					if ! echo $k | grep -q ^fd ; then
+						echo "$nodename.$domain. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
+					fi
+				fi
 				ret="1"
 			done
 		fi

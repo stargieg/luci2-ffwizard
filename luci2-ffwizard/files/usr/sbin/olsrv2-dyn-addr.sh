@@ -16,156 +16,154 @@ uci_add_list() {
 	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} add_list "$PACKAGE.$CONFIG.$OPTION=$VALUE"
 }
 
-#!/bin/sh
-
 calc_from_60() {
-        addr=$1
-        OIFS=$IFS
-        IFS=:
-        set $addr
-        IFS=$OIFS
-        echo -n $1:
-        if [ -z $2 ] ; then
-                echo -n 0: 
-        else
-                echo -n $2:
-        fi
-        if [ -z $3 ] ; then
-                echo -n 0:
-        else
-                echo -n $3:
-        fi
-        #mask=64
-        rand1="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
-        if [ -z $4 ] ; then
-                [ "$rand1" == "0" ] && rand1=""
-                echo -n $rand1:
-        else
-                echo -n $(echo $4 | sed -e "s/0$/$rand1/"):
-        fi
-        echo :
+	addr=$1
+	OIFS=$IFS
+	IFS=:
+	set $addr
+	IFS=$OIFS
+	echo -n $1:
+	if [ -z $2 ] ; then
+		echo -n 0: 
+	else
+		echo -n $2:
+	fi
+	if [ -z $3 ] ; then
+		echo -n 0:
+	else
+		echo -n $3:
+	fi
+	#mask=64
+	rand1="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
+	if [ -z $4 ] ; then
+		[ "$rand1" == "0" ] && rand1=""
+		echo -n $rand1:
+	else
+		echo -n $(echo $4 | sed -e "s/0$/$rand1/"):
+	fi
+	echo :
 }
 
 calc_from_56() {
-        addr=$1
-        mask=$2
-        OIFS=$IFS
-        IFS=:
-        set $addr
-        IFS=$OIFS
-        echo -n $1:
-        if [ -z $2 ] ; then
-                echo -n 0:
-        else
-                echo -n $2:
-        fi
-        if [ -z $3 ] ; then
-                echo -n 0:
-        else
-                echo -n $3:
-        fi
-        rand1="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
-        rand2=""
-		#die letzten stellen eines 62 netzes können nur 0,4,8,c sein.
-        if [ "$mask" == "62" ] ; then
-                while [ "$rand2" != "0" ] && [ "$rand2" != "4" ] && [ "$rand2" != "8" ] && [ "$rand2" != "c" ] ; do
-                        rand2="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
-                done
-        else #mask=64
-                rand2="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
-        fi
+	addr=$1
+	mask=$2
+	OIFS=$IFS
+	IFS=:
+	set $addr
+	IFS=$OIFS
+	echo -n $1:
+	if [ -z $2 ] ; then
+		echo -n 0:
+	else
+		echo -n $2:
+	fi
+	if [ -z $3 ] ; then
+		echo -n 0:
+	else
+		echo -n $3:
+	fi
+	rand1="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
+	rand2=""
+	#die letzten stellen eines 62 netzes können nur 0,4,8,c sein.
+	if [ "$mask" == "62" ] ; then
+		while [ "$rand2" != "0" ] && [ "$rand2" != "4" ] && [ "$rand2" != "8" ] && [ "$rand2" != "c" ] ; do
+			rand2="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
+		done
+	else #mask=64
+		rand2="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
+	fi
 
-        if [ -z $4 ] ; then
-                [ "$rand1" == "0" ] && rand1=""
-                [ -z "$rand1" ] && [ "$rand2" == "0" ] && rand2=""
-                echo -n $rand1$rand2:
-        else
-                echo -n $(echo $4 | sed -e "s/00$/$rand1$rand2/"):
-        fi
-        echo :
+	if [ -z $4 ] ; then
+		[ "$rand1" == "0" ] && rand1=""
+		[ -z "$rand1" ] && [ "$rand2" == "0" ] && rand2=""
+		echo -n $rand1$rand2:
+	else
+		echo -n $(echo $4 | sed -e "s/00$/$rand1$rand2/"):
+	fi
+	echo :
 }
 
 calc_from_52() {                                                 
-        addr=$1
-        mask=$2
-        OIFS=$IFS
-        IFS=:
-        set $addr
-        IFS=$OIFS
-        echo -n $1:
-        if [ -z $2 ] ; then
-                echo -n 0:
-        else
-                echo -n $2:
-        fi
-        if [ -z $3 ] ; then
-                echo -n 0:
-        else
-                echo -n $3:
-        fi
-        rand1="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
-        rand2="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
-        rand3=""
-        if [ "$mask" == "62" ] ; then
-                while [ "$rand3" != "0" ] && [ "$rand3" != "4" ] && [ "$rand3" != "8" ] && [ "$rand3" != "c" ] ; do
-                        rand3="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
-                done
-        else #mask=64
-                rand3="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
-        fi
+	addr=$1
+	mask=$2
+	OIFS=$IFS
+	IFS=:
+	set $addr
+	IFS=$OIFS
+	echo -n $1:
+	if [ -z $2 ] ; then
+		echo -n 0:
+	else
+		echo -n $2:
+	fi
+	if [ -z $3 ] ; then
+		echo -n 0:
+	else
+		echo -n $3:
+	fi
+	rand1="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
+	rand2="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
+	rand3=""
+	if [ "$mask" == "62" ] ; then
+		while [ "$rand3" != "0" ] && [ "$rand3" != "4" ] && [ "$rand3" != "8" ] && [ "$rand3" != "c" ] ; do
+			rand3="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
+		done
+	else #mask=64
+		rand3="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
+	fi
 
-        if [ -z $4 ] ; then
-                [ "$rand1" == "0" ] && rand1=""
-                [ -z "$rand1" ] && [ "$rand2" == "0" ] && rand2=""
-                [ -z "$rand2" ] && [ "$rand3" == "0" ] && rand3=""
-                echo -n $rand1$rand2$rand3:
-        else
-                echo -n $(echo $4 | sed -e "s/000$/$rand1$rand2$rand3/"):
-        fi
-        echo :
+	if [ -z $4 ] ; then
+		[ "$rand1" == "0" ] && rand1=""
+		[ -z "$rand1" ] && [ "$rand2" == "0" ] && rand2=""
+		[ -z "$rand2" ] && [ "$rand3" == "0" ] && rand3=""
+		echo -n $rand1$rand2$rand3:
+	else
+		echo -n $(echo $4 | sed -e "s/000$/$rand1$rand2$rand3/"):
+	fi
+	echo :
 }
 calc_from_48() {
-        addr=$1
-        mask=$2
-        OIFS=$IFS
-        IFS=:
-        set $addr
-        IFS=$OIFS                                                                                                  
-        echo -n $1:
-        if [ -z $2 ] ; then
-                echo -n 0:
-        else
-                echo -n $2:
-        fi
-        rand1="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
-        rand2="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
-        rand3="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
-        rand4=""
-        if [ "$mask" == "62" ] ; then
-                while [ "$rand4" != "0" ] && [ "$rand4" != "4" ] && [ "$rand4" != "8" ] && [ "$rand4" != "c" ] ; do
-                        rand4="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
-                done
-        else #mask=64
-                rand4="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
-        fi
-        [ "$rand1" == "0" ] && rand1=""
-        [ -z "$rand1" ] && [ "$rand2" == "0" ] && rand2=""
-        [ -z "$rand2" ] && [ "$rand3" == "0" ] && rand3=""
-        [ -z "$rand3" ] && [ "$rand4" == "0" ] && rand4=""
-        if [ -z $3 ] ; then
-                if [ -z $rand4 ] ; then
-                        echo -n :
-                else
-                        echo -n 0:$rand1$rand2$rand3$rand4:
-                fi
-        else
-                if [ -z $rand4 ] ; then
-                        echo -n $3:
-                else
-                        echo -n $3:$rand1$rand2$rand3$rand4:
-                fi
-        fi
-        echo :
+	addr=$1
+	mask=$2
+	OIFS=$IFS
+	IFS=:
+	set $addr
+	IFS=$OIFS
+	echo -n $1:
+	if [ -z $2 ] ; then
+		echo -n 0:
+	else
+		echo -n $2:
+	fi
+	rand1="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
+	rand2="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
+	rand3="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
+	rand4=""
+	if [ "$mask" == "62" ] ; then
+		while [ "$rand4" != "0" ] && [ "$rand4" != "4" ] && [ "$rand4" != "8" ] && [ "$rand4" != "c" ] ; do
+			rand4="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
+		done
+	else #mask=64
+		rand4="$(head -n 1 /dev/urandom 2>/dev/null | md5sum | cut -b 1)"
+	fi
+	[ "$rand1" == "0" ] && rand1=""
+	[ -z "$rand1" ] && [ "$rand2" == "0" ] && rand2=""
+	[ -z "$rand2" ] && [ "$rand3" == "0" ] && rand3=""
+	[ -z "$rand3" ] && [ "$rand4" == "0" ] && rand4=""
+	if [ -z $3 ] ; then
+		if [ -z $rand4 ] ; then
+			echo -n :
+		else
+			echo -n 0:$rand1$rand2$rand3$rand4:
+		fi
+	else
+		if [ -z $rand4 ] ; then
+			echo -n $3:
+		else
+			echo -n $3:$rand1$rand2$rand3$rand4:
+		fi
+	fi
+	echo :
 }
 
 if pidof nc | grep -q ' ' >/dev/null ; then
@@ -308,7 +306,7 @@ else
 		uci_remove network lan dns 2>/dev/null
 		uci_remove dhcp @dnsmasq[-1] server 2>/dev/null
 		uci_add_list dhcp @dnsmasq[-1] server "$srcip6prefix_new""1#1053"
-                uci_set dhcp @dnsmasq[-1] filter_a '1'
+		uci_set dhcp @dnsmasq[-1] filter_a '1'
 		uci_commit network
 		uci_commit dhcp
 
