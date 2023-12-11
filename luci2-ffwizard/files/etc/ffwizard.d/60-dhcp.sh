@@ -83,13 +83,14 @@ setup_ether() {
 	uci_remove dhcp $cfg_dhcp 2>/dev/null
 	if [ "$dhcp_ip" != "0" ] ; then
 		log_dhcp "Setup $cfg"
+		setup_dhcp_ignore $cfg
 		setup_dhcp $cfg_dhcp "$dhcp_ip"
 	else
 		config_get dhcp_br $cfg dhcp_br "0"
 		config_get mesh_ip $cfg mesh_ip "0"
 		if [ "$cfg" == "lan" ] && [ "$mesh_ip" == "0" ] && [ "$dhcp_br" == "0" ] ; then
-			log_dhcp "Setup iface $cfg to default ip 192.168.42.1/24"
-			setup_dhcp $cfg "192.168.42.1/24"
+			log_dhcp "Setup iface $cfg to default ip 192.168.1.1/24"
+			setup_dhcp $cfg "192.168.1.1/24"
 		else
 			setup_dhcp_ignore $cfg
 		fi

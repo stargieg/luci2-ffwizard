@@ -27,7 +27,7 @@ return view.extend({
 		o = s.option(form.Flag, "bat_mesh", _("B.A.T.M.A.N Meshprotokoll"), "");
 		o.datatype = "bool";
 		o = s.option(form.Value, "mesh_ip", _("Mesh IPv4 Addresse"), "");
-		o.placeholder = "104.1.1.1/8";
+		o.placeholder = "104.1.1.1/32";
 		o.datatype = "cidr4";
 		o.optional = true;
 		o = s.option(form.Flag, "vap", _("AP für Mobilgeräte"), "");

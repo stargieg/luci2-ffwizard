@@ -1,10 +1,10 @@
 uci_add_list() {
-        local PACKAGE="$1"
-        local CONFIG="$2"
-        local OPTION="$3"
-        local VALUE="$4"
+	local PACKAGE="$1"
+	local CONFIG="$2"
+	local OPTION="$3"
+	local VALUE="$4"
 
-        /sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} add_list "$PACKAGE.$CONFIG.$OPTION=$VALUE"
+	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} add_list "$PACKAGE.$CONFIG.$OPTION=$VALUE"
 }
 
 log_net() {
@@ -32,7 +32,7 @@ setup_ip() {
 	else
 		if [ "$cfg" == "lan" ] ; then
 			#Magemant Access via lan ipv4
-			uci_set network $cfg ipaddr "192.168.42.1"
+			uci_set network $cfg ipaddr "192.168.1.1"
 			uci_set network $cfg netmask "255.255.255.0"
 		else
 			#ipv6 only via ip6assign
@@ -164,7 +164,6 @@ setup_ether() {
 			uci_set network $cfg proto "none"
 			uci_set network "$cfg"6 proto "none"
 			uci_remove network "$cfg"6 device 2>/dev/null
-			uci_remove network $cfg ip6prefix 2>/dev/null
 		fi
 	else
 		log_net "Setup $cfg IP"
@@ -172,8 +171,8 @@ setup_ether() {
 		setup_ip "$cfg" "$ipaddr"
 		config_get ipaddr $cfg dhcp_ip "0" 2>/dev/null
 		uci_remove network $cfg ip6class 2>/dev/null
-		uci_add_list network $cfg ip6class "local"
 		if [ "$ipaddr" != "0" ] ; then
+			uci_remove network $cfg ip6assign 2>/dev/null
 			eval "$(ipcalc.sh $ipaddr)"
 			OCTET_4="${NETWORK##*.}"
 			OCTET_1_3="${NETWORK%.*}"
@@ -181,7 +180,9 @@ setup_ether() {
 			ipaddr="$OCTET_1_3.$OCTET_4"
 			setup_ip "$cfg_dhcp" "$ipaddr/$PREFIX"
 			uci_set network $cfg_dhcp device "@$cfg"
-			uci_remove network $cfg_dhcp ip6prefix 2>/dev/null
+		else
+			uci_set network $cfg ip6assign "64"
+			uci_add_list network $cfg ip6class "local"
 		fi
 	fi
 	case $cfg in

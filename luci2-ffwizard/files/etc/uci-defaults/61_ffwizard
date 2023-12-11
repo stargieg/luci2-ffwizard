@@ -39,17 +39,17 @@ if [ "$(uci_get system @system[0] hostname)" == "OpenWrt" ]; then
 	uci_set uhttpd main lua_handler "/usr/lib/lua/luci/sgi/uhttpd.lua"
 	uci_commit uhttpd
 
-	# add dns entry frei.funk
-	#uci_add dhcp domain frei_funk
-	#uci_set dhcp frei_funk name "frei.funk"
-	#uci_set dhcp frei_funk ip "192.168.42.1"
+	# add dns entry openwrt.lan
+	uci_add dhcp domain frei_funk
+	uci_set dhcp frei_funk name "frei.funk"
+	uci_set dhcp frei_funk ip "192.168.1.1"
 	# add dns entry frei.funk for ipv6
-	uci_add dhcp domain frei_funk_ipv6
-	uci_set dhcp frei_funk_ipv6 name "frei.funk"
-	uci_set dhcp frei_funk_ipv6 ip "$(uci get network.globals.ula_prefix | cut -d '/' -f 1)1"
+	uci_add dhcp domain openwrt_lan_ipv6
+	uci_set dhcp openwrt_lan_ipv6 name "openwrt.lan"
+	uci_set dhcp openwrt_lan_ipv6 ip "$(uci get network.globals.ula_prefix | cut -d '/' -f 1)1"
 	uci_commit dhcp
 
-	uci_set network lan ipaddr "192.168.42.1"
+	uci_set network lan ipaddr "192.168.1.1"
 	#uci_set network lan dns "85.214.20.141 213.73.91.35 194.150.168.168 2001:4ce8::53 2001:910:800::12"
 	# https://nat64.dresel.systems/ "Service eingestellt...  "
 	#uci_set network lan dns "2a0b:f4c0:4d:53::1 2a01:4f8:221:2d08::213"

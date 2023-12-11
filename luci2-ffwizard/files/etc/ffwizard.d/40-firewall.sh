@@ -21,11 +21,16 @@ setup_ether() {
 	config_get device $cfg device "0"
 	[ "$device" == "0" ] && return
 	log_fw "Setup ether $cfg"
-	ff_ifaces="$device $ff_ifaces"
+	ff_ifaces="$cfg $ff_ifaces"
 	case $cfg in
 		lan) lan_iface="";;
 		wan) wan_iface="";;
 	esac
+	config_get ipaddr $cfg dhcp_ip "0" 2>/dev/null
+	if [ "$ipaddr" != "0" ] ; then
+		cfg_dhcp=$cfg"_dhcp"
+		ff_ifaces="$cfg_dhcp $ff_ifaces"
+	fi
 	config_get bat_mesh $cfg bat_mesh "0" 2>/dev/null
 	[ "$bat_mesh" == "1" ] && bat_enabled=1
 }
@@ -36,11 +41,22 @@ setup_wifi() {
 	[ "$enabled" == "0" ] && return
 	config_get idx $cfg phy_idx "-1"
 	[ "$idx" == "-1" ] && return
-	local device="radio"$idx"_mesh"
-	log_fw "Setup wifi $cfg"
-	ff_ifaces="$device $ff_ifaces"
+	config_get olsr_mesh $cfg olsr_mesh "0" 2>/dev/null
 	config_get bat_mesh $cfg bat_mesh "0" 2>/dev/null
-	[ "$bat_mesh" == "1" ] && bat_enabled=1
+	config_get vap $cfg vap "0" 2>/dev/null
+	if [ "$olsr_mesh" == "1" -o "$bat_mesh" == "1" ] ; then
+		local device="radio"$idx"_mesh"
+		log_fw "Setup wifi $cfg"
+		ff_ifaces="$device $ff_ifaces"
+	fi
+	if [ "$vap" == "1" ] ; then
+		local cfg_vap=$cfg"_vap"
+		log_fw "Setup wifi $cfg_vap"
+		ff_ifaces="$cfg_vap $ff_ifaces"
+	fi
+	if "$bat_mesh" == "1" ] ; then
+		bat_enabled=1
+	fi
 }
 
 zone_iface_add() {
