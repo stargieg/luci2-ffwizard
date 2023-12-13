@@ -93,7 +93,7 @@ case "$2" in
 							( printf "config commit\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
 						fi
 						#Public Domain
-						if dnsmasq -v | grep -q auth && grep -q auth-zone /etc/dnsmasq.conf ; then
+						if dnsmasq -v 2>/dev/null | grep -q auth && grep -q auth-zone /etc/dnsmasq.conf ; then
 							#optional set domain from config
 							domain=$(uci get luci_olsr2.general.domain)
 							#if ! [ -z "$domain" ] ; then

@@ -45,6 +45,7 @@ setup_dhcp() {
 		uci_set dhcp $cfg_dhcp ra_default "1"
 		uci_set dhcp $cfg_dhcp ra_pref64 '64:ff9b::/96'
 		uci_set dhcp $cfg_dhcp ra_mtu '1492'
+		uci_add_list dhcp $cfg dhcp_option "108,0:0:7:8"
 }
 
 setup_dhcp_ignore() {
@@ -75,6 +76,7 @@ setup_ether() {
 			uci_set dhcp $cfg ra_default "1"
 			uci_set dhcp $cfg ra_pref64 '64:ff9b::/96'
 			uci_set dhcp $cfg ra_mtu '1492'
+			uci_add_list dhcp $cfg dhcp_option "108,0:0:7:8"
 		fi
 		return
 	fi
