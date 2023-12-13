@@ -52,6 +52,7 @@ i=1;while json_is_a ${i} object;do
 					echo "$nodename.olsr. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
 					if ! echo $k | grep -q ^fd ; then
 						echo "$nodename.$domain. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
+						echo "$nodename.$domain. 300 IN CAA 0 issue letsencrypt.org" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
 					fi
 				fi
 				ret="1"
@@ -66,6 +67,7 @@ i=1;while json_is_a ${i} object;do
 					echo "$nodename.olsr. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
 					if ! echo $k | grep -q ^fd ; then
 						echo "$nodename.$domain. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
+						echo "$nodename.$domain. 300 IN CAA 0 issue letsencrypt.org" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
 					fi
 				fi
 				ret="1"

@@ -93,13 +93,13 @@ case "$2" in
 							( printf "config commit\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
 						fi
 						#Public Domain
-						if dnsmasq -v 2>/dev/null | grep -q auth && grep -q auth-zone /etc/dnsmasq.conf ; then
+						#if dnsmasq -v 2>/dev/null | grep -q auth && grep -q auth-zone /etc/dnsmasq.conf ; then
 							#optional set domain from config
-							domain=$(uci get luci_olsr2.general.domain)
+							#domain=$(uci get luci_olsrd2.general.domain)
 							#if ! [ -z "$domain" ] ; then
-								if ! grep -q "$newaddr" /etc/dnsmasq.conf ; then
-									logger -t odhcp6c.user "change prefix dnsmasq for domain $domain"
-									sed -i /etc/dnsmasq.conf -e "s|\(auth-zone=[a-zA-Z0-9.]*,\).*|\1$newaddr|"
+						#		if ! grep -q "$newaddr" /etc/dnsmasq.conf ; then
+						#			logger -t odhcp6c.user "change prefix for auth-zone"
+						#			sed -i /etc/dnsmasq.conf -e "s|\(auth-zone=[a-zA-Z0-9.]*,\).*|\1$newaddr|"
 									#optional set domain from config
 									#sed -i /etc/dnsmasq.conf -e "s|auth-zone=.*|auth-zone=$domain,$newaddr|"
 									#/etc/dnsmasq.conf
@@ -107,11 +107,11 @@ case "$2" in
 									#auth-zone=ff.example.com,2003:ea:2222:1f00::/56
 									#auth-zone=ff.example.com,br-lan/6,exclude:f000::/4
 									#auth-server=inetrouter.example.com,pppoe-wan
-									logger -t odhcp6c.user "restart dnsmasq"
-									( sleep 5 ; /etc/init.d/dnsmasq restart ) &
-								fi
+						#			logger -t odhcp6c.user "restart dnsmasq"
+						#			( sleep 5 ; /etc/init.d/dnsmasq restart ) &
+						#		fi
 							#fi
-						fi
+						#fi
 						;;
 				esac
 			done

@@ -42,6 +42,7 @@ i=1;while json_is_a ${i} object;do
 			echo "$neighborname.olsr. 300 IN AAAA $j" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
 			if ! echo $j | grep -q ^fd ; then
 				echo "$neighborname.$domain. 300 IN AAAA $j" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
+				echo "$neighborname.$domain. 300 IN CAA 0 issue letsencrypt.org" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
 			fi
 		fi
 	done
