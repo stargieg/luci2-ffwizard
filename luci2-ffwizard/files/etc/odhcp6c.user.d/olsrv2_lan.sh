@@ -92,6 +92,18 @@ case "$2" in
 							( printf "config set olsrv2_lan[wangw].source_prefix=$newaddr\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
 							( printf "config commit\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
 						fi
+						nat64=$(uci get jool.nat64.enabled)
+						if [ "$nat64" == "1" ] ; then
+							addr="$(printf '/config get olsrv2_lan[nat64].prefix' | nc ::1 2009 | tail -1)"
+							if [ "$addr" == "$newaddr" ] ; then
+								logger -t odhcp6c.user "no change prefix olsrv2_lan nat64 $1 $addr $newaddr"
+							else
+								logger -t odhcp6c.user "change prefix olsrv2_lan nat64 $1 $addr $newaddr"
+								set_iface_prefix "$newaddr"
+								( printf "config set olsrv2_lan[nat64].prefix=64:ff9b::/96\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null 
+								( printf "config commit\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
+							fi
+						fi
 						#Public Domain
 						#if dnsmasq -v 2>/dev/null | grep -q auth && grep -q auth-zone /etc/dnsmasq.conf ; then
 							#optional set domain from config
