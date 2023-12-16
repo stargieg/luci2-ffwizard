@@ -63,7 +63,6 @@ case "$2" in
 					( printf "config set olsrv2_lan[wanip].prefix=$newaddr/128\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
 					sleep 1
 					( printf "config commit\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
-					( sleep 5 ; /etc/init.d/dnsmasq restart ) &
 				fi
 			done
 		fi
@@ -92,7 +91,7 @@ case "$2" in
 							( printf "config set olsrv2_lan[wangw].source_prefix=$newaddr\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
 							( printf "config commit\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
 						fi
-						nat64=$(uci get jool.nat64.enabled)
+						nat64=$(uci -q get jool.nat64.enabled)
 						if [ "$nat64" == "1" ] ; then
 							addr="$(printf '/config get olsrv2_lan[nat64].prefix' | nc ::1 2009 | tail -1)"
 							if [ "$addr" == "$newaddr" ] ; then
@@ -104,26 +103,6 @@ case "$2" in
 								( printf "config commit\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
 							fi
 						fi
-						#Public Domain
-						#if dnsmasq -v 2>/dev/null | grep -q auth && grep -q auth-zone /etc/dnsmasq.conf ; then
-							#optional set domain from config
-							#domain=$(uci get luci_olsrd2.general.domain)
-							#if ! [ -z "$domain" ] ; then
-						#		if ! grep -q "$newaddr" /etc/dnsmasq.conf ; then
-						#			logger -t odhcp6c.user "change prefix for auth-zone"
-						#			sed -i /etc/dnsmasq.conf -e "s|\(auth-zone=[a-zA-Z0-9.]*,\).*|\1$newaddr|"
-									#optional set domain from config
-									#sed -i /etc/dnsmasq.conf -e "s|auth-zone=.*|auth-zone=$domain,$newaddr|"
-									#/etc/dnsmasq.conf
-									#auth-ttl=60
-									#auth-zone=ff.example.com,2003:ea:2222:1f00::/56
-									#auth-zone=ff.example.com,br-lan/6,exclude:f000::/4
-									#auth-server=inetrouter.example.com,pppoe-wan
-						#			logger -t odhcp6c.user "restart dnsmasq"
-						#			( sleep 5 ; /etc/init.d/dnsmasq restart ) &
-						#		fi
-							#fi
-						#fi
 						;;
 				esac
 			done
