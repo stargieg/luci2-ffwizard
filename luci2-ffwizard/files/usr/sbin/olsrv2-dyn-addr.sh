@@ -191,6 +191,16 @@ if [ -n "$ffip6prefix" ] ; then
 	return 1
 fi
 
+ula=$(uci get network.globals.ula_prefix)
+ulacfg="$(printf '/config get olsrv2_lan[ula].prefix' | nc ::1 2009 | tail -1)"
+if [ "$ula" == "$ulacfg" ] ; then
+	log "no change prefix olsrv2_lan ula $ula"
+else
+	log "change prefix olsrv2_lan ula $ula"
+	( printf "config set olsrv2_lan[ula].prefix=$ula\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
+	( printf "config commit\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
+fi
+
 cfg_ip6prefix="loopback"
 srcip6prefix="$(uci_get network $cfg_ip6prefix srcip6prefix)"
 cfgip6prefix="$(uci_get network $cfg_ip6prefix ip6prefix)"
