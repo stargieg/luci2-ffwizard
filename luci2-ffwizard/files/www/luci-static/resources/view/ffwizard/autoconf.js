@@ -13,6 +13,7 @@ return view.extend({
 		s.addremove = false;
 		o = s.option(form.Flag, "firstboot", _("Start der autokonfiguration"), "");
 		o.datatype = "bool";
+		o.rmempty = false;
 
 		return m.render();
 	}

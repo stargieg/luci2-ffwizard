@@ -13,11 +13,13 @@ return view.extend({
 		s.addremove = false;
 		o = s.option(form.Flag, "enabled", _("freigegeben Dieser hacken wird entfernt wenn der Wizard seine Arbeit getan hat."), "");
 		o.datatype = "bool";
+		o.rmempty = false;
 		o = s.option(form.Value, "hostname", _("Router Name"), "");
 		o.datatype = "host";
 		o.placeholder = "OpenWrt";
 		o = s.option(form.Flag, "br", _("Netzwerkbrücke für AP-DHCP und Batman"), "");
 		o.datatype = "bool";
+		o.rmempty = false;
 		o = s.option(form.Value, "dhcp_ip", _("IPv4 DHCP Netz für Batman Gateway mode und olsr Hna4"), "");
 		o.datatype = "cidr4";
 		o.placeholder = "192.168.111.0/28";
