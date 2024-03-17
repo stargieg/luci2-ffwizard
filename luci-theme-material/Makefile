@@ -2,7 +2,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-theme-material
-PKG_VERSION:=git-99.000.0-0
+PKG_VERSION:=git-22.999.68448-712bc8e
 PKG_RELEASE:=1
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
