@@ -5,7 +5,6 @@ log_system() {
 
 setup_system() {
 	local cfg=$1
-	touch /tmp/ff/system
 	if [ -z "$hostname" ] || [ "$hostname" == "OpenWrt" ] ; then
 		config_get hostname $cfg hostname "$hostname"
 		log_system "No custom Hostname! Get sys Hostname $hostname"
