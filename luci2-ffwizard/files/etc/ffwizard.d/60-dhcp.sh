@@ -45,7 +45,7 @@ setup_dhcp() {
 		uci_set dhcp $cfg_dhcp ra_default "1"
 		uci_set dhcp $cfg_dhcp ra_pref64 '64:ff9b::/96'
 		uci_set dhcp $cfg_dhcp ra_mtu '1492'
-		uci_add_list dhcp $cfg dhcp_option "108,0:0:7:8"
+		uci_add_list dhcp $cfg_dhcp dhcp_option "108,0:0:7:8"
 }
 
 setup_dhcp_ignore() {
@@ -184,6 +184,7 @@ fi
 setup_dhcp_ignore loopback
 
 uci_commit dhcp
+# restart service dnsmasq and odhcpd
 mkdir -p /tmp/ff
 touch /tmp/ff/dnsmasq
 touch /tmp/ff/odhcpd
