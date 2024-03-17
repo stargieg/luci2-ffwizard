@@ -1,5 +1,5 @@
 config autoconf autoconf
-	option firstboot 1
+	option firstboot 0
 
 config ffwizard ffwizard
 	option hostname "OpenWrt"
