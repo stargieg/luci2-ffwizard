@@ -189,12 +189,12 @@ if [ "$olsr_enabled" == "1" ] ; then
 	#fi
 else
 	/sbin/uci revert olsrd6
-	ubus call rc init '{"name":"olsrd6","action":"stop"}' || /etc/init.d/olsrd6 stop
-	ubus call rc init '{"name":"olsrd6","action":"disable"}' || /etc/init.d/olsrd6 disable
+	ubus call rc init '{"name":"olsrd6","action":"stop"}' 2>/dev/null || /etc/init.d/olsrd6 stop
+	ubus call rc init '{"name":"olsrd6","action":"disable"}' 2>/dev/null || /etc/init.d/olsrd6 disable
 	crontab -l | grep -q 'olsrd-dyn-addr' && crontab -l | sed -e '/.*olsrd-dyn-addr.*/d' | crontab -
 fi
 
 if ! [ "$(opkg status luci2-ffwizard-olsrd-ipv4)" ] ; then
-	ubus call rc init '{"name":"olsrd","action":"stop"}' || /etc/init.d/olsrd stop
-	ubus call rc init '{"name":"olsrd","action":"disable"}' || /etc/init.d/olsrd disable
+	ubus call rc init '{"name":"olsrd","action":"stop"}' 2>/dev/null || /etc/init.d/olsrd stop
+	ubus call rc init '{"name":"olsrd","action":"disable"}' 2>/dev/null || /etc/init.d/olsrd disable
 fi

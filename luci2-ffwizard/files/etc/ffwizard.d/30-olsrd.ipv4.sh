@@ -200,11 +200,11 @@ if [ "$olsr_enabled" == "1" ] ; then
 	grep -q "dnsmasq" /etc/crontabs/root || echo "*/5 * * * * killall -HUP dnsmasq" >> /etc/crontabs/root
 else
 	/sbin/uci revert olsrd
-	ubus call rc init '{"name":"olsrd","action":"stop"}' || /etc/init.d/olsrd stop
-	ubus call rc init '{"name":"olsrd","action":"disable"}' || /etc/init.d/olsrd disable
+	ubus call rc init '{"name":"olsrd","action":"stop"}' 2>/dev/null || /etc/init.d/olsrd stop
+	ubus call rc init '{"name":"olsrd","action":"disable"}' 2>/dev/null || /etc/init.d/olsrd disable
 fi
 
 if ! [ "$(opkg status luci2-ffwizard-olsrd-ipv6)" ] ; then
-	ubus call rc init '{"name":"olsrd6","action":"stop"}' || /etc/init.d/olsrd6 stop
-	ubus call rc init '{"name":"olsrd6","action":"disable"}' || /etc/init.d/olsrd6 disable
+	ubus call rc init '{"name":"olsrd6","action":"stop"}' 2>/dev/null || /etc/init.d/olsrd6 stop
+	ubus call rc init '{"name":"olsrd6","action":"disable"}' 2>/dev/null || /etc/init.d/olsrd6 disable
 fi
