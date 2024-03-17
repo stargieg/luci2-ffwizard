@@ -94,13 +94,49 @@ setup_ether() {
 	config_get device $cfg device "0"
 	[ "$device" == "0" ] && return
 	log_olsr "Setup ether $cfg"
+
+	# /sys/class/net/<iface>/speed
+	# Indicates the interface latest or current speed value. Value is
+	# an integer representing the link speed in Mbits/sec.
+	local speed="0"
+	if [ "$compat" == "1" ] ; then
+		for i in $(uci_get network.$device.ifname) ; do 
+			local speed_get=""
+			speed_get="$(cat /sys/class/net/$i/speed 2>/dev/null)"
+			[ -n "$speed_get" ] && [ $speed_get -gt 0 ] && [ $speed_get -gt $speed ] && speed=$speed_get
+		done
+	else
+		devicename="$(uci_get network.$device.device)"
+		j=0
+		while name="$(uci_get network.@device[$j].name)" ; do
+			if [ "$name" == "$devicename" ] ; then
+				for i in $(uci_get network.@device[$j].ports) ; do
+					local speed_get=""
+					speed_get="$(cat /sys/class/net/$i/speed 2>/dev/null)"
+					[ -n "$speed_get" ] && [ $speed_get -gt 0 ] && [ $speed_get -gt $speed ] && speed=$speed_get
+				done
+			fi
+			j=$((j+1))
+		done
+		if [ "$speed" == "0" ] ; then
+			local speed_get=""
+			speed_get="$(cat /sys/class/net/$devicename/speed 2>/dev/null)"
+			[ -n "$speed_get" ] && [ $speed_get -gt 0 ] && [ $speed_get -gt $speed ] && speed=$speed_get
+		fi
+	fi
+	if [ "$speed" -gt "0" ] ; then
+		speed="$speed""M"
+	else
+		speed="1G"
+	fi
+
 	uci_add olsrd2 interface ; iface_sec="$CONFIG_SECTION"
 	uci_set olsrd2 "$iface_sec" ifname "$device"
 	uci_add_list olsrd2 "$iface_sec" bindto "-0.0.0.0/0"
 	uci_add_list olsrd2 "$iface_sec" bindto "-::1/128"
 	uci_add_list olsrd2 "$iface_sec" bindto "default_accept"
-	uci_set olsrd2 "$iface_sec" rx_bitrate "1G"
-	uci_set olsrd2 "$iface_sec" tx_bitrate "1G"
+	uci_set olsrd2 "$iface_sec" rx_bitrate "$speed"
+	uci_set olsrd2 "$iface_sec" tx_bitrate "$speed"
 	uci_set olsrd2 "$iface_sec" ignore "0"
 	olsr_enabled=1
 }
@@ -184,12 +220,12 @@ if [ "$olsr_enabled" == "1" ] ; then
 	grep -q "dnsmasq" /etc/crontabs/root || echo "*/5 * * * * killall -HUP dnsmasq" >> /etc/crontabs/root
 
 	#Disable olsrd6
-	ubus call rc init '{"name":"olsrd6","action":"stop"}' || /etc/init.d/olsrd6 stop
-	ubus call rc init '{"name":"olsrd6","action":"disable"}' || /etc/init.d/olsrd6 disable
+	ubus call rc init '{"name":"olsrd6","action":"stop"}' 2>/dev/null || /etc/init.d/olsrd6 stop 2>/dev/null 
+	ubus call rc init '{"name":"olsrd6","action":"disable"}' 2>/dev/null || /etc/init.d/olsrd6 disable 2>/dev/null 
 else
 	/sbin/uci revert olsrd2
-	ubus call rc init '{"name":"olsrd2","action":"stop"}' || /etc/init.d/olsrd2 stop
-	ubus call rc init '{"name":"olsrd2","action":"disable"}' || /etc/init.d/olsrd2 disable
+	ubus call rc init '{"name":"olsrd2","action":"stop"}' 2>/dev/null || /etc/init.d/olsrd2 stop
+	ubus call rc init '{"name":"olsrd2","action":"disable"}' 2>/dev/null || /etc/init.d/olsrd2 disable
 	crontab -l | grep -q 'olsrneighbor2hosts' && crontab -l | sed -e '/.*olsrneighbor2hosts.*/d' | crontab -
 	crontab -l | grep -q 'olsrnode2hosts' && crontab -l | sed -e '/.*olsrnode2hosts.*/d' | crontab -
 	crontab -l | grep -q 'olsrv2-dyn-addr' && crontab -l | sed -e '/.*olsrv2-dyn-addr.*/d' | crontab -
