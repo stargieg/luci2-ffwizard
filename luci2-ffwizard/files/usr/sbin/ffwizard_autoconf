@@ -140,4 +140,5 @@ for ifc in $wlan_ifc ; do
 		uci_set ffwizard "$ifc" bssid $cfgbssid
 		uci_set ffwizard "$ifc" iface_mode "adhoc"
 	fi
+	uci_commit ffwizard
 done
