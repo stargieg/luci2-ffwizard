@@ -334,7 +334,6 @@ else
 		olsrv2_lan_update=0
 		config_foreach setup_lan olsrv2_lan "$ip6prefix_new/$ip6prefix_mask_new"
 		if [ $olsrv2_lan_update == 0 ] ; then
-			echo "U$olsrv2_lan_update"
 			uci_add olsrd2 olsrv2_lan ; cfg="$CONFIG_SECTION"
 			uci_set olsrd2 "$cfg" name "dynaddr"
 			uci_set olsrd2 "$cfg" prefix "$ip6prefix_new/$ip6prefix_mask_new"
@@ -352,7 +351,6 @@ else
 			/etc/init.d/olsrd2 restart
 		fi
 	fi
-ip6prefix '2003:ea:d722:7275::/64'
 
 	addr="$(printf '/config get olsrv2_lan[dynaddr].prefix' | nc ::1 2009 | tail -1)"
 	ip6prefix_new="$ip6prefix_new/$ip6prefix_mask_new"
