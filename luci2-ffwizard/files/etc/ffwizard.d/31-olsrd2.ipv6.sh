@@ -175,6 +175,12 @@ config_foreach remove_section domain
 config_foreach remove_section telnet
 #Remove ula and lan prefix
 config_foreach remove_section olsrv2_lan
+#Remove lan prefix from loopback
+uci_remove network loopback srcip6prefix 2>/dev/null
+uci_remove network loopback ip6prefix 2>/dev/null
+uci_remove network loopback ip6addr
+uci_add_list network loopback ip6addr "::1/128"
+uci_commit network
 
 olsr_enabled=0
 

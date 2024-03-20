@@ -166,6 +166,16 @@ calc_from_48() {
 	echo :
 }
 
+setup_lan() {
+	local cfg=$1
+	local prefix="$2"
+	config_get name $cfg name
+	if [ "$name" == "dynaddr" ] ; then
+		olsrv2_lan_update=1
+		uci_set olsrd2 "$cfg" prefix "$prefix"
+	fi
+}
+
 if pidof nc | grep -q ' ' >/dev/null ; then
 	log "killall nc"
 	killall -9 nc
@@ -320,12 +330,29 @@ else
 		uci_commit network
 		uci_commit dhcp
 
+		config_load olsrd2
+		olsrv2_lan_update=0
+		config_foreach setup_lan olsrv2_lan "$ip6prefix_new/$ip6prefix_mask_new"
+		if [ $olsrv2_lan_update == 0 ] ; then
+			echo "U$olsrv2_lan_update"
+			uci_add olsrd2 olsrv2_lan ; cfg="$CONFIG_SECTION"
+			uci_set olsrd2 "$cfg" name "dynaddr"
+			uci_set olsrd2 "$cfg" prefix "$ip6prefix_new/$ip6prefix_mask_new"
+		fi
+		uci_commit olsrd2
+
 		#ubus call uci "reload_config"
 		/etc/init.d/network reload
 		#netconfig is a reload triger for olsrv2
 		sleep 5
 		/etc/init.d/dnsmasq restart
+	else
+		if [ -z "$(ip -6 route show default)" ] ; then
+			log "ip6pre: no default route found for $ip6prefix_new/$ip6prefix_mask_new"
+			/etc/init.d/olsrd2 restart
+		fi
 	fi
+ip6prefix '2003:ea:d722:7275::/64'
 
 	addr="$(printf '/config get olsrv2_lan[dynaddr].prefix' | nc ::1 2009 | tail -1)"
 	ip6prefix_new="$ip6prefix_new/$ip6prefix_mask_new"
