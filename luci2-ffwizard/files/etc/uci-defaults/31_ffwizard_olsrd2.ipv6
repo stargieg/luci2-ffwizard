@@ -50,7 +50,7 @@ else
 		crontab -l | sed -e '/.*olsrnode2hosts.*/d' | crontab -
 		echo "*/11 * * * *    /usr/sbin/olsrnode2hosts.sh" >> /etc/crontabs/root
 	fi
-	if [ -s /etc/rc.d/S*olsrd ] ; then
+	if [ ! -s /etc/rc.d/S*olsrd ] ; then
 		if crontab -l | grep -q 'dnsmasq' ; then
 			crontab -l | sed -e '/.*dnsmasq.*/d' | crontab -
 		fi
