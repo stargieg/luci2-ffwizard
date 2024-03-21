@@ -4,7 +4,8 @@
 . /usr/share/libubox/jshn.sh
 
 log() {
-	logger -s -t olsrv2-dyn-addr $@
+	#logger -s -t olsrv2-dyn-addr $@
+	logger -t olsrv2-dyn-addr $@
 }
 
 uci_add_list() {
@@ -176,6 +177,14 @@ setup_lan() {
 	fi
 }
 
+remove_lan() {
+	local cfg=$1
+	config_get name $cfg name
+	if [ "$name" == "dynaddr" ] ; then
+		uci_remove olsrd2 "$cfg"
+	fi
+}
+
 if pidof nc | grep -q ' ' >/dev/null ; then
 	log "killall nc"
 	killall -9 nc
@@ -203,9 +212,7 @@ fi
 
 ula=$(uci get network.globals.ula_prefix)
 ulacfg="$(printf '/config get olsrv2_lan[ula].prefix' | nc ::1 2009 | tail -1)"
-if [ "$ula" == "$ulacfg" ] ; then
-	log "no change prefix olsrv2_lan ula $ula"
-else
+if [ ! "$ula" == "$ulacfg" ] ; then
 	log "change prefix olsrv2_lan ula $ula"
 	( printf "config set olsrv2_lan[ula].prefix=$ula\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
 	( printf "config commit\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
@@ -216,8 +223,8 @@ srcip6prefix="$(uci_get network $cfg_ip6prefix srcip6prefix)"
 cfgip6prefix="$(uci_get network $cfg_ip6prefix ip6prefix)"
 ip6prefix="$(echo $cfgip6prefix | cut -d '/' -f 1)"
 ip6prefix_mask="$(echo $cfgip6prefix | cut -d '/' -f 2)"
-ip6prefix_new=$ip6prefix
-ip6prefix_mask_new=$ip6prefix_mask
+ip6prefix_new=""
+ip6prefix_mask_new="" 
 
 json_init
 json_load "$(echo '/olsrv2info json attached_network /quit' | nc ::1 2009)"
@@ -226,6 +233,7 @@ if ! json_select attached_network ; then
 	return 1
 fi
 
+#Prefix list for conflict detection
 pre_list=""
 #MAX Metric
 metric="99"
@@ -244,17 +252,15 @@ i=1;while json_is_a ${i} object;do
 		json_get_var attached_net_src attached_net_src
 		genmask="$(echo $attached_net_src | cut -d '/' -f 2)"
 		json_get_var gateway node
-		log "gateway $gateway net $attached_net_src"
 		destination="$(echo $attached_net_src | cut -d '/' -f 1)"
-		log "new $destination old $srcip6prefix"
-		if [ ! "$destination" == "$srcip6prefix" ] ; then
-			if [ $genmask == 48 ] || [ $genmask -eq 42 ] || [ $genmask -eq 56 ] || [ $genmask -eq 60 ]; then
-				ula="$(echo $destination | cut -b -2)"
-				json_get_var mtr domain_metric_out_raw
-				json_get_var dis domain_distance
-				if [ $ula != fd -a $ula != fe -a $mtr -lt $metric -a $dis -lt $distance ] ; then
-					metric=$mtr
-					distance=$dis
+		if [ $genmask == 48 ] || [ $genmask -eq 42 ] || [ $genmask -eq 56 ] || [ $genmask -eq 60 ]; then
+			ula="$(echo $destination | cut -b -2)"
+			json_get_var mtr domain_metric_out_raw
+			json_get_var dis domain_distance
+			if [ $ula != fd -a $ula != fe -a $mtr -lt $metric -a $dis -lt $distance ] ; then
+				metric=$mtr
+				distance=$dis
+				if [ ! "$destination" == "$srcip6prefix" ] ; then
 					log "attached_net_src $attached_net_src"
 					case $genmask in
 					60) 
@@ -287,7 +293,9 @@ i=1;while json_is_a ${i} object;do
 						log "wrong mask src $genmask"
 						;;
 					esac
-					log "new address $ip6prefix_new/$ip6prefix_mask_new"
+				else
+					ip6prefix_new="$ip6prefix"
+					ip6prefix_mask_new="$ip6prefix_mask"
 				fi
 			fi
 		fi
@@ -296,26 +304,48 @@ i=1;while json_is_a ${i} object;do
 	i=$(( i + 1 ))
 done
 
-
-validate="1"
 for j in $pre_list ; do
 	if [ $ip6prefix_new == $j ] ; then
-		validate="0"
-		log "Not Validate"
+		ip6prefix_new=""
+		log "Conflict found for $ip6prefix_new"
 	fi
 done
-#validate="0"
-if [ "$validate" == "0" ] ; then
-	log "Del Not Validate"
-	log "ip6pre: $ip6prefix_new/$ip6prefix_mask_new"
-else
-	log "Validate"
-	log "ip6pre: $ip6prefix_new/$ip6prefix_mask_new"
 
+if [ -z "$ip6prefix_new" ] ; then
+	log "No valid prefix found"
+	if [ ! -z "$srcip6prefix" ] ; then
+		log "del $ip6prefix/$ip6prefix_mask"
+		uci_remove network $cfg_ip6prefix srcip6prefix 2>/dev/null
+		uci_remove network $cfg_ip6prefix ip6prefix 2>/dev/null
+		uci_remove network $cfg_ip6prefix ip6addr 2>/dev/null
+		uci_add_list network $cfg_ip6prefix ip6addr "::1/128"
+		# https://nat64.net/
+		uci_remove network lan dns
+		uci_add_list network lan dns "2a00:1098:2c::1"
+		uci_add_list network lan dns "2a01:4f8:c2c:123f::1"
+		uci_add_list network lan dns "2a00:1098:2b::1"
+		uci_commit network
+		uci_remove dhcp @dnsmasq[-1] server 2>/dev/null
+		uci_remove dhcp @dnsmasq[-1] filter_a '1' 2>/dev/null
+		uci_commit dhcp
+		# remove prefix from olsrd2 prozess
+		( printf "config remove olsrv2_lan[dynaddr]\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
+		( printf "config commit\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
+		#optional remove prefix from olsrd2 config
+		#faster reconect after reboot
+		config_load olsrd2
+		config_foreach remove_lan olsrv2_lan
+		uci_commit olsrd2
+		#ubus call uci "reload_config"
+		/etc/init.d/network reload
+		#netconfig is a reload triger for olsrv2
+		sleep 5
+		/etc/init.d/dnsmasq restart
+	fi
+else
+	#log "valid ip6pre: $ip6prefix_new/$ip6prefix_mask_new"
 	if [ "$ip6prefix_new" != "$ip6prefix" ] ; then
-		log "Update network $cfg_ip6prefix ip6prefix"
-		log "ip6prefix:        $ip6prefix"
-		log "ip6prefix_new:    $ip6prefix_new/$ip6prefix_mask_new"
+		log "Write new config for $ip6prefix_new/$ip6prefix_mask_new"
 		uci_remove network $cfg_ip6prefix ip6prefix 2>/dev/null
 		uci_remove network $cfg_ip6prefix ip6addr 2>/dev/null
 		uci_add_list network $cfg_ip6prefix ip6prefix "$ip6prefix_new/$ip6prefix_mask_new"
@@ -330,6 +360,8 @@ else
 		uci_commit network
 		uci_commit dhcp
 
+		#optional add prefix to olsrd2 config
+		#faster reconect after reboot
 		config_load olsrd2
 		olsrv2_lan_update=0
 		config_foreach setup_lan olsrv2_lan "$ip6prefix_new/$ip6prefix_mask_new"
@@ -352,16 +384,12 @@ else
 		fi
 	fi
 
+	# add prefix to olsrd2 prozess
 	addr="$(printf '/config get olsrv2_lan[dynaddr].prefix' | nc ::1 2009 | tail -1)"
 	ip6prefix_new="$ip6prefix_new/$ip6prefix_mask_new"
-	if [ "$addr" == "$ip6prefix_new" ] ; then
-		log "no change prefix olsrv2_lan dynaddr $addr $ip6prefix_new"
-	else
+	if [ ! "$addr" == "$ip6prefix_new" ] ; then
 		log "change prefix olsrv2_lan dynaddr $addr $ip6prefix_new"
 		mask="$(echo $newaddr | cut -d '/' -f 2)"
-		#if [ ! "$mask" == "64" ] ; then
-		#	set_iface_prefix "$newaddr"
-		#fi
 		( printf "config set olsrv2_lan[dynaddr].prefix=$ip6prefix_new\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
 		( printf "config commit\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
 	fi
