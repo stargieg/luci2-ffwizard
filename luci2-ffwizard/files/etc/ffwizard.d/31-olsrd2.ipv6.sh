@@ -220,10 +220,9 @@ if [ "$olsr_enabled" == "1" ] ; then
 	#Cron search for public prefix greater than 56
 	grep -q 'olsrv2-dyn-addr' /etc/crontabs/root || echo '*/8 * * * * /usr/sbin/olsrv2-dyn-addr.sh' >> /etc/crontabs/root
 	grep -q "olsrneighbor2hosts.sh" /etc/crontabs/root || \
-		echo "*/5 * * * *     olsrneighbor2hosts.sh > /tmp/olsrneighbor2hosts.tmp && mv /tmp/olsrneighbor2hosts.tmp /tmp/hosts/olsrneighbor || rm /tmp/olsrneighbor2hosts.tmp" >> /etc/crontabs/root
+		echo "*/5 * * * *     /usr/sbin/olsrneighbor2hosts.sh" >> /etc/crontabs/root
 	grep -q "olsrnode2hosts.sh" /etc/crontabs/root || \
-		echo "*/10 * * * *     olsrnode2hosts.sh > /tmp/olsrnode2hosts.tmp && mv /tmp/olsrnode2hosts.tmp /tmp/hosts/olsrnode || rm /tmp/olsrnode2hosts.tmp" >> /etc/crontabs/root
-	grep -q "dnsmasq" /etc/crontabs/root || echo "*/5 * * * * killall -HUP dnsmasq" >> /etc/crontabs/root
+		echo "*/10 * * * *      /usr/sbin/olsrnode2hosts.sh" >> /etc/crontabs/root
 
 	#Disable olsrd6
 	ubus call rc init '{"name":"olsrd6","action":"stop"}' 2>/dev/null || /etc/init.d/olsrd6 stop 2>/dev/null 

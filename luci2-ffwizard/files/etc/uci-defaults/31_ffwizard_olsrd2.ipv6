@@ -41,4 +41,18 @@ if [ "$olsrd2_ipv6_enabled" == "0" ] ; then
 	crontab -l | grep -q 'olsrneighbor2hosts' && crontab -l | sed -e '/.*olsrneighbor2hosts.*/d' | crontab -
 	crontab -l | grep -q 'olsrnode2hosts' && crontab -l | sed -e '/.*olsrnode2hosts.*/d' | crontab -
 	crontab -l | grep -q 'olsrv2-dyn-addr' && crontab -l | sed -e '/.*olsrv2-dyn-addr.*/d' | crontab -
+else
+	if crontab -l | grep -q 'olsrneighbor2hosts.tmp' ; then
+		crontab -l | sed -e '/.*olsrneighbor2hosts.tmp.*/d' | crontab -
+		echo "*/5 * * * *     /usr/sbin/olsrneighbor2hosts.sh" >> /etc/crontabs/root
+	fi
+	if crontab -l | grep -q 'olsrnode2hosts.tmp' ; then
+		crontab -l | sed -e '/.*olsrnode2hosts.*/d' | crontab -
+		echo "*/11 * * * *    /usr/sbin/olsrnode2hosts.sh" >> /etc/crontabs/root
+	fi
+	if [ -s /etc/rc.d/S*olsrd ] ; then
+		if crontab -l | grep -q 'dnsmasq' ; then
+			crontab -l | sed -e '/.*dnsmasq.*/d' | crontab -
+		fi
+	fi
 fi
