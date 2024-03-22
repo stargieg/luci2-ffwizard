@@ -329,7 +329,7 @@ i=1;while json_is_a ${i} object;do
 done
 
 for j in $pre_list ; do
-	if [ $ip6prefix_new == $j ] ; then
+	if [ "$ip6prefix_new" == "$j" ] ; then
 		ip6prefix_new=""
 		log "Conflict found for $ip6prefix_new"
 	fi
