@@ -444,13 +444,23 @@ config_foreach setup_wifi wifi "$br_name"
 
 
 #Setup IP6 Prefix
+ula_uci=$(uci_get network globals ula_prefix)
+ula_addr="$(echo $ula_uci | cut -d '/' -f 1)"
 config_get ip6prefix ffwizard ip6prefix
 if [ -n "$ip6prefix" ] ; then
 	uci_set network loopback ip6prefix "$ip6prefix"
-	uci_remove network loopback srcip6prefix 2>/dev/null
+	ip6_addr="$(echo $ip6prefix | cut -d '/' -f 1)"
+	uci_remove network globals srcip6prefix 2>/dev/null
+	uci_remove network loopback ip6addr 2>/dev/null
+	uci_add_list network loopback ip6addr "::1/128"
+	uci_add_list network loopback ip6addr "$ula_addr""2/128"
+	uci_add_list network loopback ip6addr "$ip6_addr""2/128"
 else
 	uci_remove network loopback ip6prefix 2>/dev/null
-	uci_remove network loopback srcip6prefix 2>/dev/null
+	uci_remove network globals srcip6prefix 2>/dev/null
+	uci_remove network loopback ip6addr 2>/dev/null
+	uci_add_list network loopback ip6addr "::1/128"
+	uci_add_list network loopback ip6addr "$ula_addr""2/128"
 fi
 
 #Set lan defaults if not an freifunk interface

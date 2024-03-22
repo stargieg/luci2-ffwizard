@@ -44,20 +44,30 @@ if [ "$(uci_get system @system[0] hostname)" == "OpenWrt" ]; then
 	uci_set dhcp frei_funk name "frei.funk"
 	uci_set dhcp frei_funk ip "192.168.1.1"
 	# add dns entry frei.funk for ipv6
+	ula_addr="$(uci get network.globals.ula_prefix | cut -d '/' -f 1)"
 	uci_add dhcp domain openwrt_lan_ipv6
 	uci_set dhcp openwrt_lan_ipv6 name "openwrt.lan"
-	uci_set dhcp openwrt_lan_ipv6 ip "$(uci get network.globals.ula_prefix | cut -d '/' -f 1)1"
+	uci_set dhcp openwrt_lan_ipv6 ip "$ula_addr""1"
+	uci_add dhcp domain openwrt_lo_ipv6
+	uci_set dhcp openwrt_lo_ipv6 name "lo.openwrt.lan"
+	uci_set dhcp openwrt_lo_ipv6 ip "$ula_addr""2"
 	uci_commit dhcp
 
 	uci_set network lan ipaddr "192.168.1.1"
+	uci_remove network loopback ip6addr 2>/dev/null
+	uci_add_list network loopback ip6addr "::1/128"
+	uci_add_list network loopback ip6addr "$ula_addr""2/128"
+
 	#uci_set network lan dns "85.214.20.141 213.73.91.35 194.150.168.168 2001:4ce8::53 2001:910:800::12"
 	# https://nat64.dresel.systems/ "Service eingestellt...  "
 	#uci_set network lan dns "2a0b:f4c0:4d:53::1 2a01:4f8:221:2d08::213"
 	# https://nat64.net/
 	uci_remove network lan dns
-	uci_add_list network lan dns "2a00:1098:2c::1"
-	uci_add_list network lan dns "2a01:4f8:c2c:123f::1"
-	uci_add_list network lan dns "2a00:1098:2b::1"
+	uci_remove dhcp @dnsmasq[-1] server
+	uci_add_list dhcp @dnsmasq[-1] server "2a00:1098:2c::1"
+	uci_add_list dhcp @dnsmasq[-1] server "2a01:4f8:c2c:123f::1"
+	uci_add_list dhcp @dnsmasq[-1] server "2a00:1098:2b::1"
+	uci_commit dhcp
 	uci_commit network
 	uci_set ffwizard autoconf firstboot "1"
 	uci_commit ffwizard
