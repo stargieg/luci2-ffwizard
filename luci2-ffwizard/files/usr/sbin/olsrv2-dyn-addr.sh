@@ -4,7 +4,6 @@
 . /usr/share/libubox/jshn.sh
 
 log() {
-	#logger -s -t olsrv2-dyn-addr $@
 	logger -t olsrv2-dyn-addr $@
 }
 
@@ -123,6 +122,7 @@ calc_from_52() {
 	fi
 	echo :
 }
+
 calc_from_48() {
 	addr=$1
 	mask=$2
@@ -185,6 +185,28 @@ remove_lan() {
 	fi
 }
 
+setup_dhcp_ra_pref() {
+	local cfg=$1
+	local prefix="64:ff9b::/96"
+	config_get ra $cfg ra
+	if [ "$ra" == "server" ] ; then
+		uci_set dhcp "$cfg" ra_pref64 "$prefix"
+		uci_set dhcp "$cfg" ra_mtu "1492"
+		uci_remove dhcp "$cfg" dhcp_option 2>/dev/null
+		uci_add_list dhcp $cfg dhcp_option "108,0:0:7:8"
+	fi
+}
+
+remove_dhcp_ra_pref() {
+	local cfg=$1
+	config_get ra $cfg ra
+	if [ "$ra" == "server" ] ; then
+		uci_remove dhcp "$cfg" ra_pref64
+		uci_remove dhcp "$cfg" ra_mtu
+		uci_remove dhcp "$cfg" dhcp_option
+	fi
+}
+
 if pidof nc | grep -q ' ' >/dev/null ; then
 	log "killall nc"
 	killall -9 nc
@@ -210,17 +232,16 @@ if [ -n "$ffip6prefix" ] ; then
 	return 1
 fi
 
-ula=$(uci get network.globals.ula_prefix)
-ulacfg="$(printf '/config get olsrv2_lan[ula].prefix' | nc ::1 2009 | tail -1)"
-if [ ! "$ula" == "$ulacfg" ] ; then
-	log "change prefix olsrv2_lan ula $ula"
-	( printf "config set olsrv2_lan[ula].prefix=$ula\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
+ula_uci=$(uci get network.globals.ula_prefix)
+ula_cfg="$(printf '/config get olsrv2_lan[ula].prefix' | nc ::1 2009 | tail -1)"
+if [ ! "$ula_uci" == "$ula_cfg" ] ; then
+	log "change prefix olsrv2_lan ula $ula_uci"
+	( printf "config set olsrv2_lan[ula].prefix=$ula_uci\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
 	( printf "config commit\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
 fi
 
-cfg_ip6prefix="loopback"
-srcip6prefix="$(uci_get network $cfg_ip6prefix srcip6prefix)"
-cfgip6prefix="$(uci_get network $cfg_ip6prefix ip6prefix)"
+srcip6prefix="$(uci_get network globals srcip6prefix)"
+cfgip6prefix="$(uci_get network loopback ip6prefix)"
 ip6prefix="$(echo $cfgip6prefix | cut -d '/' -f 1)"
 ip6prefix_mask="$(echo $cfgip6prefix | cut -d '/' -f 2)"
 ip6prefix_new=""
@@ -261,9 +282,9 @@ i=1;while json_is_a ${i} object;do
 				metric=$mtr
 				distance=$dis
 				if [ ! "$destination" == "$srcip6prefix" ] ; then
-					log "attached_net_src $attached_net_src"
+					log "new attached_net_src $attached_net_src"
 					case $genmask in
-					60) 
+					60)
 						srcip6prefix_new="$destination"
 						ip6prefix_new=$(calc_from_60 $destination)
 						ip6prefix_mask_new="64"
@@ -299,6 +320,9 @@ i=1;while json_is_a ${i} object;do
 				fi
 			fi
 		fi
+	elif [ "$pre" == "64:ff9b::" ] ; then
+		json_get_var node node
+		nat64_server="$node"
 	fi
 	json_select ..
 	i=$(( i + 1 ))
@@ -311,23 +335,46 @@ for j in $pre_list ; do
 	fi
 done
 
-if [ -z "$ip6prefix_new" ] ; then
-	log "No valid prefix found"
-	if [ ! -z "$srcip6prefix" ] ; then
-		log "del $ip6prefix/$ip6prefix_mask"
-		uci_remove network $cfg_ip6prefix srcip6prefix 2>/dev/null
-		uci_remove network $cfg_ip6prefix ip6prefix 2>/dev/null
-		uci_remove network $cfg_ip6prefix ip6addr 2>/dev/null
-		uci_add_list network $cfg_ip6prefix ip6addr "::1/128"
-		# https://nat64.net/
-		uci_remove network lan dns
-		uci_add_list network lan dns "2a00:1098:2c::1"
-		uci_add_list network lan dns "2a01:4f8:c2c:123f::1"
-		uci_add_list network lan dns "2a00:1098:2b::1"
-		uci_commit network
+#use unbound and jool on the gateway
+if [ ! -z "$nat64_server" ] ; then
+	nat64_uci_server=$(uci_get dhcp @dnsmasq[-1] server)
+	if [ "$nat64_server" != "$nat64_uci_server" ] ; then
+		log "found nat64 on $nat64_server"
+		uci_set dhcp @dnsmasq[-1] nat64 "1"
 		uci_remove dhcp @dnsmasq[-1] server 2>/dev/null
-		uci_remove dhcp @dnsmasq[-1] filter_a '1' 2>/dev/null
+		uci_add_list dhcp @dnsmasq[-1] server "$nat64_server"
+		config_load dhcp
+		config_foreach setup_dhcp_ra_pref dhcp
 		uci_commit dhcp
+		/etc/init.d/dnsmasq restart
+	fi
+else
+	nat64_uci=$(uci_get dhcp @dnsmasq[-1] nat64)
+	if [ -z "$nat64_server" ] && [ "$nat64_uci" == "1" ] ; then
+		log "remove local nat64 server $nat64_uci and add https://nat64.net/ server"
+		# https://nat64.net/
+		uci_remove dhcp @dnsmasq[-1] nat64
+		uci_remove dhcp @dnsmasq[-1] server
+		uci_add_list dhcp @dnsmasq[-1] server "2a00:1098:2c::1"
+		uci_add_list dhcp @dnsmasq[-1] server "2a01:4f8:c2c:123f::1"
+		uci_add_list dhcp @dnsmasq[-1] server "2a00:1098:2b::1"
+		config_load dhcp
+		config_foreach remove_dhcp_ra_pref dhcp
+		uci_commit dhcp
+		/etc/init.d/dnsmasq restart
+	fi
+fi
+
+if [ -z "$ip6prefix_new" ] ; then
+	if [ ! -z "$srcip6prefix" ] ; then
+		log "No valid prefix found. remove $ip6prefix/$ip6prefix_mask"
+		uci_remove network globals srcip6prefix 2>/dev/null
+		uci_remove network loopback ip6prefix 2>/dev/null
+		uci_remove network loopback ip6addr 2>/dev/null
+		ula_addr="$(echo $ula_uci | cut -d '/' -f 1)"
+		uci_add_list network loopback ip6addr "::1/128"
+		uci_add_list network loopback ip6addr "$ula_addr""2/128"
+		uci_commit network
 		# remove prefix from olsrd2 prozess
 		( printf "config remove olsrv2_lan[dynaddr]\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
 		( printf "config commit\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
@@ -343,22 +390,17 @@ if [ -z "$ip6prefix_new" ] ; then
 		/etc/init.d/dnsmasq restart
 	fi
 else
-	#log "valid ip6pre: $ip6prefix_new/$ip6prefix_mask_new"
 	if [ "$ip6prefix_new" != "$ip6prefix" ] ; then
 		log "Write new config for $ip6prefix_new/$ip6prefix_mask_new"
-		uci_remove network $cfg_ip6prefix ip6prefix 2>/dev/null
-		uci_remove network $cfg_ip6prefix ip6addr 2>/dev/null
-		uci_add_list network $cfg_ip6prefix ip6prefix "$ip6prefix_new/$ip6prefix_mask_new"
-		uci_set network $cfg_ip6prefix srcip6prefix "$srcip6prefix_new"
-		uci_add_list network $cfg_ip6prefix ip6addr "::1/128"
-		uci_add_list network $cfg_ip6prefix ip6addr "$ip6prefix_new""2/128"
-		#use unbound and jool on the gateway
-		uci_remove network lan dns 2>/dev/null
-		uci_remove dhcp @dnsmasq[-1] server 2>/dev/null
-		uci_add_list dhcp @dnsmasq[-1] server "$srcip6prefix_new""1"
-		uci_set dhcp @dnsmasq[-1] filter_a '1'
+		uci_remove network loopback ip6prefix 2>/dev/null
+		uci_remove network loopback ip6addr 2>/dev/null
+		uci_add_list network loopback ip6prefix "$ip6prefix_new/$ip6prefix_mask_new"
+		uci_set network globals srcip6prefix "$srcip6prefix_new"
+		ula_addr="$(echo $ula_uci | cut -d '/' -f 1)"
+		uci_add_list network loopback ip6addr "::1/128"
+		uci_add_list network loopback ip6addr "$ula_addr""2/128"
+		uci_add_list network loopback ip6addr "$ip6prefix_new""2/128"
 		uci_commit network
-		uci_commit dhcp
 
 		#optional add prefix to olsrd2 config
 		#faster reconect after reboot
@@ -378,8 +420,9 @@ else
 		sleep 5
 		/etc/init.d/dnsmasq restart
 	else
+		#BUG check if default route is present
 		if [ -z "$(ip -6 route show default)" ] ; then
-			log "ip6pre: no default route found for $ip6prefix_new/$ip6prefix_mask_new"
+			log "ip6pre: BUG no default route found for $ip6prefix_new/$ip6prefix_mask_new"
 			/etc/init.d/olsrd2 restart
 		fi
 	fi
