@@ -56,3 +56,6 @@ else
 		fi
 	fi
 fi
+if ! grep -q 'olsrv2_lan.sh' /etc/sysupgrade.conf ; then
+	echo "-/etc/odhcp6c.user.d/olsrv2_lan.sh" >> /etc/sysupgrade.conf
+fi
