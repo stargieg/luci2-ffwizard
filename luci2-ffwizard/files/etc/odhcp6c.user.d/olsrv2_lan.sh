@@ -27,7 +27,6 @@ set_iface_prefix() {
 							json_get_var asg_m address
 							logger -t odhcp6c.user "change addr olsrv2_lan wan $m $asg_m/64"
 							( printf "config set olsrv2_lan[$m].prefix=$asg_m/64\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
-							logger -t odhcp6c.user "change addr olsrv2_lan wan2 $m $asg_m/64"
 							json_select ".."
 						done
 						json_select ".."
@@ -56,9 +55,7 @@ case "$2" in
 				newlan=1
 				newaddr="$(echo "$ra" | cut -d ',' -f1 | cut -d '/' -f1)"
 				addr="$(printf '/config get olsrv2_lan[wanip].prefix' | nc ::1 2009 | tail -1)"
-				if [ "$addr" == "$newaddr/128" ] ; then
-					logger -t odhcp6c.user "no change addr olsrv2_lan wanip $1 $newaddr/128"
-				else
+				if [ ! "$addr" == "$newaddr/128" ] ; then
 					logger -t odhcp6c.user "change addr olsrv2_lan wanip $1 $newaddr/128"
 					( printf "config set olsrv2_lan[wanip].prefix=$newaddr/128\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
 					sleep 1
@@ -72,9 +69,7 @@ case "$2" in
 				case $newaddr in
 					fd*)
 						addr="$(printf '/config get olsrv2_lan[wanfd].prefix' | nc ::1 2009 | tail -1)"
-						if [ "$addr" == "$newaddr" ] ; then
-							logger -t odhcp6c.user "no change prefix olsrv2_lan wanfd $1 $addr $newaddr"
-						else
+						if [ ! "$addr" == "$newaddr" ] ; then
 							logger -t odhcp6c.user "change prefix olsrv2_lan wanfd $1 $addr $newaddr"
 							( printf "config set olsrv2_lan[wanfd].prefix=$newaddr\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
 							( printf "config commit\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
@@ -82,23 +77,18 @@ case "$2" in
 						;;
 					*)
 						addr="$(printf '/config get olsrv2_lan[wangw].source_prefix' | nc ::1 2009 | tail -1)"
-						if [ "$addr" == "$newaddr" ] ; then
-							logger -t odhcp6c.user "no change prefix olsrv2_lan wangw $1 $addr $newaddr"
-						else
+						if [ ! "$addr" == "$newaddr" ] ; then
 							logger -t odhcp6c.user "change prefix olsrv2_lan wangw $1 $addr $newaddr"
 							set_iface_prefix "$newaddr"
 							( printf "config set olsrv2_lan[wangw].prefix=::/0\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null 
 							( printf "config set olsrv2_lan[wangw].source_prefix=$newaddr\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
 							( printf "config commit\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
 						fi
-						nat64=$(uci -q get jool.nat64.enabled)
+						nat64=$(uci_get jool nat64 enabled)
 						if [ "$nat64" == "1" ] ; then
 							addr="$(printf '/config get olsrv2_lan[nat64].prefix' | nc ::1 2009 | tail -1)"
-							if [ "$addr" == "$newaddr" ] ; then
-								logger -t odhcp6c.user "no change prefix olsrv2_lan nat64 $1 $addr $newaddr"
-							else
+							if [ ! "$addr" == "64:ff9b::/96" ] ; then
 								logger -t odhcp6c.user "change prefix olsrv2_lan nat64 $1 $addr $newaddr"
-								set_iface_prefix "$newaddr"
 								( printf "config set olsrv2_lan[nat64].prefix=64:ff9b::/96\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null 
 								( printf "config commit\n" ; sleep 1 ; printf "quit\n" ) | nc ::1 2009 2>&1 >/dev/null
 							fi
