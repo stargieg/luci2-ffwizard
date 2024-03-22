@@ -4,7 +4,7 @@
 . /usr/share/libubox/jshn.sh
 
 log() {
-	logger -s -t olsrnode2hosts $@
+	logger -t olsrnode2hosts $@
 }
 
 if pidof olsrnode2hosts.sh | grep -q ' ' >/dev/null ; then
@@ -51,8 +51,10 @@ i=1;while json_is_a ${i} object;do
 			nodeips=$(nslookup $nodename $j | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 			for k in $nodeips ; do
 				if [ $unbound == 1 ] ; then
+					echo "$nodename.olsr." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove
 					echo "$nodename.olsr. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
 					if ! echo $k | grep -q ^fd ; then
+						echo "$nodename.$domain." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove
 						echo "$nodename.$domain. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
 						echo "$nodename.$domain. 300 IN CAA 0 issue letsencrypt.org" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
 					fi
@@ -67,8 +69,10 @@ i=1;while json_is_a ${i} object;do
 			nodeips=$(nslookup $nodename $node | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 			for k in $nodeips ; do
 				if [ $unbound == 1 ] ; then
+					echo "$nodename.olsr." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove
 					echo "$nodename.olsr. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
 					if ! echo $k | grep -q ^fd ; then
+						echo "$nodename.$domain." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove
 						echo "$nodename.$domain. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
 						echo "$nodename.$domain. 300 IN CAA 0 issue letsencrypt.org" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
 					fi
@@ -84,16 +88,19 @@ i=1;while json_is_a ${i} object;do
 done
 json_cleanup
 if [ $unbound == 0 ] ; then
-	if [ -f /tmp/olsrneighbor2hosts.tmp ] ; then
-		if [ -f /tmp/hosts/olsrneighbor ] ; then
-			new=$(md5sum /tmp/olsrneighbor2hosts.tmp | cut -d ' ' -f 1)
-			old=$(md5sum /tmp/hosts/olsrneighbor | cut -d ' ' -f 1)
+	if [ -f /tmp/olsrnode2hosts.tmp ] ; then
+		if [ -f /tmp/hosts/olsrnode ] ; then
+			cat /tmp/olsrnode2hosts.tmp | sort > /tmp/olsrnode
+			rm /tmp/olsrnode2hosts.tmp
+			new=$(md5sum /tmp/olsrnode | cut -d ' ' -f 1)
+			old=$(md5sum /tmp/hosts/olsrnode | cut -d ' ' -f 1)
 			if [ ! "$new" == "$old" ] ; then
-				mv /tmp/olsrneighbor2hosts.tmp /tmp/hosts/olsrneighbor
+				mv /tmp/olsrnode /tmp/hosts/olsrnode
 				killall -HUP dnsmasq
 			fi
 		else
-			mv /tmp/olsrneighbor2hosts.tmp /tmp/hosts/olsrneighbor
+			cat /tmp/olsrnode2hosts.tmp | sort > /tmp/hosts/olsrnode
+			rm /tmp/olsrnode2hosts.tmp
 			killall -HUP dnsmasq
 		fi
 	fi

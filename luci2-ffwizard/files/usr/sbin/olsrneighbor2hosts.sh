@@ -4,7 +4,7 @@
 . /usr/share/libubox/jshn.sh
 
 log() {
-	logger -s -t olsrneighbor2hosts $@
+	logger -t olsrneighbor2hosts $@
 }
 
 if pidof nc | grep -q ' ' >/dev/null ; then
@@ -41,8 +41,10 @@ i=1;while json_is_a ${i} object;do
 	neighborips=$(nslookup $neighborname $neighborip | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 	for j in $neighborips ; do
 		if [ $unbound == 1 ] ; then
+			echo "$neighborname.olsr." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove
 			echo "$neighborname.olsr. 300 IN AAAA $j" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
 			if ! echo $j | grep -q ^fd ; then
+				echo "$neighborname.$domain." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove
 				echo "$neighborname.$domain. 300 IN AAAA $j" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
 				echo "$neighborname.$domain. 300 IN CAA 0 issue letsencrypt.org" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
 			fi
@@ -57,14 +59,17 @@ json_cleanup
 if [ $unbound == 0 ] ; then
 	if [ -f /tmp/olsrneighbor2hosts.tmp ] ; then
 		if [ -f /tmp/hosts/olsrneighbor ] ; then
-			new=$(md5sum /tmp/olsrneighbor2hosts.tmp | cut -d ' ' -f 1)
+			cat /tmp/olsrneighbor2hosts.tmp | sort > /tmp/olsrneighbor
+			rm /tmp/olsrneighbor2hosts.tmp
+			new=$(md5sum /tmp/olsrneighbor | cut -d ' ' -f 1)
 			old=$(md5sum /tmp/hosts/olsrneighbor | cut -d ' ' -f 1)
 			if [ ! "$new" == "$old" ] ; then
-				mv /tmp/olsrneighbor2hosts.tmp /tmp/hosts/olsrneighbor
+				mv /tmp/olsrneighbor /tmp/hosts/olsrneighbor
 				killall -HUP dnsmasq
 			fi
 		else
-			mv /tmp/olsrneighbor2hosts.tmp /tmp/hosts/olsrneighbor
+			cat /tmp/olsrneighbor2hosts.tmp | sort > /tmp/hosts/olsrneighbor
+			rm /tmp/olsrneighbor2hosts.tmp
 			killall -HUP dnsmasq
 		fi
 	fi
