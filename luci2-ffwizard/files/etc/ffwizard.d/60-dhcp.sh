@@ -43,9 +43,6 @@ setup_dhcp() {
 		uci_set dhcp $cfg_dhcp ra "server"
 		uci_set dhcp $cfg_dhcp ra_preference "low"
 		uci_set dhcp $cfg_dhcp ra_default "1"
-		uci_set dhcp $cfg_dhcp ra_pref64 '64:ff9b::/96'
-		uci_set dhcp $cfg_dhcp ra_mtu '1492'
-		uci_add_list dhcp $cfg_dhcp dhcp_option "108,0:0:7:8"
 }
 
 setup_dhcp_ignore() {
@@ -74,9 +71,6 @@ setup_ether() {
 			uci_set dhcp $cfg ra "server"
 			uci_set dhcp $cfg ra_preference "low"
 			uci_set dhcp $cfg ra_default "1"
-			uci_set dhcp $cfg ra_pref64 '64:ff9b::/96'
-			uci_set dhcp $cfg ra_mtu '1492'
-			uci_add_list dhcp $cfg dhcp_option "108,0:0:7:8"
 		fi
 		return
 	fi
@@ -130,11 +124,16 @@ setup_dhcpbase() {
 	uci_set dhcp $cfg localservice "0"
 	uci_set dhcp $cfg add_local_fqdn "3"
 	uci_set dhcp $cfg add_wan_fqdn "3"
+	# https://nat64.net/
+	uci_remove dhcp @dnsmasq[-1] nat64 2>/dev/null
+	uci_remove dhcp @dnsmasq[-1] server 2>/dev/null
+	uci_add_list dhcp @dnsmasq[-1] server "2a00:1098:2c::1"
+	uci_add_list dhcp @dnsmasq[-1] server "2a01:4f8:c2c:123f::1"
+	uci_add_list dhcp @dnsmasq[-1] server "2a00:1098:2b::1"
 }
 
 setup_odhcpbase() {
 	local cfg="$1"
-	#uci_set dhcp $cfg maindhcp "1"
 	uci_set dhcp $cfg maindhcp "0"
 }
 
