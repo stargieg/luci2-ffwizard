@@ -33,6 +33,7 @@ function createTableDomain(data) {
 		data.lan.forEach(row => {
 			tableData.push([
 				row.lan,
+				row.lan_src,
 				row.domain,
 				row.domain_metric,
 				row.domain_metric_out,
@@ -60,6 +61,7 @@ return view.extend({
 		var trd = E('table', { 'class': 'table' });
 		trd.appendChild(E('trd', { 'class': 'tr cbi-section-table-titles' }, [
 			E('th', { 'class': 'th left' }, [ 'LAN IP' ]),
+			E('th', { 'class': 'th left' }, [ 'Source' ]),
 			E('th', { 'class': 'th left' }, [ 'Domain' ]),
 			E('th', { 'class': 'th left' }, [ 'Domain Metric' ]),
 			E('th', { 'class': 'th left' }, [ 'Domain Metric out' ]),
