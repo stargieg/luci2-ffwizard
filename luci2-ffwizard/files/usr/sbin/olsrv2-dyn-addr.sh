@@ -424,6 +424,9 @@ else
 		if [ -z "$(ip -6 route show default)" ] ; then
 			log "ip6pre: BUG no default route found for $ip6prefix_new/$ip6prefix_mask_new"
 			/etc/init.d/olsrd2 restart
+		elif ! ping6 -q -c 3 "2.pool.ntp.org" >/dev/null 2>&1 && ! ping6 -q -c 3 "openwrt.org" >/dev/null 2>&1 ; then 
+			log "ip6pre: BUG ipv6.net ping6 timeout $ip6prefix_new/$ip6prefix_mask_new"
+			/etc/init.d/olsrd2 restart
 		fi
 	fi
 
