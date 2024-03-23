@@ -330,8 +330,8 @@ done
 
 for j in $pre_list ; do
 	if [ "$ip6prefix_new" == "$j" ] ; then
-		ip6prefix_new=""
 		log "Conflict found for $ip6prefix_new"
+		ip6prefix_new=""
 	fi
 done
 
