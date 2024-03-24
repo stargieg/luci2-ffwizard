@@ -3,7 +3,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-olsrd2
 PKG_VERSION:=0.2.6
-PKG_RELEASE:=18
+PKG_RELEASE:=20
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
@@ -16,6 +16,10 @@ define Package/luci-app-olsrd2
   MAINTAINER:=Patrick Grimm <patrick@lunatiki.de>
   EXTRA_DEPENDS:=oonf-olsrd2, luci-mod-admin-full
   PKGARCH:=all
+endef
+
+define Package/base-files/conffiles
+/etc/config/luci_olsrd2
 endef
 
 define Build/Prepare

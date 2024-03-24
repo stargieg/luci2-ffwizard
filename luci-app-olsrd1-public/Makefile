@@ -3,7 +3,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-olsrd1-public
 PKG_VERSION:=0.2.6
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
@@ -15,6 +15,10 @@ define Package/luci-app-olsrd1-public
   TITLE:=OLSR1 Public view
   EXTRA_DEPENDS:=luci-mod-public
   PKGARCH:=all
+endef
+
+define Package/base-files/conffiles
+/etc/config/luci_olsrd1
 endef
 
 define Build/Prepare

@@ -9,6 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-falter-owm
 PKG_VERSION:=2023.02.25
+PKG_RELEASE:=2
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
@@ -34,6 +35,10 @@ define Package/luci-app-falter-owm-gui
   $(call Package/luci-app-falter-owm/default)
   EXTRA_DEPENDS:=luci-app-falter-owm-cmd, luci-base
   TITLE:=luci-app-falter-owm-gui - GUI Open Wireless Map
+endef
+
+define Package/base-files/conffiles
+/etc/config/antennas
 endef
 
 define Build/Prepare
