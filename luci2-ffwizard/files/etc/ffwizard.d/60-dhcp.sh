@@ -124,6 +124,7 @@ setup_dhcpbase() {
 	uci_set dhcp $cfg localservice "0"
 	uci_set dhcp $cfg add_local_fqdn "3"
 	uci_set dhcp $cfg add_wan_fqdn "3"
+	uci_set dhcp $cfg rebind_protection "0"
 	# https://nat64.net/
 	uci_remove dhcp @dnsmasq[-1] nat64 2>/dev/null
 	uci_remove dhcp @dnsmasq[-1] server 2>/dev/null

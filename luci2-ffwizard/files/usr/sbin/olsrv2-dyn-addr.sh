@@ -340,6 +340,7 @@ if [ ! -z "$nat64_server" ] ; then
 	nat64_uci_server=$(uci_get dhcp @dnsmasq[-1] server)
 	if [ "$nat64_server" != "$nat64_uci_server" ] ; then
 		log "found nat64 on $nat64_server"
+		uci_set dhcp @dnsmasq[-1] rebind_protection "0"
 		uci_set dhcp @dnsmasq[-1] nat64 "1"
 		uci_remove dhcp @dnsmasq[-1] server 2>/dev/null
 		uci_add_list dhcp @dnsmasq[-1] server "$nat64_server"
