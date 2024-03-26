@@ -363,18 +363,15 @@ Content-length: $LEN\r
 $JSON_STRING\r\n"
 
 server="api.openwifimap.net"
-. /etc/os-release
-echo $VERSION | grep -q ^19* && compat=1
-if [ "$compat" == "1" ] ; then
-	for server_ip in $(nslookup $server | grep '^Address ' | cut -d ' ' -f3) ; do
-		printf "$MSG" | nc $server_ip 80 && {
-			echo ""
-			echo ""
-			echo "Server $server_ip OK"
-			break
-		}
+server_ips="$(nslookup $server | grep -A2 $server | grep 'Address.*:' | cut -d ':' -f 2-)"
+if [ ! -z "$server_ips" ] ; then
+	printf  "Servername: $server\n"
+	for server_ip in $server_ips ; do
+		printf "Try Server IP: $server_ip\n"
+		printf "$MSG" | nc $server_ip 80 && break
+		printf "Fail\n"
 	done
 else
-	printf "$MSG" | nc $server 80
+	printf "Fail nslookup $server\n"
 fi
 printf "\n\n"
