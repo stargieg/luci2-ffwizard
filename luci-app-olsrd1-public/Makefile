@@ -8,7 +8,7 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/luci-app-olsrd1-public
+define Package/$(PKG_NAME)
   SECTION:=luci
   CATEGORY:=LuCI
   SUBMENU:=3. Applications
@@ -17,7 +17,7 @@ define Package/luci-app-olsrd1-public
   PKGARCH:=all
 endef
 
-define Package/base-files/conffiles
+define Package/$(PKG_NAME)/conffiles
 /etc/config/luci_olsrd1
 endef
 

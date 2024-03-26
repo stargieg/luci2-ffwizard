@@ -3,12 +3,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-olsrd2
 PKG_VERSION:=0.2.6
-PKG_RELEASE:=20
+PKG_RELEASE:=22
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/luci-app-olsrd2
+define Package/$(PKG_NAME)
   SECTION:=luci
   CATEGORY:=LuCI
   SUBMENU:=3. Applications
@@ -18,7 +18,7 @@ define Package/luci-app-olsrd2
   PKGARCH:=all
 endef
 
-define Package/base-files/conffiles
+define Package/$(PKG_NAME)/conffiles
 /etc/config/luci_olsrd2
 endef
 
