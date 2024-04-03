@@ -37,7 +37,23 @@ case "$1" in
 				echo '/olsrv2info json lan /quit' | nc ::1 2009 2>/dev/null
 			;;
 			getNode)
-				echo '/olsrv2info json node /quit' | nc ::1 2009 2>/dev/null
+				json_init
+				json_load "$(echo '/olsrv2info json node /quit' | nc ::1 2009)"
+				if ! json_select node ; then
+					log "Exit no node entry"
+					return 1
+				fi
+				i=1;while json_is_a ${i} object;do
+					json_select ${i}
+					json_get_var node node
+					nodename=""
+					nodename=$(nslookup $node | grep 'name =' | cut -d ' ' -f 3)
+					json_add_string "hostname" "${nodename}"
+					json_select ..
+					i=$(( i + 1 ))
+				done
+				json_dump
+				json_cleanup
 			;;
 			getNeighbors)
 				domain="$(uci_get luci_olsrd2 general domain)"

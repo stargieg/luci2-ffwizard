@@ -12,10 +12,12 @@ var callgetData = rpc.declare({
 function createTable(data) {
     let tableData = [];
     data.node.forEach(row => {
+		let hostname = E('a',{ 'href': 'https://' + row.hostname + '/cgi-bin-olsrd2-neigh.html'},row.hostname);
 		let node = E('a',{ 'href': 'https://[' + row.node + ']/cgi-bin-olsrd2-neigh.html'},row.node);
         tableData.push([
+            hostname,
             node
-        ])
+        ]);
     });
     return tableData;
 };
@@ -30,6 +32,7 @@ return view.extend({
 
 		var tr = E('table', { 'class': 'table' });
 		tr.appendChild(E('tr', { 'class': 'tr cbi-section-table-titles' }, [
+			E('th', { 'class': 'th left' }, [ 'Hostname' ]),
 			E('th', { 'class': 'th left' }, [ 'IP Address' ])
 		]));
         poll.add(() => {
