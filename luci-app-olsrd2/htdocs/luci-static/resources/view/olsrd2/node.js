@@ -12,7 +12,7 @@ var callgetData = rpc.declare({
 function createTable(data) {
     let tableData = [];
     data.node.forEach(row => {
-		let node = E('a',{ 'href': 'https://' + row.node + '/cgi-bin-olsrd2-neigh.html'},row.node);
+		let node = E('a',{ 'href': 'https://[' + row.node + ']/cgi-bin-olsrd2-neigh.html'},row.node);
         tableData.push([
             node
         ])
