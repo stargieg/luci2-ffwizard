@@ -46,17 +46,17 @@ i=1;while json_is_a ${i} object;do
 		json_get_var node node
 		ret=""
 		for j in $neighborips ; do
-			[ -z $ret ] || return
+			[ -z $ret ] || continue
 			nodename=$(nslookup $node $j | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
 			nodeips=$(nslookup $nodename $j | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 			for k in $nodeips ; do
 				if [ $unbound == 1 ] ; then
-					echo "$nodename.olsr." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove
-					echo "$nodename.olsr. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
+					echo "$nodename.olsr." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove >/dev/null
+					echo "$nodename.olsr. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
 					if ! echo $k | grep -q ^fd ; then
-						echo "$nodename.$domain." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove
-						echo "$nodename.$domain. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
-						echo "$nodename.$domain. 300 IN CAA 0 issue letsencrypt.org" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
+						echo "$nodename.$domain." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove >/dev/null
+						echo "$nodename.$domain. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
+						echo "$nodename.$domain. 300 IN CAA 0 issue letsencrypt.org" | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
 					fi
 				else
 					echo "$k $nodename $nodename.$domain" >> /tmp/olsrnode2hosts.tmp
@@ -69,17 +69,16 @@ i=1;while json_is_a ${i} object;do
 			nodeips=$(nslookup $nodename $node | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 			for k in $nodeips ; do
 				if [ $unbound == 1 ] ; then
-					echo "$nodename.olsr." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove
-					echo "$nodename.olsr. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
+					echo "$nodename.olsr." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove >/dev/null
+					echo "$nodename.olsr. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
 					if ! echo $k | grep -q ^fd ; then
-						echo "$nodename.$domain." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove
-						echo "$nodename.$domain. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
-						echo "$nodename.$domain. 300 IN CAA 0 issue letsencrypt.org" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
+						echo "$nodename.$domain." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove >/dev/null
+						echo "$nodename.$domain. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
+						echo "$nodename.$domain. 300 IN CAA 0 issue letsencrypt.org" | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
 					fi
 				else
 					echo "$k $nodename $nodename.$domain" >> /tmp/olsrnode2hosts.tmp
 				fi
-				ret="1"
 			done
 		fi
 	fi
