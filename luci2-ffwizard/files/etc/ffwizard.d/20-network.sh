@@ -347,8 +347,8 @@ setup_wifi() {
 			uci_set wireless $sec bssid "$bssid"
 		else
 			#TODO check valid htmode. adhoc works with HT40
-			[ $hw_n == 1 ] && uci_set wireless $device htmode "HT20"
-			[ $hw_ac == 1 ] && uci_set wireless $device htmode "VHT20"
+			#[ $hw_n == 1 ] && uci_set wireless $device htmode "HT20"
+			#[ $hw_ac == 1 ] && uci_set wireless $device htmode "VHT20"
 			uci_set wireless $sec mode "mesh"
 			uci_set wireless $sec mesh_id 'freifunk'
 			uci_set wireless $sec mesh_fwding '0'
