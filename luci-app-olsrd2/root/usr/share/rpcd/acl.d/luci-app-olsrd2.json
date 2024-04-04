@@ -15,13 +15,13 @@
 	"luci-app-olsrd2": {
 		"description": "Grant UCI access for luci-app-olsrd2",
 		"read": {
-			"uci": [ "olsrd2" ],
+			"uci": [ "olsrd2", "luci_olsrd2" ],
 			"ubus": {
 				"status.olsrd2": [ "getVersion", "getLan", "getNode", "getNeighbors", "getAttached_network" ]
 			}
 		},
 		"write": {
-			"uci": [ "olsrd2" ]
+			"uci": [ "olsrd2", "luci_olsrd2" ]
 		}
 	}
 }
