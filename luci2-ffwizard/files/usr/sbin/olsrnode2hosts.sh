@@ -7,6 +7,48 @@ log() {
 	logger -t olsrnode2hosts $@
 }
 
+ipv6_ptr() {
+	ipv6="$1"
+################################
+# AWK scripts                  #
+################################
+read -d '' scriptVariable << 'EOF'
+{
+	qpr = ipv6_ptr( $0 ) ;
+    print ( qpr ) ;
+}
+
+function ipv6_ptr( ipv6, arpa, ary, end, i, j, new6, sz, start ) {
+  # IPV6 colon flexibility is a challenge when creating [ptr].ip6.arpa.
+  sz = split( ipv6, ary, ":" ) ; end = 9 - sz ;
+
+
+  for( i=1; i<=sz; i++ ) {
+    if( length(ary[i]) == 0 ) {
+      for( j=1; j<=end; j++ ) { ary[i] = ( ary[i] "0000" ) ; }
+    }
+
+    else {
+      ary[i] = substr( ( "0000" ary[i] ), length( ary[i] )+5-4 ) ;
+    }
+  }
+
+
+  new6 = ary[1] ;
+  for( i = 2; i <= sz; i++ ) { new6 = ( new6 ary[i] ) ; }
+  start = length( new6 ) ;
+  for( i=start; i>0; i-- ) { arpa = ( arpa substr( new6, i, 1 ) ) ; } ;
+  gsub( /./, "&\.", arpa ) ; arpa = ( arpa "ip6.arpa" ) ;
+
+  return arpa ;
+}
+EOF
+################################
+# End of AWK Scripts           #
+################################
+	echo "$ipv6" | awk "$scriptVariable"
+}
+
 if pidof olsrnode2hosts.sh | grep -q ' ' >/dev/null ; then
 	log "killall olsrnode2hosts.sh"
 	killall -9 olsrnode2hosts.sh
@@ -51,15 +93,29 @@ i=1;while json_is_a ${i} object;do
 			nodeips=$(nslookup $nodename $j | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 			for k in $nodeips ; do
 				if [ $unbound == 1 ] ; then
-					echo "$nodename.olsr." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove >/dev/null
+					ptr=$(ipv6_ptr "$k")
+					#TODO remove old
+					#echo "$nodename.olsr." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove >/dev/null
 					echo "$nodename.olsr. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
-					if ! echo $k | grep -q ^fd ; then
-						echo "$nodename.$domain." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove >/dev/null
+					if echo $k | grep -q ^fd ; then
+						#TODO remove old
+						if [ ! -z "$ptr" ] ; then
+							echo "$ptr. 300 IN PTR $nodename.olsr." | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
+						fi
+					else
+						#TODO remove old
+						if [ ! -z "$ptr" ] ; then
+							echo "$ptr. 300 IN PTR $nodename.$domain." | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
+						fi
 						echo "$nodename.$domain. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
 						echo "$nodename.$domain. 300 IN CAA 0 issue letsencrypt.org" | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
 					fi
 				else
-					echo "$k $nodename $nodename.$domain" >> /tmp/olsrnode2hosts.tmp
+					if echo $k | grep -q ^fd ; then
+						echo "$k $nodename.olsr" >>/tmp/olsrneighbor2hosts.tmp
+					else
+						echo "$k $nodename.$domain $nodename.olsr" >>/tmp/olsrneighbor2hosts.tmp
+					fi
 				fi
 				ret="1"
 			done
@@ -69,15 +125,29 @@ i=1;while json_is_a ${i} object;do
 			nodeips=$(nslookup $nodename $node | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 			for k in $nodeips ; do
 				if [ $unbound == 1 ] ; then
-					echo "$nodename.olsr." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove >/dev/null
+					ptr=$(ipv6_ptr "$k")
+					#TODO remove old
+					#echo "$nodename.olsr." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove >/dev/null
 					echo "$nodename.olsr. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
-					if ! echo $k | grep -q ^fd ; then
-						echo "$nodename.$domain." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove >/dev/null
+					if echo $k | grep -q ^fd ; then
+						#TODO remove old
+						if [ ! -z "$ptr" ] ; then
+							echo "$ptr. 300 IN PTR $nodename.olsr." | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
+						fi
+					else
+						#TODO remove old
+						if [ ! -z "$ptr" ] ; then
+							echo "$ptr. 300 IN PTR $nodename.$domain." | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
+						fi
 						echo "$nodename.$domain. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
 						echo "$nodename.$domain. 300 IN CAA 0 issue letsencrypt.org" | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
 					fi
 				else
-					echo "$k $nodename $nodename.$domain" >> /tmp/olsrnode2hosts.tmp
+					if echo $k | grep -q ^fd ; then
+						echo "$k $nodename.olsr" >>/tmp/olsrneighbor2hosts.tmp
+					else
+						echo "$k $nodename.$domain $nodename.olsr" >>/tmp/olsrneighbor2hosts.tmp
+					fi
 				fi
 			done
 		fi

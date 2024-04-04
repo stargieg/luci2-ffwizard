@@ -7,6 +7,48 @@ log() {
 	logger -t olsrneighbor2hosts $@
 }
 
+ipv6_ptr() {
+	ipv6="$1"
+################################
+# AWK scripts                  #
+################################
+read -d '' scriptVariable << 'EOF'
+{
+	qpr = ipv6_ptr( $0 ) ;
+    print ( qpr ) ;
+}
+
+function ipv6_ptr( ipv6, arpa, ary, end, i, j, new6, sz, start ) {
+  # IPV6 colon flexibility is a challenge when creating [ptr].ip6.arpa.
+  sz = split( ipv6, ary, ":" ) ; end = 9 - sz ;
+
+
+  for( i=1; i<=sz; i++ ) {
+    if( length(ary[i]) == 0 ) {
+      for( j=1; j<=end; j++ ) { ary[i] = ( ary[i] "0000" ) ; }
+    }
+
+    else {
+      ary[i] = substr( ( "0000" ary[i] ), length( ary[i] )+5-4 ) ;
+    }
+  }
+
+
+  new6 = ary[1] ;
+  for( i = 2; i <= sz; i++ ) { new6 = ( new6 ary[i] ) ; }
+  start = length( new6 ) ;
+  for( i=start; i>0; i-- ) { arpa = ( arpa substr( new6, i, 1 ) ) ; } ;
+  gsub( /./, "&\.", arpa ) ; arpa = ( arpa "ip6.arpa" ) ;
+
+  return arpa ;
+}
+EOF
+################################
+# End of AWK Scripts           #
+################################
+	echo "$ipv6" | awk "$scriptVariable"
+}
+
 if pidof nc | grep -q ' ' >/dev/null ; then
 	log "killall nc"
 	killall -9 nc
@@ -41,15 +83,29 @@ i=1;while json_is_a ${i} object;do
 	neighborips=$(nslookup $neighborname $neighborip | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 	for j in $neighborips ; do
 		if [ $unbound == 1 ] ; then
-			echo "$neighborname.olsr." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove
-			echo "$neighborname.olsr. 300 IN AAAA $j" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
-			if ! echo $j | grep -q ^fd ; then
-				echo "$neighborname.$domain." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove
-				echo "$neighborname.$domain. 300 IN AAAA $j" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
-				echo "$neighborname.$domain. 300 IN CAA 0 issue letsencrypt.org" | unbound-control -c /var/lib/unbound/unbound.conf local_datas
+			ptr=$(ipv6_ptr "$j")
+			#TODO remove old
+			#echo "$neighborname.olsr." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove
+			echo "$neighborname.olsr. 300 IN AAAA $j" | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
+			if echo $j | grep -q ^fd ; then
+				#TODO remove old
+				if [ ! -z "$ptr" ] ; then
+					echo "$ptr. 300 IN PTR $neighborname.olsr." | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
+				fi
+			else
+				#TODO remove old
+				if [ ! -z "$ptr" ] ; then
+					echo "$ptr. 300 IN PTR $neighborname.$domain." | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
+				fi
+				echo "$neighborname.$domain. 300 IN AAAA $j" | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
+				echo "$neighborname.$domain. 300 IN CAA 0 issue letsencrypt.org" | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
 			fi
 		else
-			echo "$j $neighborname $neighborname.$domain" >>/tmp/olsrneighbor2hosts.tmp
+			if echo $j | grep -q ^fd ; then
+				echo "$j $neighborname.olsr" >>/tmp/olsrneighbor2hosts.tmp
+			else
+				echo "$j $neighborname.$domain $neighborname.olsr" >>/tmp/olsrneighbor2hosts.tmp
+			fi
 		fi
 	done
 	json_select ..
