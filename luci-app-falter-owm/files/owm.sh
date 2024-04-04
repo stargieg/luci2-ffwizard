@@ -70,9 +70,12 @@ olsr2_links() {
 		remotehost="$(nslookup $remoteIP | grep name | sed -e 's/.*name = \(.*\)/\1/' -e 's/\..*//')"".olsr"
 	fi
 	json_get_var linkQuality domain_metric_out_raw
-	linkQuality=$((linkQuality*10000/255))
-	linkQuality=$((10000-linkQuality))
-	linkQuality=$((linkQuality/100))
+	echo "raw $linkQuality"
+	linkQuality=$((linkQuality*100/255))
+	linkQuality=$((100-linkQuality))
+	[ "$linkQuality" -eq 100 ] && linkQuality=1
+	[ "$linkQuality" -lt 100 ] && linkQuality="0.""$linkQuality"
+	echo "linkQuality $linkQuality"
 	#json_get_var linkQuality domain_metric_in_raw
 	json_get_var ifName "if"
 	json_select ..
