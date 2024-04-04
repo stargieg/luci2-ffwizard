@@ -176,11 +176,8 @@ config_foreach remove_section telnet
 #Remove ula and lan prefix
 config_foreach remove_section olsrv2_lan
 #Remove lan prefix from loopback
-uci_remove network loopback srcip6prefix 2>/dev/null
-uci_remove network loopback ip6prefix 2>/dev/null
 uci_remove network loopback ip6addr
 uci_add_list network loopback ip6addr "::1/128"
-uci_commit network
 
 olsr_enabled=0
 
@@ -189,7 +186,6 @@ config_load ffwizard
 config_foreach setup_ether ether
 config_foreach setup_wifi wifi
 
-ula_prefix="$(uci_get network globals ula_prefix 0)"
 
 if [ "$olsr_enabled" == "1" ] ; then
 	if ! [ -s /etc/rc.d/S*olsrd2 ] ; then
@@ -207,16 +203,44 @@ if [ "$olsr_enabled" == "1" ] ; then
 	#Setup Domain Table
 	setup_telnet
 	#Add ula prefix
-	setup_olsrv2_lan ula $ula_prefix
+	ula_prefix="$(uci_get network globals ula_prefix)"
+	if [ ! -z "$$ula_prefix" ] ; then
+		setup_olsrv2_lan ula $ula_prefix
+	fi
 	#Setup IP6 Prefix
 	config_get ip6prefix ffwizard ip6prefix 2>/dev/null
-	if [ -n "$ip6prefix" ] ; then
+	if [ ! -z "$ip6prefix" ] ; then
 		setup_olsrv2_lan lan "$ip6prefix"
+	fi
+	#Add dynaddr prefix
+	lo_prefix_src="$(uci_get network globals srcip6prefix)"
+	lo_prefix="$(uci_get network loopback ip6prefix)"
+	if [ ! -z "$lo_prefix" ] && [ ! -z "$lo_prefix_src" ] ; then
+		setup_olsrv2_lan dynaddr $lo_prefix
 	fi
 	#Setup olsrd2
 	config_load olsrd2
 	config_foreach setup_olsrv2 olsrv2
 	uci_commit olsrd2
+	#Setup Network ula IP6 Prefix
+	if [ ! -z "$ula_prefix" ] ; then
+		ula_addr="$(echo $ula_prefix | cut -d '/' -f 1)"
+		uci_add_list network loopback ip6addr "$ula_addr""2/128"
+	fi
+	#Setup Network IP6 Prefix
+	if [ ! -z "$ip6prefix" ] ; then
+		ip6prefix_addr="$(echo $ip6prefix | cut -d '/' -f 1)"
+		uci_add_list network loopback ip6addr "$ip6prefix_addr""2/128"
+		uci_set network loopback ip6prefix "$ip6prefix"
+	fi
+	#Setup Network auto IP6 Prefix
+	if [ ! -z "$lo_prefix" ] && [ ! -z "$lo_prefix_src" ] ; then
+		lo_addr="$(echo $lo_prefix | cut -d '/' -f 1)"
+		uci_add_list network loopback ip6addr "$lo_addr""2/128"
+	else
+		uci_remove network loopback ip6prefix 2>/dev/null
+	fi
+	uci_commit network
 	#Cron search for public prefix greater than 56
 	grep -q 'olsrv2-dyn-addr' /etc/crontabs/root || echo '*/8 * * * * /usr/sbin/olsrv2-dyn-addr.sh' >> /etc/crontabs/root
 	grep -q "olsrneighbor2hosts.sh" /etc/crontabs/root || \
@@ -228,6 +252,9 @@ if [ "$olsr_enabled" == "1" ] ; then
 	ubus call rc init '{"name":"olsrd6","action":"stop"}' 2>/dev/null || /etc/init.d/olsrd6 stop 2>/dev/null 
 	ubus call rc init '{"name":"olsrd6","action":"disable"}' 2>/dev/null || /etc/init.d/olsrd6 disable 2>/dev/null 
 else
+	uci_remove network globals srcip6prefix 2>/dev/null
+	uci_remove network loopback ip6prefix 2>/dev/null
+	uci_commit network
 	/sbin/uci revert olsrd2
 	ubus call rc init '{"name":"olsrd2","action":"stop"}' 2>/dev/null || /etc/init.d/olsrd2 stop
 	ubus call rc init '{"name":"olsrd2","action":"disable"}' 2>/dev/null || /etc/init.d/olsrd2 disable

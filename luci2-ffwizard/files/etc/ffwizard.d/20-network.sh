@@ -22,10 +22,10 @@ setup_ip() {
 	if ! uci_get network $cfg 2>/dev/null 1>/dev/null ; then
 		uci_add network interface "$cfg"
 	fi
-	if [ -n "$device" ] ; then
+	if [ ! -z "$device" ] ; then
 		uci_set network $cfg device "$device"
 	fi
-	if [ -n "$ipaddr" ] ; then
+	if [ ! -z "$ipaddr" ] ; then
 		eval "$(ipcalc.sh $ipaddr)"
 		uci_set network $cfg ipaddr "$IP"
 		uci_set network $cfg netmask "$NETMASK"
@@ -129,7 +129,7 @@ setup_ether() {
 		else
 			device="$(uci_get network $cfg _device)"
 		fi
-		if [ -n "$device" ] ; then
+		if [ ! -z "$device" ] ; then
 			log_net "Setup $cfg with device $device"
 			restore_ports="$restore_ports $device"
 		fi
@@ -142,7 +142,7 @@ setup_ether() {
 		if uci_get network $cfg 2>/dev/null 1>/dev/null ; then
 			if [ "$compat" == "1" ] ; then
 				device="$(uci_get network $cfg ifname)"
-				if [ -n "$device" ] ; then
+				if [ ! -z "$device" ] ; then
 					uci_set network $cfg _ifname "$device"
 					uci_remove network $cfg type 2>/dev/null
 					uci_remove network $cfg ifname 2>/dev/null
@@ -151,14 +151,14 @@ setup_ether() {
 				fi
 			else
 				device="$(uci_get network $cfg device)"
-				if [ -n "$device" ] ; then
+				if [ ! -z "$device" ] ; then
 					uci_set network $cfg _device "$device"
 					uci_remove network $cfg device 2>/dev/null
 				else
 					device="$(uci_get network $cfg _device)"
 				fi
 			fi
-			if [ -n "$device" ] ; then
+			if [ ! -z "$device" ] ; then
 				br_ifaces="$br_ifaces $device"
 			fi
 			uci_set network $cfg proto "none"
@@ -169,9 +169,9 @@ setup_ether() {
 		log_net "Setup $cfg IP"
 		config_get ipaddr $cfg mesh_ip 2>/dev/null
 		setup_ip "$cfg" "$ipaddr"
-		config_get ipaddr $cfg dhcp_ip "0" 2>/dev/null
+		config_get ipaddr $cfg dhcp_ip 2>/dev/null
 		uci_remove network $cfg ip6class 2>/dev/null
-		if [ "$ipaddr" != "0" ] ; then
+		if [ ! -z "$ipaddr" ] ; then
 			uci_remove network $cfg ip6assign 2>/dev/null
 			eval "$(ipcalc.sh $ipaddr)"
 			OCTET_4="${NETWORK##*.}"
@@ -205,6 +205,7 @@ setup_wifi() {
 	local hw_b=0
 	local hw_g=0
 	local hw_n=0
+	local hw_ac=0
 	local info_data
 	info_data=$(ubus call iwinfo info '{ "device": "phy'$idx'" }' 2>/dev/null)
 	[ -z "$info_data" ] && {
@@ -213,6 +214,7 @@ setup_wifi() {
 	}
 	json_load "$info_data"
 	json_select hwmodes
+	# hwmodes list "n","ac"
 	json_get_values hw_res
 	[ -z "$hw_res" ] && {
 		log_wifi "ERR No iwinfo hwmodes for phy$idx"
@@ -224,12 +226,30 @@ setup_wifi() {
 			b) hw_b=1 ;;
 			g) hw_g=1 ;;
 			n) hw_n=1 ;;
+			ac) hw_ac=1 ;;
 		esac
 	done
-	[ "$hw_a" == 1 ] && log_wifi "HWmode a"
-	[ "$hw_b" == 1 ] && log_wifi "HWmode b"
-	[ "$hw_g" == 1 ] && log_wifi "HWmode g"
-	[ "$hw_n" == 1 ] && log_wifi "HWmode n"
+	json_select ".."
+	#get valid htmods
+	local ht_ht20=0
+	local ht_ht40=0
+	local ht_vht20=0
+	local ht_vht40=0
+	local ht_vht80=0
+	local ht_vht160=0
+	json_select htmodes
+	# htmodes list "HT20","HT40","VHT20","VHT40","VHT80","VHT160"
+	json_get_values ht_res
+	for i in $ht_res ; do
+		case $i in
+			VHT20) ht_vht20=1 ;;
+			VHT40) ht_vht40=1 ;;
+			VHT80) ht_vht80=1 ;;
+			VHT160) ht_vht160=1 ;;
+			HT20) ht_ht20=1 ;;
+			HT40) ht_ht40=1 ;;
+		esac
+	done
 	#get valid channel list
 	local channels
 	local valid_channel
@@ -253,9 +273,11 @@ setup_wifi() {
 		json_select ".."
 	done
 	#get default channel depending on hw_mod
-	[ "$hw_a" == 1 ] && def_channel=36
 	[ "$hw_b" == 1 ] && def_channel=13
 	[ "$hw_g" == 1 ] && def_channel=13
+	[ "$hw_a" == 1 ] && def_channel=36
+	[ "$hw_n" == 1 ] && def_channel=36
+	[ "$hw_ac" == 1 ] && def_channel=36
 	config_get channel $cfg channel "$def_channel"
 	local valid_channel
 	for i in $channels ; do
@@ -264,44 +286,40 @@ setup_wifi() {
 			valid_channel="$i"
 		fi
 	done
-	log_wifi "Channel $valid_channel"
+	local htmode
+	if [ "$hw_n" == 1 ] ; then
+		[ "$ht_ht20" == 1 ] && htmode="HT20"
+		[ "$ht_ht40" == 1 ] && htmode="HT40"
+	fi
+	if [ "$hw_ac" == 1 ] ; then
+		[ "$ht_vht20" == 1 ] && htmode="VHT20"
+		[ "$ht_vht40" == 1 ] && htmode="VHT40"
+		[ "$ht_vht80" == 1 ] && htmode="VHT80"
+		[ "$ht_vht160" == 1 ] && htmode="VHT160"
+	fi
+	if [ ! -z "$htmode" ] ; then
+		uci_set wireless $device htmode "$htmode"
+	fi
+	log_wifi "Channel $valid_channel htmode $htmode"
 	uci_set wireless $device channel "$valid_channel"
 	uci_set wireless $device disabled "0"
-	[ $hw_g == 1 ] && [ $hw_n == 1 ] && uci_set wireless $device noscan "1"
-	#[ $hw_n == 1 ] && [ $valid_channel -gt 165 ] && uci_set wireless $device htmode "HT40+"
-	# Channel 165 HT40-
-	#[ $hw_n == 1 ] && [ $valid_channel -le 165 ] && uci_set wireless $device htmode "HT40-"
-	# Channel 153,157,161 HT40+
-	#[ $hw_n == 1 ] && [ $valid_channel -le 161 ] && uci_set wireless $device htmode "HT40+"
-	# Channel 104 - 140 HT40-
-	#[ $hw_n == 1 ] && [ $valid_channel -le 140 ] && uci_set wireless $device htmode "HT40-"
-	# Channel 100 HT40+
-	#[ $hw_n == 1 ] && [ $valid_channel -le 100 ] && uci_set wireless $device htmode "HT40+"
-	# Channel 40 - 64 HT40-
-	#[ $hw_n == 1 ] && [ $valid_channel -le 64 ] && uci_set wireless $device htmode "HT40-"
-	# Channel 36 HT40+
-	#[ $hw_n == 1 ] && [ $valid_channel -le 36 ] && uci_set wireless $device htmode "HT40+"
-	# Channel 10 - 14 HT40-
-	#[ $hw_n == 1 ] && [ $valid_channel -le 14 ] && uci_set wireless $device htmode "HT40-"
-	# Channel 5 - 9 HT40+/-
-	#[ $hw_n == 1 ] && [ $valid_channel -le 7 ] && uci_set wireless $device htmode "HT40+"
-	# Channel 1 - 4 HT40+
-	#[ $hw_n == 1 ] && [ $valid_channel -le 4 ] && uci_set wireless $device htmode "HT40+"
+	uci_set wireless $device noscan "1"
 	uci_set wireless $device country "DE"
-	[ $hw_a == 1 ] && uci_set wireless $device doth "0"
+	uci_set wireless $device legacy_rates "0"
 	#read from Luci_ui
-	uci_set wireless $device distance "1000"
-	uci_set wireless $device cell_density '0'
-	#Reduce the Broadcast distance and save Airtime
-	#Not working on wdr4300 with AP and ad-hoc
-	#[ $hw_n == 1 ] && uci_set wireless $device basic_rate "5500 6000 9000 11000 12000 18000 24000 36000 48000 54000"
-	#Set Man or Auto?
-	#uci_set wireless $device txpower 15
+	uci_set wireless $device distance "500"
+	if [ ! "$compat" = "1" ] ; then
+		uci_set wireless $device cell_density '0'
+	fi
 	#Save Airtime max 1000
 	uci_set wireless $device beacon_int "250"
 	#wifi-iface
 	config_get olsr_mesh $cfg olsr_mesh "0"
 	config_get bat_mesh $cfg bat_mesh "0"
+	#todo grep Device supports
+	#iw phy phy0 info | grep IBSS
+	#iw phy phy0 info | grep "mesh point"
+	#iw phy phy0 info | grep "AP"
 	config_get iface_mode $cfg iface_mode "mesh"
 	if [ "$olsr_mesh" == "1" -o "$bat_mesh" == "1" ] ; then
 		local bssid
@@ -330,15 +348,15 @@ setup_wifi() {
 		else
 			#TODO check valid htmode. adhoc works with HT40
 			[ $hw_n == 1 ] && uci_set wireless $device htmode "HT20"
+			[ $hw_ac == 1 ] && uci_set wireless $device htmode "VHT20"
 			uci_set wireless $sec mode "mesh"
 			uci_set wireless $sec mesh_id 'freifunk'
 			uci_set wireless $sec mesh_fwding '0'
 			uci_set wireless $sec mesh_rssi_threshold '0'
 		fi
-		#uci_set wireless $sec "doth"
 		uci_set wireless $sec network "$cfg_mesh"
 		uci_set wireless $sec mcast_rate "18000"
-		uci_set wireless $sec encryption 'none'
+		uci_set wireless $sec encryption "none"
 		config_get ipaddr $cfg mesh_ip
 		setup_ip "$cfg_mesh" "$ipaddr"
 		uci_remove network $cfg_mesh ip6class 2>/dev/null
@@ -368,19 +386,23 @@ setup_wifi() {
 		uci_set wireless $sec mcast_rate "6000"
 		#uci_set wireless $sec isolate 1
 		uci_set wireless $sec ssid "freifunk.net"
-		uci_set wireless $sec encryption 'none'
+		uci_set wireless $sec encryption "none"
 		config_get vap_br $cfg vap_br "0"
 		if [ $vap_br == 1 ] ; then
 			uci_set wireless $sec network "$br_name"
 		else
-			config_get ipaddr $cfg dhcp_ip
+			config_get ipaddr $cfg dhcp_ip 2>/dev/null
 			uci_set wireless $sec network "$cfg_vap"
-			eval "$(ipcalc.sh $ipaddr)"
-			OCTET_4="${NETWORK##*.}"
-			OCTET_1_3="${NETWORK%.*}"
-			OCTET_4="$((OCTET_4 + 1))"
-			ipaddr="$OCTET_1_3.$OCTET_4"
-			setup_ip "$cfg_vap" "$ipaddr/$PREFIX"
+			if [ ! -z "$ipaddr" ] ; then
+				eval "$(ipcalc.sh $ipaddr)"
+				OCTET_4="${NETWORK##*.}"
+				OCTET_1_3="${NETWORK%.*}"
+				OCTET_4="$((OCTET_4 + 1))"
+				ipaddr="$OCTET_1_3.$OCTET_4"
+				setup_ip "$cfg_vap" "$ipaddr/$PREFIX"
+			else
+				setup_ip "$cfg_vap"
+			fi
 		fi
 	fi
 }
@@ -401,6 +423,9 @@ br_ifaces=""
 br_name="fflandhcp"
 lan_iface="lan"
 wan_iface="wan wan6"
+
+. /etc/os-release
+echo $VERSION | grep -q ^19* && compat=1
 
 #Remove wireless config
 rm /etc/config/wireless
@@ -447,7 +472,7 @@ config_foreach setup_wifi wifi "$br_name"
 ula_uci=$(uci_get network globals ula_prefix)
 ula_addr="$(echo $ula_uci | cut -d '/' -f 1)"
 config_get ip6prefix ffwizard ip6prefix
-if [ -n "$ip6prefix" ] ; then
+if [ ! -z "$ip6prefix" ] ; then
 	uci_set network loopback ip6prefix "$ip6prefix"
 	ip6_addr="$(echo $ip6prefix | cut -d '/' -f 1)"
 	uci_remove network globals srcip6prefix 2>/dev/null
@@ -455,23 +480,23 @@ if [ -n "$ip6prefix" ] ; then
 	uci_add_list network loopback ip6addr "::1/128"
 	uci_add_list network loopback ip6addr "$ula_addr""2/128"
 	uci_add_list network loopback ip6addr "$ip6_addr""2/128"
-else
-	uci_remove network loopback ip6prefix 2>/dev/null
-	uci_remove network globals srcip6prefix 2>/dev/null
-	uci_remove network loopback ip6addr 2>/dev/null
-	uci_add_list network loopback ip6addr "::1/128"
-	uci_add_list network loopback ip6addr "$ula_addr""2/128"
+#else
+	#uci_remove network loopback ip6prefix 2>/dev/null
+	#uci_remove network globals srcip6prefix 2>/dev/null
+	#uci_remove network loopback ip6addr 2>/dev/null
+	#uci_add_list network loopback ip6addr "::1/128"
+	#uci_add_list network loopback ip6addr "$ula_addr""2/128"
 fi
 
 #Set lan defaults if not an freifunk interface
-if [ -n "$lan_iface" ] ; then
+if [ ! -z "$lan_iface" ] ; then
 	if [ "$compat" == "1" ] ; then
 		uci_set network lan type "bridge"
 	else
 		uci_set network lan device "br-lan"
 	fi
 	uci_set network lan proto "static"
-	uci_set network lan ipaddr "192.168.42.1"
+	uci_set network lan ipaddr "192.168.1.1"
 	uci_set network lan netmask "255.255.255.0"
 	uci_set network lan ip6assign '64'
 	uci_remove network lan ip6class 2>/dev/null
@@ -479,7 +504,7 @@ if [ -n "$lan_iface" ] ; then
 fi
 
 #Set wan defaults if not an freifunk interface
-if [ -n "$wan_iface" ] ; then
+if [ ! -z "$wan_iface" ] ; then
 	uci_remove network wan ipaddr 2>/dev/null
 	uci_remove network wan netmask 2>/dev/null
 	uci_remove network wan ip6assign 2>/dev/null
@@ -502,7 +527,7 @@ if [ "$br" == "1" ] ; then
 	fi
 fi
 
-if [ -n "$restore_ports" ] ; then
+if [ ! -z "$restore_ports" ] ; then
 	config_load network
 	for device in $restore_ports ; do
 		if [ "$compat" == "1" ] ; then

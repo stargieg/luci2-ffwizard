@@ -58,11 +58,14 @@ nonectmode=""
 opkg list_installed | grep -q "kmod-ath10k -" && nonectmode="1"
 
 for ifc in $wlan_ifc ; do
+	minchannel=1
 	band=$(uci_get wireless $ifc band)
 	if [ "$band" == "5g" ] ; then
 		minchannel=36
-	else
-		minchannel=1
+	fi
+	hwmode=$(uci_get wireless $ifc hwmode)
+	if [ "$hwmode" == "11a" ] ; then
+		minchannel=36
 	fi
 	log "ubus call iwinfo $ifc first scan"
 	ubus call iwinfo scan '{ "device": "'$ifc'" }' >/dev/null

@@ -18,7 +18,10 @@ if [ "$(uci_get system @system[0] hostname)" == "OpenWrt" ]; then
 	hostname="OpenWrt-$rand"
 	uci_set system @system[0] hostname "$hostname"
 	#add ipv6 ntp server. can remove if dig AAAA 0.openwrt.pool.ntp.org is true
+	uci_remove system ntp server
+	uci_add_list system ntp server "2.openwrt.pool.ntp.org"
 	uci_add_list system ntp server "2.pool.ntp.org"
+	uci_set system ntp enable_server '1'
 	uci_commit system
 	uci_set ffwizard ffwizard hostname "$hostname"
 	uci_commit ffwizard
@@ -33,10 +36,6 @@ if [ "$(uci_get system @system[0] hostname)" == "OpenWrt" ]; then
 	uci_set uhttpd defaults state "Berlin"
 	uci_set uhttpd defaults location "uncertain"
 	uci_set uhttpd defaults commonname "$hostname"
-	[ -f /usr/lib/lua/luci/sgi/uhttpd.lua ] && \
-	uci_set uhttpd main lua_prefix "/luci"
-	[ -f /usr/lib/lua/luci/sgi/uhttpd.lua ] && \
-	uci_set uhttpd main lua_handler "/usr/lib/lua/luci/sgi/uhttpd.lua"
 	uci_commit uhttpd
 
 	# add dns entry openwrt.lan
