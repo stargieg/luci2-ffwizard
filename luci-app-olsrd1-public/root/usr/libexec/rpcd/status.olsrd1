@@ -114,14 +114,21 @@ case "$1" in
 					noise=0
 					snr=0
 					interface=""
+					mode=""
 					eval $(echo /links | nc 127.0.0.1 9090 | sed -n '/^[}{ ]/p' | jsonfilter -e 'lq=@.links[@.remoteIP="'$neighbor'"].linkQuality' -e 'nlq=@.links[@.remoteIP="'$neighbor'"].neighborLinkQuality' -e 'cost=@.links[@.remoteIP="'$neighbor'"].linkCost')
 					json_add_object 0
 					json_add_string "originator" "${neighbor}"
 					network_get_neighbour_by_ip4 "${neighbor}"
 					json_add_string "lladdr" "${lladdr}"
 					json_add_string "hostname" "${hostname}${domain}"
-					lladdr="$(echo $lladdr | tr '[a-f]' '[A-F]')"
-					eval $(ubus call iwinfo assoclist '{"device":"'$dev'","mac":"'$lladdr'"}' 2>/dev/null | jsonfilter -e 'noise=@.noise' -e 'signal=@.signal' 2>/dev/null)
+					#Workaround for AirOS AP Bridges without olsr :-(
+					eval $(ubus call iwinfo info '{"device":"'$dev'"}' 2>/dev/null | jsonfilter -e 'mode=@.mode' 2>/dev/null)
+					if [ "$mode" == "Client" ] ; then
+						eval $(ubus call iwinfo assoclist '{"device":"'$dev'"}' 2>/dev/null | jsonfilter -e 'noise=@.results[0].noise' -e 'signal=@.results[0].signal' 2>/dev/null)
+					else
+						lladdr="$(echo $lladdr | tr '[a-f]' '[A-F]')"
+						eval $(ubus call iwinfo assoclist '{"device":"'$dev'","mac":"'$lladdr'"}' 2>/dev/null | jsonfilter -e 'noise=@.noise' -e 'signal=@.signal' 2>/dev/null)
+					fi
 					snr=$((((noise*-1)) - ((signal*-1))))
 					network_get_name_by_device interface $dev
 					json_add_string "lq" "${lq}"
