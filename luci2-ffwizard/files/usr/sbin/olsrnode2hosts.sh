@@ -112,9 +112,9 @@ i=1;while json_is_a ${i} object;do
 					fi
 				else
 					if echo $k | grep -q ^fd ; then
-						echo "$k $nodename.olsr" >>/tmp/olsrneighbor2hosts.tmp
+						echo "$k $nodename.olsr" >>/tmp/olsrnode2hosts.tmp
 					else
-						echo "$k $nodename.$domain $nodename.olsr" >>/tmp/olsrneighbor2hosts.tmp
+						echo "$k $nodename.$domain $nodename.olsr" >>/tmp/olsrnode2hosts.tmp
 					fi
 				fi
 				ret="1"
@@ -144,9 +144,9 @@ i=1;while json_is_a ${i} object;do
 					fi
 				else
 					if echo $k | grep -q ^fd ; then
-						echo "$k $nodename.olsr" >>/tmp/olsrneighbor2hosts.tmp
+						echo "$k $nodename.olsr" >>/tmp/olsrnode2hosts.tmp
 					else
-						echo "$k $nodename.$domain $nodename.olsr" >>/tmp/olsrneighbor2hosts.tmp
+						echo "$k $nodename.$domain $nodename.olsr" >>/tmp/olsrnode2hosts.tmp
 					fi
 				fi
 			done
