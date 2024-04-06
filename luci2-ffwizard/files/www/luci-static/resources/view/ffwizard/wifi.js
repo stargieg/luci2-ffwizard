@@ -22,6 +22,15 @@ return view.extend({
 		o = s.option(form.ListValue, "iface_mode", _("Interface Modus"), "");
 		o.value("adhoc","IBSS/Ad-Hoc");
 		o.value("mesh","802.11s-Mesh");
+		o.value("sta","802.11 Client");
+		o = s.option(form.Value, "ssid", _("SSID Wlan Name"), "optional");
+		o.optional = true;
+		o.datatype = "string";
+		o.placeholder = "freifunk";
+		o = s.option(form.Value, "bssid", _("BSSID Wlan Nummer"), "optional");
+		o.optional = true;
+		o.datatype = "macaddr";
+		o.placeholder = "02:ca:fe:ba:be";
 		o = s.option(form.Flag, "olsr_mesh", _("OLSR Meshprotokoll"), "");
 		o.datatype = "bool";
 		o.rmempty = false;
