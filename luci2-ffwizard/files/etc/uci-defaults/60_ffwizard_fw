@@ -169,4 +169,4 @@ fi
 # grep -q "$FORWARD_TNL" /etc/firewall.user || echo $FORWARD_TNL >> /etc/firewall.user
 # MASQUERADE_TNL="iptables -t nat -I POSTROUTING -o tnl_+ -j MASQUERADE"
 
-
+exit 0

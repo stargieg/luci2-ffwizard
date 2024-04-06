@@ -46,3 +46,4 @@ if ! [ "$(opkg status luci2-ffwizard-olsrd-ipv4)" ] ; then
 		/etc/init.d/olsrd disable
 	fi
 fi
+exit 0

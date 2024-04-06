@@ -48,3 +48,4 @@ if ! [ "$(opkg status luci2-ffwizard-olsrd-ipv6)" ] ; then
 		crontab -l | grep -q 'olsrd-dyn-addr' && crontab -l | sed -e '/.*olsrd-dyn-addr.*/d' | crontab -
 	fi
 fi
+exit 0

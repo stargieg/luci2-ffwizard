@@ -39,3 +39,4 @@ if [ "$bat_enabled" == "0" ] ; then
 		/etc/init.d/alfred disable
 	fi
 fi
+exit 0

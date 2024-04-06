@@ -3,3 +3,4 @@
 . /lib/functions.sh
 
 . /etc/ffwizard.d/60-kadnode.sh
+exit 0
