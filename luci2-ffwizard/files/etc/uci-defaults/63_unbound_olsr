@@ -1,0 +1,26 @@
+#!/bin/sh
+
+addrc() {
+    local cmd="$1"
+    if ! grep -q "$cmd" /etc/rc.local ; then
+        grep -v exit /etc/rc.local > /tmp/rc.local
+        echo "$cmd" >> /tmp/rc.local
+        echo 'exit 0' >> /tmp/rc.local
+        mv /tmp/rc.local /etc/rc.local
+    fi
+}
+
+addrc "mkdir -p /var/lib/unbound"
+addrc "touch /var/lib/unbound/olsr.conf"
+addrc "chown -R unbound:unbound /var/lib/unbound"
+
+addub() {
+    local cmd="$1"
+    if ! grep -q "$cmd" /etc/unbound/unbound_srv.conf ; then
+        echo "include: $cmd" >> /etc/unbound/unbound_srv.conf
+    fi
+}
+
+addub "/var/lib/unbound/olsr.conf"
+
+exit 0

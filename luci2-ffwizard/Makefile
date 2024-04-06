@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=131
+PKG_RELEASE:=132
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
@@ -53,6 +53,13 @@ define Package/$(PKG_NAME)-olsrd-ipv4
   EXTRA_DEPENDS:=olsrd, olsrd-mod-jsoninfo, olsrd-mod-nameservice
 endef
 
+define Package/$(PKG_NAME)-olsrd-ipv4-ub
+  $(call Package/luci2-ffwizard/template)
+  DEPENDS:=luci2-ffwizard-olsrd-ipv4
+  TITLE:=olsrd ipv4 unbound
+  EXTRA_DEPENDS:=unbound-control
+endef
+
 define Package/$(PKG_NAME)-olsrd-ipv6
   $(call Package/luci2-ffwizard/template)
   DEPENDS:=luci2-ffwizard
@@ -67,6 +74,13 @@ define Package/$(PKG_NAME)-olsrv2-ipv6
   EXTRA_DEPENDS:=oonf-init-scripts, oonf-olsrd2
 endef
 
+define Package/$(PKG_NAME)-olsrv2-ipv6-ub
+  $(call Package/luci2-ffwizard/template)
+  DEPENDS:=luci2-ffwizard-olsrv2-ipv6
+  TITLE:=olsrv2 ipv6 unbound
+  EXTRA_DEPENDS:=unbound-control
+endef
+
 define Package/$(PKG_NAME)-batadv
   $(call Package/luci2-ffwizard/template)
   DEPENDS:=luci2-ffwizard
@@ -79,6 +93,12 @@ define Package/$(PKG_NAME)-kadnode
   DEPENDS:=luci2-ffwizard
   TITLE:=kadnode config
   EXTRA_DEPENDS:=kadnode, ca-bundle
+endef
+
+define Package/unbound-dnsmasq-dhcp
+  $(call Package/luci2-ffwizard/template)
+  TITLE:=unbound dnsmasq dhcp import
+  EXTRA_DEPENDS:=unbound-control
 endef
 
 define Build/Prepare
@@ -131,6 +151,13 @@ define Package/$(PKG_NAME)-olsrd-ipv4/install
 	$(INSTALL_BIN) files/etc/uci-defaults/30_ffwizard_olsrd.ipv4 $(1)/etc/uci-defaults/
 endef
 
+define Package/$(PKG_NAME)-olsrd-ipv4-ub/install
+	$(INSTALL_DIR) $(1)/usr/lib/unbound $(1)/etc/uci-defaults/
+	$(INSTALL_BIN) files/etc/uci-defaults/63_unbound_olsr $(1)/etc/uci-defaults/
+	$(INSTALL_BIN) files/usr/lib/unbound/olsr.sh $(1)/usr/lib/unbound
+	$(INSTALL_BIN) files/usr/lib/unbound/olsr.awk $(1)/usr/lib/unbound
+endef
+
 define Package/$(PKG_NAME)-olsrd-ipv6/install
 	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/usr/sbin $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/ffwizard.d/30-olsrd.ipv6.sh $(1)/etc/ffwizard.d/
@@ -149,6 +176,14 @@ define Package/$(PKG_NAME)-olsrv2-ipv6/install
 	$(INSTALL_BIN) files/usr/sbin/olsrnode2hosts.sh $(1)/usr/sbin/
 endef
 
+define Package/$(PKG_NAME)-olsrv2-ipv6-ub/install
+	$(INSTALL_DIR) $(1)/usr/lib/unbound $(1)/etc/uci-defaults/
+	$(INSTALL_BIN) files/etc/uci-defaults/64_unbound_olsrv2 $(1)/etc/uci-defaults/
+	$(INSTALL_BIN) files/usr/lib/unbound/olsrv2neighbour.sh $(1)/usr/lib/unbound
+	$(INSTALL_BIN) files/usr/lib/unbound/olsrv2node.sh $(1)/usr/lib/unbound
+	$(INSTALL_BIN) files/usr/lib/unbound/olsrv2.awk $(1)/usr/lib/unbound
+endef
+
 define Package/$(PKG_NAME)-batadv/install
 	$(INSTALL_DIR) $(1)/etc/ffwizard.d
 	$(INSTALL_BIN) files/etc/ffwizard.d/30-batadv.sh $(1)/etc/ffwizard.d/
@@ -160,11 +195,21 @@ define Package/$(PKG_NAME)-kadnode/install
 	$(INSTALL_BIN) files/etc/uci-defaults/62_ffwizard_kadnode $(1)/etc/uci-defaults/
 endef
 
+define Package/unbound-dnsmasq-dhcp/install
+	$(INSTALL_DIR) $(1)/usr/lib/unbound $(1)/etc/uci-defaults/
+	$(INSTALL_BIN) files/etc/uci-defaults/62_unbound_dnsmasq_dhcp $(1)/etc/uci-defaults/
+	$(INSTALL_BIN) files/usr/lib/unbound/dnsmasq_dhcp.sh $(1)/usr/lib/unbound
+	$(INSTALL_BIN) files/usr/lib/unbound/dnsmasq_dhcp.awk $(1)/usr/lib/unbound
+endef
+
 $(eval $(call BuildPackage,luci2-ffwizard))
 $(eval $(call BuildPackage,luci-app-ffwizard))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrd-ipv4))
+$(eval $(call BuildPackage,luci2-ffwizard-olsrd-ipv4-ub))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrd-ipv6))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrv2-ipv6))
+$(eval $(call BuildPackage,luci2-ffwizard-olsrv2-ipv6-ub))
 $(eval $(call BuildPackage,luci2-ffwizard-batadv))
 $(eval $(call BuildPackage,luci2-ffwizard-kadnode))
 $(eval $(call BuildPackage,luci2-ffwizard-fw))
+$(eval $(call BuildPackage,unbound-dnsmasq-dhcp))

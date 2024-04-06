@@ -77,9 +77,14 @@ if ! json_select node ; then
 	return 1
 fi
 unbound=0
-[ -f /var/lib/unbound/unbound.conf ] && unbound=1
-[ $unbound == 0 ] && rm -f /tmp/olsrnode2hosts.tmp
+[ -x /usr/lib/unbound/olsrv2node.sh ] && unbound=1
+rm -f /tmp/olsrnode2hosts.tmp
 domain="$(uci_get luci_olsrd2 general domain olsr)"
+domain_custom=""
+if [ ! "$domain" == "olsr" ] ; then
+	domain_custom="$domain"
+	domain="olsr"
+fi
 i=1;while json_is_a ${i} object;do
 	json_select ${i}
 	json_get_var neighbor node_neighbor
@@ -92,30 +97,10 @@ i=1;while json_is_a ${i} object;do
 			nodename=$(nslookup $node $j | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
 			nodeips=$(nslookup $nodename $j | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 			for k in $nodeips ; do
-				if [ $unbound == 1 ] ; then
-					ptr=$(ipv6_ptr "$k")
-					#TODO remove old
-					#echo "$nodename.olsr." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove >/dev/null
-					echo "$nodename.olsr. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
-					if echo $k | grep -q ^fd ; then
-						#TODO remove old
-						if [ ! -z "$ptr" ] ; then
-							echo "$ptr. 300 IN PTR $nodename.olsr." | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
-						fi
-					else
-						#TODO remove old
-						if [ ! -z "$ptr" ] ; then
-							echo "$ptr. 300 IN PTR $nodename.$domain." | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
-						fi
-						echo "$nodename.$domain. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
-						echo "$nodename.$domain. 300 IN CAA 0 issue letsencrypt.org" | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
-					fi
+				if echo $k | grep -q ^fd ; then
+					echo "$k $nodename.olsr" >>/tmp/olsrnode2hosts.tmp
 				else
-					if echo $k | grep -q ^fd ; then
-						echo "$k $nodename.olsr" >>/tmp/olsrnode2hosts.tmp
-					else
-						echo "$k $nodename.$domain $nodename.olsr" >>/tmp/olsrnode2hosts.tmp
-					fi
+					echo "$k $nodename.$domain $nodename.olsr" >>/tmp/olsrnode2hosts.tmp
 				fi
 				ret="1"
 			done
@@ -124,30 +109,10 @@ i=1;while json_is_a ${i} object;do
 			nodename=$(nslookup $node $node | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
 			nodeips=$(nslookup $nodename $node | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 			for k in $nodeips ; do
-				if [ $unbound == 1 ] ; then
-					ptr=$(ipv6_ptr "$k")
-					#TODO remove old
-					#echo "$nodename.olsr." | unbound-control -c /var/lib/unbound/unbound.conf local_datas_remove >/dev/null
-					echo "$nodename.olsr. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
-					if echo $k | grep -q ^fd ; then
-						#TODO remove old
-						if [ ! -z "$ptr" ] ; then
-							echo "$ptr. 300 IN PTR $nodename.olsr." | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
-						fi
-					else
-						#TODO remove old
-						if [ ! -z "$ptr" ] ; then
-							echo "$ptr. 300 IN PTR $nodename.$domain." | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
-						fi
-						echo "$nodename.$domain. 300 IN AAAA $k" | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
-						echo "$nodename.$domain. 300 IN CAA 0 issue letsencrypt.org" | unbound-control -c /var/lib/unbound/unbound.conf local_datas >/dev/null
-					fi
+				if echo $k | grep -q ^fd ; then
+					echo "$k $nodename.olsr" >>/tmp/olsrnode2hosts.tmp
 				else
-					if echo $k | grep -q ^fd ; then
-						echo "$k $nodename.olsr" >>/tmp/olsrnode2hosts.tmp
-					else
-						echo "$k $nodename.$domain $nodename.olsr" >>/tmp/olsrnode2hosts.tmp
-					fi
+					echo "$k $nodename.$domain $nodename.olsr" >>/tmp/olsrnode2hosts.tmp
 				fi
 			done
 		fi
@@ -156,7 +121,6 @@ i=1;while json_is_a ${i} object;do
 	i=$(( i + 1 ))
 done
 json_cleanup
-if [ $unbound == 0 ] ; then
 	if [ -f /tmp/olsrnode2hosts.tmp ] ; then
 		if [ -f /tmp/hosts/olsrnode ] ; then
 			cat /tmp/olsrnode2hosts.tmp | sort > /tmp/olsrnode
@@ -165,12 +129,20 @@ if [ $unbound == 0 ] ; then
 			old=$(md5sum /tmp/hosts/olsrnode | cut -d ' ' -f 1)
 			if [ ! "$new" == "$old" ] ; then
 				mv /tmp/olsrnode /tmp/hosts/olsrnode
-				killall -HUP dnsmasq
+				if [ $unbound == 0 ] ; then
+					killall -HUP dnsmasq
+				else
+					/usr/lib/unbound/olsrv2node.sh
+				fi
 			fi
 		else
 			cat /tmp/olsrnode2hosts.tmp | sort > /tmp/hosts/olsrnode
 			rm /tmp/olsrnode2hosts.tmp
-			killall -HUP dnsmasq
+			if [ $unbound == 0 ] ; then
+				killall -HUP dnsmasq
+			else
+				/usr/lib/unbound/olsrv2node.sh
+			fi
 		fi
 	fi
 fi
