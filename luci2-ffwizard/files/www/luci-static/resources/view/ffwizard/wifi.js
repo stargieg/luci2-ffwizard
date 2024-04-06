@@ -6,10 +6,10 @@ return view.extend({
 	render: function() {
 		var m, s, o;
 
-		m = new form.Map('ffwizard', 'Kabel');
+		m = new form.Map('ffwizard', 'Drahtlos');
 
 		s = m.section(form.TypedSection, 'wifi', _('Drahtlose Schnittstellen'));
-		s.anonymous = true;
+		s.anonymous = false;
 		s.addremove = true;
 		o = s.option(form.Flag, "enabled", _("freigegeben"), "");
 		o.datatype = "bool";

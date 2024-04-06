@@ -9,7 +9,7 @@ return view.extend({
 		m = new form.Map('ffwizard', 'Kabel');
 
 		s = m.section(form.TypedSection, 'ether', _('Drahtgebundene Schnittstellen'));
-		s.anonymous = true;
+		s.anonymous = false;
 		s.addremove = true;
 		o = s.option(form.Flag, "enabled", _("freigegeben"), "");
 		o.datatype = "bool";

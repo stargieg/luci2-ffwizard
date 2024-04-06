@@ -9,7 +9,7 @@ return view.extend({
 		m = new form.Map('ffwizard', 'Freifunk Wizard');
 
 		s = m.section(form.TypedSection, 'ffwizard', _('The Freifunk Wizard'));
-		s.anonymous = true;
+		s.anonymous = false;
 		s.addremove = false;
 		o = s.option(form.Flag, "enabled", _("freigegeben Dieser hacken wird entfernt wenn der Wizard seine Arbeit getan hat."), "");
 		o.datatype = "bool";
