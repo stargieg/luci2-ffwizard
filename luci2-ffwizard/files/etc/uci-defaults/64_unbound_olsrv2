@@ -2,19 +2,19 @@
 
 addrc() {
     local cmd="$1"
-    if ! grep -q "$cmd" /etc/rc.local ; then
-        grep -v exit /etc/rc.local > /tmp/rc.local
-        echo "$cmd" >> /tmp/rc.local
-        echo 'exit 0' >> /tmp/rc.local
-        mv /tmp/rc.local /etc/rc.local
-        $cmd
-    fi
+    grep -v exit /etc/rc.local > /tmp/rc.local
+    echo "$cmd" >> /tmp/rc.local
+    echo 'exit 0' >> /tmp/rc.local
+    mv /tmp/rc.local /etc/rc.local
+    $cmd
 }
 
-addrc "mkdir -p /var/lib/unbound"
-addrc "touch /var/lib/unbound/olsrv2neighbor.conf"
-addrc "touch /var/lib/unbound/olsrv2node.conf"
-addrc "chown -R unbound:unbound /var/lib/unbound"
+if ! grep -q "olsrv2neighbor.conf" /etc/rc.local ; then
+    addrc "mkdir -p /var/lib/unbound"
+    addrc "touch /var/lib/unbound/olsrv2neighbor.conf"
+    addrc "touch /var/lib/unbound/olsrv2node.conf"
+    addrc "chown -R unbound:unbound /var/lib/unbound"
+fi
 
 addub() {
     local cmd="$1"
