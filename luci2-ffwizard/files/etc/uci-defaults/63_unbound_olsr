@@ -7,6 +7,7 @@ addrc() {
         echo "$cmd" >> /tmp/rc.local
         echo 'exit 0' >> /tmp/rc.local
         mv /tmp/rc.local /etc/rc.local
+        $cmd
     fi
 }
 
