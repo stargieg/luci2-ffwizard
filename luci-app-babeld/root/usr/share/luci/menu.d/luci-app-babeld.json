@@ -7,6 +7,22 @@
 			"type": "view",
 			"path": "babeld/babeld-view"
 		}
+	},
+	"public/status": {
+		"title": "Status",
+		"order": 10,
+		"action": {
+			"type": "firstchild",
+			"recurse": true
+		},
+		"auth": {}
+	},
+	"public/status/babeld": {
+		"title": "Babeld",
+		"order": 30,
+		"action": {
+			"type": "view",
+			"path": "babeld/babeld-view"
+		}
 	}
-
 }

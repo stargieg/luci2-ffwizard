@@ -1,4 +1,12 @@
 {
+	"unauthenticated": {
+		"description": "Allow system feature probing",
+		"read": {
+			"ubus": {
+				"babeld": [ "get_info", "get_xroutes", "get_route", "get_neighbours" ],
+			}
+		}
+	},
 	"luci-app-babeld": {
 		"description": "Grant UCI access for luci-app-babeld",
 		"read": {
