@@ -3,7 +3,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-babeld
 PKG_VERSION:=git-23.999.80636-70fb460
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
@@ -38,7 +38,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DATA) ./htdocs/luci-static/resources/babeld.js $(1)/www/luci-static/resources/view
 	$(INSTALL_DATA) ./htdocs/luci-static/resources/view/babeld/* $(1)/www/luci-static/resources/view/babeld
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
-	$(INSTALL_DATA) ./root/etc/uci-defaults/40_luci_babeld $(1)/etc/uci-defaults
+	$(INSTALL_DATA) ./root/etc/uci-defaults/40_luci-babeld $(1)/etc/uci-defaults
 	$(INSTALL_DIR) $(1)/usr/share/luci/menu.d
 	$(INSTALL_DATA) ./root/usr/share/luci/menu.d/* $(1)/usr/share/luci/menu.d
 	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
