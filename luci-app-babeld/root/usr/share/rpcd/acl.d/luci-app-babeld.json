@@ -3,7 +3,12 @@
 		"description": "Allow system feature probing",
 		"read": {
 			"ubus": {
-				"babeld": [ "get_info", "get_xroutes", "get_route", "get_neighbours" ],
+				"babeld": [
+					"get_info",
+					"get_xroutes",
+					"get_routes",
+					"get_neighbours"
+				]
 			}
 		}
 	},

@@ -3,7 +3,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-babeld
 PKG_VERSION:=git-23.999.80636-70fb460
-PKG_RELEASE:=5
+PKG_RELEASE:=6
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
