@@ -24,4 +24,9 @@ addub() {
 
 addub "/var/lib/unbound/dnsmasq_dhcp.conf"
 
+if grep -q 'dnsmasq_dhcp.sh' /etc/crontabs/root ; then
+    echo "*/5 * * * *    /usr/lib/unbound/dnsmasq_dhcp.sh" >> /etc/crontabs/root
+    /etc/init.d/cron restart
+fi
+
 exit 0
