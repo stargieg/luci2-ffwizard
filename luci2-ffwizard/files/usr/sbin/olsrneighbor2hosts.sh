@@ -59,27 +59,27 @@ i=1;while json_is_a ${i} object;do
 	i=$(( i + 1 ))
 done
 json_cleanup
-	if [ -f /tmp/olsrneighbor2hosts.tmp ] ; then
-		if [ -f /tmp/hosts/olsrneighbor ] ; then
-			cat /tmp/olsrneighbor2hosts.tmp | sort > /tmp/olsrneighbor
-			rm /tmp/olsrneighbor2hosts.tmp
-			new=$(md5sum /tmp/olsrneighbor | cut -d ' ' -f 1)
-			old=$(md5sum /tmp/hosts/olsrneighbor | cut -d ' ' -f 1)
-			if [ ! "$new" == "$old" ] ; then
-				mv /tmp/olsrneighbor /tmp/hosts/olsrneighbor
-				if [ $unbound == 0 ] ; then
-					killall -HUP dnsmasq
-				else
-					/usr/lib/unbound/olsrv2neighbour.sh
-				fi
-			fi
-		else
-			cat /tmp/olsrneighbor2hosts.tmp | sort > /tmp/hosts/olsrneighbor
-			rm /tmp/olsrneighbor2hosts.tmp
+if [ -f /tmp/olsrneighbor2hosts.tmp ] ; then
+	if [ -f /tmp/hosts/olsrneighbor ] ; then
+		cat /tmp/olsrneighbor2hosts.tmp | sort > /tmp/olsrneighbor
+		rm /tmp/olsrneighbor2hosts.tmp
+		new=$(md5sum /tmp/olsrneighbor | cut -d ' ' -f 1)
+		old=$(md5sum /tmp/hosts/olsrneighbor | cut -d ' ' -f 1)
+		if [ ! "$new" == "$old" ] ; then
+			mv /tmp/olsrneighbor /tmp/hosts/olsrneighbor
 			if [ $unbound == 0 ] ; then
 				killall -HUP dnsmasq
 			else
 				/usr/lib/unbound/olsrv2neighbour.sh
 			fi
 		fi
+	else
+		cat /tmp/olsrneighbor2hosts.tmp | sort > /tmp/hosts/olsrneighbor
+		rm /tmp/olsrneighbor2hosts.tmp
+		if [ $unbound == 0 ] ; then
+			killall -HUP dnsmasq
+		else
+			/usr/lib/unbound/olsrv2neighbour.sh
+		fi
 	fi
+fi

@@ -7,48 +7,6 @@ log() {
 	logger -t olsrnode2hosts $@
 }
 
-ipv6_ptr() {
-	ipv6="$1"
-################################
-# AWK scripts                  #
-################################
-read -d '' scriptVariable << 'EOF'
-{
-	qpr = ipv6_ptr( $0 ) ;
-    print ( qpr ) ;
-}
-
-function ipv6_ptr( ipv6, arpa, ary, end, i, j, new6, sz, start ) {
-  # IPV6 colon flexibility is a challenge when creating [ptr].ip6.arpa.
-  sz = split( ipv6, ary, ":" ) ; end = 9 - sz ;
-
-
-  for( i=1; i<=sz; i++ ) {
-    if( length(ary[i]) == 0 ) {
-      for( j=1; j<=end; j++ ) { ary[i] = ( ary[i] "0000" ) ; }
-    }
-
-    else {
-      ary[i] = substr( ( "0000" ary[i] ), length( ary[i] )+5-4 ) ;
-    }
-  }
-
-
-  new6 = ary[1] ;
-  for( i = 2; i <= sz; i++ ) { new6 = ( new6 ary[i] ) ; }
-  start = length( new6 ) ;
-  for( i=start; i>0; i-- ) { arpa = ( arpa substr( new6, i, 1 ) ) ; } ;
-  gsub( /./, "&\.", arpa ) ; arpa = ( arpa "ip6.arpa" ) ;
-
-  return arpa ;
-}
-EOF
-################################
-# End of AWK Scripts           #
-################################
-	echo "$ipv6" | awk "$scriptVariable"
-}
-
 if pidof olsrnode2hosts.sh | grep -q ' ' >/dev/null ; then
 	log "killall olsrnode2hosts.sh"
 	killall -9 olsrnode2hosts.sh
@@ -98,9 +56,13 @@ i=1;while json_is_a ${i} object;do
 			nodeips=$(nslookup $nodename $j | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 			for k in $nodeips ; do
 				if echo $k | grep -q ^fd ; then
-					echo "$k $nodename.olsr" >>/tmp/olsrnode2hosts.tmp
+					echo "$k $nodename.$domain" >>/tmp/olsrnode2hosts.tmp
 				else
-					echo "$k $nodename.$domain $nodename.olsr" >>/tmp/olsrnode2hosts.tmp
+					if [ -z "$domain_custom" ] ; then
+						echo "$k $nodename.$domain" >>/tmp/olsrnode2hosts.tmp
+					else
+						echo "$k $nodename.$domain_custom $nodename.$domain" >>/tmp/olsrnode2hosts.tmp
+					fi
 				fi
 				ret="1"
 			done
@@ -110,9 +72,13 @@ i=1;while json_is_a ${i} object;do
 			nodeips=$(nslookup $nodename $node | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 			for k in $nodeips ; do
 				if echo $k | grep -q ^fd ; then
-					echo "$k $nodename.olsr" >>/tmp/olsrnode2hosts.tmp
+					echo "$k $nodename.$domain" >>/tmp/olsrnode2hosts.tmp
 				else
-					echo "$k $nodename.$domain $nodename.olsr" >>/tmp/olsrnode2hosts.tmp
+					if [ -z "$domain_custom" ] ; then
+						echo "$k $nodename.$domain" >>/tmp/olsrnode2hosts.tmp
+					else
+						echo "$k $nodename.$domain_custom $nodename.$domain" >>/tmp/olsrnode2hosts.tmp
+					fi
 				fi
 			done
 		fi
@@ -121,28 +87,27 @@ i=1;while json_is_a ${i} object;do
 	i=$(( i + 1 ))
 done
 json_cleanup
-	if [ -f /tmp/olsrnode2hosts.tmp ] ; then
-		if [ -f /tmp/hosts/olsrnode ] ; then
-			cat /tmp/olsrnode2hosts.tmp | sort > /tmp/olsrnode
-			rm /tmp/olsrnode2hosts.tmp
-			new=$(md5sum /tmp/olsrnode | cut -d ' ' -f 1)
-			old=$(md5sum /tmp/hosts/olsrnode | cut -d ' ' -f 1)
-			if [ ! "$new" == "$old" ] ; then
-				mv /tmp/olsrnode /tmp/hosts/olsrnode
-				if [ $unbound == 0 ] ; then
-					killall -HUP dnsmasq
-				else
-					/usr/lib/unbound/olsrv2node.sh
-				fi
-			fi
-		else
-			cat /tmp/olsrnode2hosts.tmp | sort > /tmp/hosts/olsrnode
-			rm /tmp/olsrnode2hosts.tmp
+if [ -f /tmp/olsrnode2hosts.tmp ] ; then
+	if [ -f /tmp/hosts/olsrnode ] ; then
+		cat /tmp/olsrnode2hosts.tmp | sort > /tmp/olsrnode
+		rm /tmp/olsrnode2hosts.tmp
+		new=$(md5sum /tmp/olsrnode | cut -d ' ' -f 1)
+		old=$(md5sum /tmp/hosts/olsrnode | cut -d ' ' -f 1)
+		if [ ! "$new" == "$old" ] ; then
+			mv /tmp/olsrnode /tmp/hosts/olsrnode
 			if [ $unbound == 0 ] ; then
 				killall -HUP dnsmasq
 			else
 				/usr/lib/unbound/olsrv2node.sh
 			fi
+		fi
+	else
+		cat /tmp/olsrnode2hosts.tmp | sort > /tmp/hosts/olsrnode
+		rm /tmp/olsrnode2hosts.tmp
+		if [ $unbound == 0 ] ; then
+			killall -HUP dnsmasq
+		else
+			/usr/lib/unbound/olsrv2node.sh
 		fi
 	fi
 fi
