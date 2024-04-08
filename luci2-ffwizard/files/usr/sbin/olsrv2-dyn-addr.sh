@@ -207,6 +207,34 @@ remove_dhcp_ra_pref() {
 	fi
 }
 
+update_dns() {
+	local cfg=$1
+	local hostname=$2
+	local ip6addr=$3
+	local ip6addrold=$4
+	config_get name $cfg name
+	if [ "$name" = "$hostname" ] ; then
+		config_get ip $cfg ip
+		if [ "$ip" = "$ip6addrold" ] ; then
+			uci_set dhcp "$cfg" ip "$ip6addr"
+			dhcp_update=1
+		fi
+	fi
+}
+
+remove_dns() {
+	local cfg=$1
+	local hostname=$2
+	local ip6addr=$3
+	config_get name $cfg name
+	if [ "$name" = "$hostname" ] ; then
+		config_get ip $cfg ip
+		if [ "$ip" = "$ip6addr" ] ; then
+			uci_remove dhcp "$cfg"
+		fi
+	fi
+}
+
 if pidof nc | grep -q ' ' >/dev/null ; then
 	log "killall nc"
 	killall -9 nc
@@ -388,6 +416,10 @@ if [ -z "$ip6prefix_new" ] ; then
 		/etc/init.d/network reload
 		#netconfig is a reload triger for olsrv2
 		sleep 5
+		hostname="$(uci_get system @system[0] hostname)"
+		config_load dhcp
+		config_foreach remove_dns domain "$hostname" "$ip6prefix""2"
+		uci_commit dhcp
 		/etc/init.d/dnsmasq restart
 	fi
 else
@@ -419,6 +451,16 @@ else
 		/etc/init.d/network reload
 		#netconfig is a reload triger for olsrv2
 		sleep 5
+		hostname="$(uci_get system @system[0] hostname)"
+		dhcp_update="0"
+		config_load dhcp
+		config_foreach update_dns domain "$hostname" "$ip6prefix_new""2" "$ip6prefix""2"
+		if [ "$dhcp_update" = 0 ] ; then
+			uci_add dhcp domain ; cfg="$CONFIG_SECTION"
+			uci_set dhcp "$cfg" name "$hostname"
+			uci_set dhcp "$cfg" ip "$ip6prefix_new""2"
+		fi
+		uci_commit dhcp
 		/etc/init.d/dnsmasq restart
 	else
 		#BUG check if default route is present

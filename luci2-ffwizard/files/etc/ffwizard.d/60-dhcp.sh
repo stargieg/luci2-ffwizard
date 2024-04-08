@@ -122,8 +122,8 @@ setup_dhcpbase() {
 	uci_set dhcp $cfg local "/olsr/"
 	uci_set dhcp $cfg domain "olsr"
 	uci_set dhcp $cfg localservice "0"
-	uci_set dhcp $cfg add_local_fqdn "3"
-	uci_set dhcp $cfg add_wan_fqdn "3"
+	uci_set dhcp $cfg add_local_fqdn "1"
+	uci_set dhcp $cfg add_wan_fqdn "1"
 	uci_set dhcp $cfg rebind_protection "0"
 	# https://nat64.net/
 	uci_remove dhcp @dnsmasq[-1] nat64 2>/dev/null
@@ -149,6 +149,35 @@ config_foreach setup_dhcpbase dnsmasq
 
 #Setup odhcpd
 config_foreach setup_odhcpbase odhcpd
+remove_dns_name() {
+	local cfg=$1
+	local hostname=$2
+	config_get name $cfg name
+	if [ "$name" = "$hostname" ] ; then
+		uci_remove dhcp "$cfg"
+	fi
+}
+remove_dns_ip() {
+	local cfg=$1
+	local ip6addr=$2
+	config_get ip $cfg ip
+	if [ "$ip" = "$ip6addr" ] ; then
+		uci_remove dhcp "$cfg"
+	fi
+}
+
+
+#Remove hostname dns
+hostname=$(uci_get system.@system[-1].hostname)
+config_foreach remove_dns_name domain "$hostname"
+#Remove ula prefix dns
+ula_uci=$(uci get network.globals.ula_prefix)
+ula_addr="$(echo $ula_uci | cut -d '/' -f 1)"
+config_foreach remove_dns_ip domain "$ula_addr""2"
+#Remove dyn prefix dns
+cfgip6prefix="$(uci_get network loopback ip6prefix)"
+cfgip6_addr="$(echo $cfgip6prefix | cut -d '/' -f 1)"
+config_foreach remove_dns_ip domain "$cfgip6_addr""2"
 
 #Setup ether and wifi
 config_load ffwizard
@@ -180,8 +209,21 @@ if [ -n "$wan_iface" ] ; then
 	setup_dhcp_ignore $wan_iface
 fi
 
-#Disable dhcp on loopback and get ip for dns
-setup_dhcp_ignore loopback
+#Disable dhcp on loopback and get ip for dns 
+#do not work!
+#setup_dhcp_ignore loopback
+ip6prefix="$(uci_get network loopback ip6prefix)"
+if [ ! -z "$ip6prefix" ] ; then
+	ip6_addr="$(echo $ip6prefix | cut -d '/' -f 1)"
+	uci_add dhcp domain ; cfg="$CONFIG_SECTION"
+	uci_set dhcp "$cfg" name "$hostname"
+	uci_set dhcp "$cfg" ip "$ip6_addr""2"
+fi
+if [ ! -z "$ula_addr" ] ; then
+	uci_add dhcp domain ; cfg="$CONFIG_SECTION"
+	uci_set dhcp "$cfg" name "$hostname"
+	uci_set dhcp "$cfg" ip "$ula_addr""2"
+fi
 
 uci_commit dhcp
 # restart service dnsmasq and odhcpd
