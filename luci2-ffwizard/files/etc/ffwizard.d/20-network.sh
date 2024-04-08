@@ -345,6 +345,14 @@ setup_wifi() {
 			fi
 			config_get bssid $cfg bssid "$bssid_ch"
 			uci_set wireless $sec bssid "$bssid"
+		elif [ "$iface_mode" == "sta" ] ; then
+			config_get ssid $cfg ssid "freifunk.net"
+			uci_set wireless $sec mode "sta"
+			uci_set wireless $sec ssid "$ssid"
+			config_get bssid $cfg bssid
+			if [ ! -z "$bssid" ] ; then
+				uci_set wireless $sec bssid "$bssid"
+			fi
 		else
 			#TODO check valid htmode. adhoc works with HT40
 			#[ $hw_n == 1 ] && uci_set wireless $device htmode "HT20"
@@ -512,7 +520,7 @@ if [ ! -z "$wan_iface" ] ; then
 	uci_set network wan proto "dhcp"
 	uci_set network wan6 proto "dhcpv6"
 fi
-
+#BUG!
 if [ "$br" == "1" ] ; then
 	if [ "$compat" == "1" ] ; then
 		config_load network
