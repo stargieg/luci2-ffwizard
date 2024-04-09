@@ -98,7 +98,7 @@ touch /tmp/hosts/olsrneighbor
 
 if [ -f /tmp/olsrnode2hosts.tmp ] ; then
 	if [ -f /tmp/hosts/olsrnode ] ; then
-		cat /tmp/olsrnode2hosts.tmp | sort > /tmp/olsrnode
+		cat /tmp/olsrnode2hosts.tmp | sort | uniq > /tmp/olsrnode
 		rm /tmp/olsrnode2hosts.tmp
 		new=$(md5sum /tmp/olsrnode | cut -d ' ' -f 1)
 		old=$(md5sum /tmp/hosts/olsrnode | cut -d ' ' -f 1)
