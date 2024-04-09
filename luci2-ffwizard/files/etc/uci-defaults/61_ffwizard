@@ -38,25 +38,6 @@ if [ "$(uci_get system @system[0] hostname)" == "OpenWrt" ]; then
 	uci_set uhttpd defaults commonname "$hostname"
 	uci_commit uhttpd
 
-	# add dns entry openwrt.lan
-	#uci_add dhcp domain frei_funk
-	#uci_set dhcp frei_funk name "frei.funk"
-	#uci_set dhcp frei_funk ip "192.168.1.1"
-	# add dns entry frei.funk for ipv6
-	ula_addr="$(uci get network.globals.ula_prefix | cut -d '/' -f 1)"
-	#uci_add dhcp domain openwrt_lan_ipv6
-	#uci_set dhcp openwrt_lan_ipv6 name "openwrt.lan"
-	#uci_set dhcp openwrt_lan_ipv6 ip "$ula_addr""1"
-	#uci_add dhcp domain openwrt_lo_ipv6
-	#uci_set dhcp openwrt_lo_ipv6 name "openwrt.lan"
-	#uci_set dhcp openwrt_lo_ipv6 ip "$ula_addr""2"
-	if [ ! -z "$ula_addr" ] ; then
-		uci_add dhcp domain ; cfg="$CONFIG_SECTION"
-		uci_set dhcp "$cfg" name "$hostname"
-		uci_set dhcp "$cfg" ip "$ula_addr""2"
-	fi
-	uci_commit dhcp
-
 	#uci_set network lan ipaddr "192.168.1.1"
 	uci_remove network loopback ip6addr 2>/dev/null
 	uci_add_list network loopback ip6addr "::1/128"

@@ -90,11 +90,13 @@ zonedata() {
           -v domain=$dhcp_domain -v bconf=1 \
           -f /usr/lib/unbound/dnsmasq_dhcp.awk $origin_new
 
+      #BUG remove to much
       #awk '{ print $1 }' $dns_old | sort | uniq > $dns_del
-      cat $dns_old | sort | uniq > $dns_del
+      #BUG remove nothing
+      #cat $dns_old | sort | uniq > $dns_del
       cp $dns_new $dns_add
       cp $dns_new $dns_old
-      cat $dns_del | $UB_CONTROL_CFG local_datas_remove
+      #cat $dns_del | $UB_CONTROL_CFG local_datas_remove
       cat $dns_add | $UB_CONTROL_CFG local_datas
       rm -f $dns_new $dns_del $dns_add $origin_new
       ;;

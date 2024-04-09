@@ -12,12 +12,14 @@ if pidof olsrnode2hosts.sh | grep -q ' ' >/dev/null ; then
 	killall -9 olsrnode2hosts.sh
 	return 1
 fi
+
 json_init
 json_load "$(echo '/nhdpinfo json neighbor /quit' | nc ::1 2009)"
 if ! json_select neighbor ; then
 	log "Exit no neighbor entry"
 	return 1
 fi
+
 neighborips=""
 i=1;while json_is_a ${i} object;do
 	json_select ${i}
@@ -55,29 +57,33 @@ i=1;while json_is_a ${i} object;do
 			nodename=$(nslookup $node $j | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
 			nodeips=$(nslookup $nodename $j | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 			for k in $nodeips ; do
-				if echo $k | grep -q ^fd ; then
-					echo "$k $nodename.$domain" >>/tmp/olsrnode2hosts.tmp
-				else
-					if [ -z "$domain_custom" ] ; then
+				if echo $k | grep -q -v ^fe ; then
+					if echo $k | grep -q ^fd ; then
 						echo "$k $nodename.$domain" >>/tmp/olsrnode2hosts.tmp
 					else
-						echo "$k $nodename.$domain_custom $nodename.$domain" >>/tmp/olsrnode2hosts.tmp
+						if [ -z "$domain_custom" ] ; then
+							echo "$k $nodename.$domain" >>/tmp/olsrnode2hosts.tmp
+						else
+							echo "$k $nodename.$domain_custom $nodename.$domain" >>/tmp/olsrnode2hosts.tmp
+						fi
 					fi
+					ret="1"
 				fi
-				ret="1"
 			done
 		done
 		if [ -z $ret ] ; then
 			nodename=$(nslookup $node $node | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
 			nodeips=$(nslookup $nodename $node | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 			for k in $nodeips ; do
-				if echo $k | grep -q ^fd ; then
-					echo "$k $nodename.$domain" >>/tmp/olsrnode2hosts.tmp
-				else
-					if [ -z "$domain_custom" ] ; then
+				if echo $k | grep -q -v ^fe ; then
+					if echo $k | grep -q ^fd ; then
 						echo "$k $nodename.$domain" >>/tmp/olsrnode2hosts.tmp
 					else
-						echo "$k $nodename.$domain_custom $nodename.$domain" >>/tmp/olsrnode2hosts.tmp
+						if [ -z "$domain_custom" ] ; then
+							echo "$k $nodename.$domain" >>/tmp/olsrnode2hosts.tmp
+						else
+							echo "$k $nodename.$domain_custom $nodename.$domain" >>/tmp/olsrnode2hosts.tmp
+						fi
 					fi
 				fi
 			done
@@ -87,6 +93,9 @@ i=1;while json_is_a ${i} object;do
 	i=$(( i + 1 ))
 done
 json_cleanup
+mkdir -p /tmp/hosts
+touch /tmp/hosts/olsrneighbor
+
 if [ -f /tmp/olsrnode2hosts.tmp ] ; then
 	if [ -f /tmp/hosts/olsrnode ] ; then
 		cat /tmp/olsrnode2hosts.tmp | sort > /tmp/olsrnode
@@ -97,8 +106,6 @@ if [ -f /tmp/olsrnode2hosts.tmp ] ; then
 			mv /tmp/olsrnode /tmp/hosts/olsrnode
 			if [ $unbound == 0 ] ; then
 				killall -HUP dnsmasq
-			else
-				/usr/lib/unbound/olsrv2node.sh
 			fi
 		fi
 	else
@@ -106,8 +113,9 @@ if [ -f /tmp/olsrnode2hosts.tmp ] ; then
 		rm /tmp/olsrnode2hosts.tmp
 		if [ $unbound == 0 ] ; then
 			killall -HUP dnsmasq
-		else
-			/usr/lib/unbound/olsrv2node.sh
 		fi
 	fi
+fi
+if [ $unbound == 1 ] ; then
+	/usr/lib/unbound/olsrv2neighbour.sh
 fi
