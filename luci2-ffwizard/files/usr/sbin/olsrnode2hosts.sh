@@ -117,5 +117,5 @@ if [ -f /tmp/olsrnode2hosts.tmp ] ; then
 	fi
 fi
 if [ $unbound == 1 ] ; then
-	/usr/lib/unbound/olsrv2neighbour.sh
+	/usr/lib/unbound/olsrv2node.sh
 fi
