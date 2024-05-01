@@ -87,10 +87,11 @@ setup_ether() {
 	uci_add olsrd Interface ; iface_sec="$CONFIG_SECTION"
 	uci_set olsrd "$iface_sec" interface "$device"
 	uci_set olsrd "$iface_sec" ignore "0"
-	# only with LinkQualityAlgorithm=etx_ffeth
-	#uci_set olsrd "$iface_sec" Mode "ether"
-	# only with LinkQualityAlgorithm=etx_ff
-	uci_set olsrd "$iface_sec" Mode "mesh"
+	# with LinkQualityAlgorithm=etx_ffeth
+	# ethernet booster
+	# with LinkQualityAlgorithm=etx_ff
+	# do not retransmit out through the same interface
+	uci_set olsrd "$iface_sec" Mode "ether"
 	olsr_enabled=1
 	config_get ipaddr $cfg dhcp_ip 0
 	if [ "$ipaddr" != 0 ] ; then

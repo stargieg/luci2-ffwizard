@@ -87,9 +87,9 @@ setup_ether() {
 	uci_set olsrd6 "$iface_sec" interface "$device"
 	uci_set olsrd6 "$iface_sec" ignore "0"
 	# only with LinkQualityAlgorithm=etx_ffeth
+	# ethernet booster and
+	# do not retransmit out through the same interface
 	uci_set olsrd6 "$iface_sec" Mode "ether"
-	# only with LinkQualityAlgorithm=etx_ff
-	#uci_set olsrd6 "$iface_sec" Mode "mesh"
 	olsr_enabled=1
 }
 
@@ -106,8 +106,7 @@ setup_wifi() {
 	uci_add olsrd6 Interface ; iface_sec="$CONFIG_SECTION"
 	uci_set olsrd6 "$iface_sec" interface "$device"
 	uci_set olsrd6 "$iface_sec" ignore "0"
-	#Shoud be mesh with LinkQualityAlgorithm=etx_ffeth
-	#and LinkQualityAlgorithm=etx_ff
+	# retransmit out through the same interface
 	uci_set olsrd6 "$iface_sec" Mode "mesh"
 	olsr_enabled=1
 }
