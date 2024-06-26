@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=144
+PKG_RELEASE:=145
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
@@ -189,6 +189,11 @@ define Package/$(PKG_NAME)-batadv/install
 	$(INSTALL_BIN) files/etc/ffwizard.d/30-batadv.sh $(1)/etc/ffwizard.d/
 endef
 
+define Package/$(PKG_NAME)-babel/install
+	$(INSTALL_DIR) $(1)/etc/ffwizard.d
+	$(INSTALL_BIN) files/etc/ffwizard.d/32-babel.sh $(1)/etc/ffwizard.d/
+endef
+
 define Package/$(PKG_NAME)-kadnode/install
 	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/ffwizard.d/60-kadnode.sh $(1)/etc/ffwizard.d/
@@ -210,6 +215,7 @@ $(eval $(call BuildPackage,luci2-ffwizard-olsrd-ipv6))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrv2-ipv6))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrv2-ipv6-ub))
 $(eval $(call BuildPackage,luci2-ffwizard-batadv))
+$(eval $(call BuildPackage,luci2-ffwizard-babel))
 $(eval $(call BuildPackage,luci2-ffwizard-kadnode))
 $(eval $(call BuildPackage,luci2-ffwizard-fw))
 $(eval $(call BuildPackage,unbound-dnsmasq-dhcp))

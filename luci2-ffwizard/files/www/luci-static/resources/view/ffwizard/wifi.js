@@ -37,6 +37,9 @@ return view.extend({
 		o = s.option(form.Flag, "bat_mesh", _("B.A.T.M.A.N Meshprotokoll"), "");
 		o.datatype = "bool";
 		o.rmempty = false;
+		o = s.option(form.Flag, "babel_mesh", _("Babel Meshprotokoll"), "");
+		o.datatype = "bool";
+		o.rmempty = false;
 		o = s.option(form.Value, "mesh_ip", _("Mesh IPv4 Addresse"), "");
 		o.placeholder = "104.1.1.1/32";
 		o.datatype = "cidr4";
