@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=145
+PKG_RELEASE:=146
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
@@ -86,6 +86,13 @@ define Package/$(PKG_NAME)-batadv
   DEPENDS:=luci2-ffwizard
   TITLE:=Batman advanced
   EXTRA_DEPENDS:=kmod-batman-adv, batctl
+endef
+
+define Package/$(PKG_NAME)-babel
+  $(call Package/luci2-ffwizard/template)
+  DEPENDS:=luci2-ffwizard
+  TITLE:=Batman advanced
+  EXTRA_DEPENDS:=babeld, ip-full
 endef
 
 define Package/$(PKG_NAME)-kadnode
