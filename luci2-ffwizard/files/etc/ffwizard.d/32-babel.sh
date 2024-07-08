@@ -14,13 +14,12 @@ log_babel() {
 
 
 setup_babel() {
-	local cfg="$1"
-	local ula="$2"
 	log_babel "Setup babeld"
+	uci_add babeld general ; cfg="$CONFIG_SECTION"
 	uci_set babeld $cfg local_port '33123'
 	uci_set babeld $cfg ipv6_subtrees 'true'
 	uci_set babeld $cfg ubus_bindings 'true'
-	uci_set babeld $cfg export_table '11'
+	#uci_set babeld $cfg export_table '11'
 }
 
 setup_filter_in() {
@@ -152,8 +151,7 @@ if [ "$babel_enabled" == "1" ] ; then
 		setup_filter_redistribute lan "$ip6prefix"
 	fi
 	#Setup babeld
-	config_load babeld
-	config_foreach setup_babel general
+	setup_babel
 	uci_commit babeld
 
 else
