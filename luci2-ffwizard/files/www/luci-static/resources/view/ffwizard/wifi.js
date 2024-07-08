@@ -23,6 +23,7 @@ return view.extend({
 		o.value("adhoc","IBSS/Ad-Hoc");
 		o.value("mesh","802.11s-Mesh");
 		o.value("sta","802.11 Client");
+		o.value("ap","802.11 AP");
 		o = s.option(form.Value, "ssid", _("SSID Wlan Name"), "optional");
 		o.optional = true;
 		o.datatype = "string";

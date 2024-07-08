@@ -353,6 +353,15 @@ setup_wifi() {
 			if [ ! -z "$bssid" ] ; then
 				uci_set wireless $sec bssid "$bssid"
 			fi
+		elif [ "$iface_mode" == "ap" ] ; then
+			config_get ssid $cfg ssid "freifunk.net"
+			uci_set wireless $sec mode "ap"
+			uci_set wireless $sec ssid "$ssid"
+			uci_set wireless $sec isolate "1"
+			config_get bssid $cfg bssid
+			if [ ! -z "$bssid" ] ; then
+				uci_set wireless $sec bssid "$bssid"
+			fi
 		else
 			#TODO check valid htmode. adhoc works with HT40
 			#[ $hw_n == 1 ] && uci_set wireless $device htmode "HT20"
