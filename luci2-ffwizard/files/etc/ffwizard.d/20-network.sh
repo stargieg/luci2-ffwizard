@@ -96,15 +96,19 @@ setup_bridge() {
 		#TODO
 		#uci_set network $cfg macaddr "$random"?
 		uci_set network $cfg type "bridge"
-		uci_set network $cfg ifname "$ifc"
+		#uci_set network $cfg ifname "$ifc"
+		uci_set network $cfg ifname "dummy0"
 	else
 		setup_ip $cfg "$ipaddr" "br-$cfg"
 		if ! uci_get network br$cfg >/dev/null ; then
 			uci_add network device "br$cfg"
+		else
+			uci_remove network "br$cfg" ports 2>/dev/null
 		fi
 		uci_set network br$cfg name "br-$cfg"
 		uci_set network br$cfg type "bridge"
 		uci_set network br$cfg bridge_empty "1"
+		uci_add_list network br$cfg ports "dummy0"
 		#for batman
 		#uci_set network br$cfg mtu "1532"
 		#TODO
