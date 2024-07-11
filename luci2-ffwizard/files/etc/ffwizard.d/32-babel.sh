@@ -103,12 +103,24 @@ setup_wifi() {
 	log_babel "Setup wifi $cfg"
 	uci_add babeld interface ; iface_sec="$CONFIG_SECTION"
 	uci_set babeld "$iface_sec" ifname "$device"
-	uci_set babeld "$iface_sec" type "wireless"
-	#babeld.j2
-	uci_set babeld "$iface_sec" split_horizon "true"
-	uci_set babeld "$iface_sec" link_quality "true"
-	uci_set babeld "$iface_sec" rxcost "256"
-
+	if [ "$compat" == "1" ] ; then
+		mode=$(uci_get network.$device.mode)
+	else
+		mode=$(uci_get network.br$device.type)
+	fi
+	if [ "$iface_mode" == "bridge" ] ; then
+		uci_set babeld "$iface_sec" type "wired"
+		#babeld.j2
+		uci_set babeld "$iface_sec" split_horizon "true"
+		uci_set babeld "$iface_sec" link_quality "false"
+		uci_set babeld "$iface_sec" rxcost "96"
+	else
+		uci_set babeld "$iface_sec" type "wireless"
+		#babeld.j2
+		uci_set babeld "$iface_sec" split_horizon "true"
+		uci_set babeld "$iface_sec" link_quality "true"
+		uci_set babeld "$iface_sec" rxcost "256"
+	fi
 	setup_filter_in "$device"
 	babel_enabled=1
 }
