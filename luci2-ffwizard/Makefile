@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=148
+PKG_RELEASE:=149
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
@@ -71,7 +71,7 @@ define Package/$(PKG_NAME)-olsrv2-ipv6
   $(call Package/luci2-ffwizard/template)
   DEPENDS:=luci2-ffwizard
   TITLE:=olsrd ipv6 config
-  EXTRA_DEPENDS:=oonf-init-scripts, oonf-olsrd2
+  EXTRA_DEPENDS:=kmod-dummy, oonf-init-scripts, oonf-olsrd2
 endef
 
 define Package/$(PKG_NAME)-olsrv2-ipv6-ub
@@ -92,7 +92,7 @@ define Package/$(PKG_NAME)-babel
   $(call Package/luci2-ffwizard/template)
   DEPENDS:=luci2-ffwizard
   TITLE:=Batman advanced
-  EXTRA_DEPENDS:=babeld, ip-full
+  EXTRA_DEPENDS:=kmod-dummy, babeld, ip-full
 endef
 
 define Package/$(PKG_NAME)-kadnode
@@ -199,6 +199,8 @@ endef
 define Package/$(PKG_NAME)-babel/install
 	$(INSTALL_DIR) $(1)/etc/ffwizard.d
 	$(INSTALL_BIN) files/etc/ffwizard.d/32-babel.sh $(1)/etc/ffwizard.d/
+	$(INSTALL_BIN) files/usr/sbin/babelneighbor2hosts.sh $(1)/usr/sbin/
+	$(INSTALL_BIN) files/usr/sbin/babelnode2hosts.sh $(1)/usr/sbin/
 endef
 
 define Package/$(PKG_NAME)-kadnode/install

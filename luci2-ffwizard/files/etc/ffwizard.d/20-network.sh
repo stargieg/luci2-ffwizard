@@ -41,11 +41,10 @@ setup_ip() {
 		fi
 	fi
 	uci_set network $cfg proto "static"
-	uci_set network $cfg ip6assign "64"
-	if [ "$cfg" == "wan" ] ; then
-		#Disable dhcpv6 if wan a freifunk interface
-		uci_set network wan6 proto "none"
-	fi
+	#if [ "$cfg" == "wan" ] ; then
+	#	#Disable dhcpv6 if wan a freifunk interface
+	#	uci_set network wan6 proto "none"
+	#fi
 }
 
 get_ports() {
@@ -91,9 +90,9 @@ setup_bridge() {
 	local ipaddr="$2"
 	if [ "$compat" == "1" ] ; then
 		setup_ip $cfg "$ipaddr"
-		#for batman
 		uci_set network $cfg bridge_empty "1"
-		uci_set network $cfg mtu "1532"
+		#for batman
+		#uci_set network $cfg mtu "1532"
 		#TODO
 		#uci_set network $cfg macaddr "$random"?
 		uci_set network $cfg type "bridge"
@@ -105,9 +104,9 @@ setup_bridge() {
 		fi
 		uci_set network br$cfg name "br-$cfg"
 		uci_set network br$cfg type "bridge"
-		#for batman
 		uci_set network br$cfg bridge_empty "1"
-		uci_set network br$cfg mtu "1532"
+		#for batman
+		#uci_set network br$cfg mtu "1532"
 		#TODO
 		#r1=$(dd if=/dev/urandom bs=1 count=1 2>/dev/null |hexdump -e '1/1 "%02x"')
 		#r2=$(dd if=/dev/urandom bs=1 count=1 2>/dev/null |hexdump -e '1/1 "%02x"')
@@ -171,8 +170,8 @@ setup_ether() {
 		setup_ip "$cfg" "$ipaddr"
 		config_get ipaddr $cfg dhcp_ip 2>/dev/null
 		uci_remove network $cfg ip6class 2>/dev/null
+		uci_remove network $cfg ip6assign 2>/dev/null
 		if [ ! -z "$ipaddr" ] ; then
-			uci_remove network $cfg ip6assign 2>/dev/null
 			eval "$(ipcalc.sh $ipaddr)"
 			OCTET_4="${NETWORK##*.}"
 			OCTET_1_3="${NETWORK%.*}"
@@ -180,9 +179,6 @@ setup_ether() {
 			ipaddr="$OCTET_1_3.$OCTET_4"
 			setup_ip "$cfg_dhcp" "$ipaddr/$PREFIX"
 			uci_set network $cfg_dhcp device "@$cfg"
-		else
-			uci_set network $cfg ip6assign "64"
-			uci_add_list network $cfg ip6class "local"
 		fi
 	fi
 	case $cfg in
@@ -316,12 +312,13 @@ setup_wifi() {
 	#wifi-iface
 	config_get olsr_mesh $cfg olsr_mesh "0"
 	config_get bat_mesh $cfg bat_mesh "0"
+	config_get babel_mesh $cfg babel_mesh "0"
 	#todo grep Device supports
 	#iw phy phy0 info | grep IBSS
 	#iw phy phy0 info | grep "mesh point"
 	#iw phy phy0 info | grep "AP"
 	config_get iface_mode $cfg iface_mode "mesh"
-	if [ "$olsr_mesh" == "1" -o "$bat_mesh" == "1" ] ; then
+	if [ "$olsr_mesh" == "1" -o "$bat_mesh" == "1" -o "$babel_mesh" == "1" ] ; then
 		local bssid
 		log_wifi "mesh"
 		cfg_mesh=$cfg"_mesh"
@@ -377,7 +374,7 @@ setup_wifi() {
 		config_get ipaddr $cfg mesh_ip
 		setup_ip "$cfg_mesh" "$ipaddr"
 		uci_remove network $cfg_mesh ip6class 2>/dev/null
-		uci_add_list network $cfg_mesh ip6class "local"
+		uci_remove network $cfg_mesh ip6assign 2>/dev/null
 	else
 		if uci_get network $cfg 2>/dev/null 1>/dev/null ; then
 			cfg_mesh=$cfg"_mesh"
@@ -465,7 +462,8 @@ config_load ffwizard
 config_foreach setup_ether ether
 
 #Setup DHCP Batman Bridge
-config_get br ffwizard br "0"
+#config_get br ffwizard br "0"
+br="1"
 if [ "$br" == "1" ] ; then
 	config_get ipaddr ffwizard dhcp_ip
 	if [ -n "$ipaddr" ] ; then
@@ -490,19 +488,23 @@ ula_uci=$(uci_get network globals ula_prefix)
 ula_addr="$(echo $ula_uci | cut -d '/' -f 1)"
 config_get ip6prefix ffwizard ip6prefix
 if [ ! -z "$ip6prefix" ] ; then
-	uci_set network loopback ip6prefix "$ip6prefix"
-	ip6_addr="$(echo $ip6prefix | cut -d '/' -f 1)"
-	uci_remove network globals srcip6prefix 2>/dev/null
-	uci_remove network loopback ip6addr 2>/dev/null
-	uci_add_list network loopback ip6addr "::1/128"
-	uci_add_list network loopback ip6addr "$ula_addr""2/128"
-	uci_add_list network loopback ip6addr "$ip6_addr""2/128"
-#else
-	#uci_remove network loopback ip6prefix 2>/dev/null
-	#uci_remove network globals srcip6prefix 2>/dev/null
-	#uci_remove network loopback ip6addr 2>/dev/null
-	#uci_add_list network loopback ip6addr "::1/128"
-	#uci_add_list network loopback ip6addr "$ula_addr""2/128"
+	uci_set network "$br_name" ip6prefix "$ip6prefix"
+	uci_set network "$br_name" ip6assign "64"
+	uci_remove network "$br_name" ip6class 2>/dev/null
+	uci_add_list network "$br_name" ip6class "$br_name"
+	#ip6_addr="$(echo $ip6prefix | cut -d '/' -f 1)"
+	#if ! uci_get network loprefix 2>/dev/null 1>/dev/null ; then
+	#	uci_add network interface loprefix
+	#else
+	#	uci_remove network loprefix ip6addr 2>/dev/null
+	#fi
+	#uci_set network loprefix proto static
+	#uci_add_list network loprefix ip6addr "$ip6_addr""1/128"
+	#if [ "$compat" == "1" ] ; then
+	#	uci_set network loprefix ifname '@loopback'
+	#else
+	#	uci_set network loprefix device '@loopback'
+	#fi
 fi
 
 #Set lan defaults if not an freifunk interface

@@ -24,7 +24,7 @@ setup_babel() {
 
 setup_filter_in() {
 	local iface="$1"
-	log_babel "Setup filter_redistribute"
+	log_babel "Setup filter_in"
 	uci_add babeld filter ; cfg="$CONFIG_SECTION"
 	uci_set babeld $cfg type "in"
 	uci_set babeld $cfg action 'metric 128'
@@ -83,6 +83,10 @@ setup_ether() {
 	#uci_set babeld "$iface_sec" rx_bitrate "$speed"
 	#uci_set babeld "$iface_sec" tx_bitrate "$speed"
 	uci_set babeld "$iface_sec" type "wired"
+	#babeld.j2
+	uci_set babeld "$iface_sec" split_horizon "true"
+	uci_set babeld "$iface_sec" link_quality "false"
+	uci_set babeld "$iface_sec" rxcost "96"
 	setup_filter_in "$device"
 	babel_enabled=1
 }
@@ -100,21 +104,25 @@ setup_wifi() {
 	uci_add babeld interface ; iface_sec="$CONFIG_SECTION"
 	uci_set babeld "$iface_sec" ifname "$device"
 	uci_set babeld "$iface_sec" type "wireless"
+	#babeld.j2
+	uci_set babeld "$iface_sec" split_horizon "true"
+	uci_set babeld "$iface_sec" link_quality "true"
+	uci_set babeld "$iface_sec" rxcost "256"
+
 	setup_filter_in "$device"
 	babel_enabled=1
 }
 
 setup_filter_redistribute() {
-	local iface="$1"
-	local ip="$2"
+	local ip="$1"
 	log_babel "Setup filter_redistribute"
 	uci_add babeld filter ; cfg="$CONFIG_SECTION"
 	uci_set babeld $cfg type "redistribute"
 	uci_set babeld $cfg ip "$ip"
 	uci_set babeld $cfg eq '64'
-	uci_set babeld $cfg proto '100'
-	uci_set babeld $cfg action 'metric 128'
-	uci_set babeld $cfg if "$iface"
+	#uci_set babeld $cfg proto '4'
+	#uci_set babeld $cfg action 'metric 128'
+	#uci_set babeld $cfg if "$iface"
 }
 
 remove_section() {
@@ -148,7 +156,7 @@ if [ "$babel_enabled" == "1" ] ; then
 	#Setup IP6 Prefix
 	config_get ip6prefix ffwizard ip6prefix 2>/dev/null
 	if [ ! -z "$ip6prefix" ] ; then
-		setup_filter_redistribute lan "$ip6prefix"
+		setup_filter_redistribute "$ip6prefix"
 	fi
 	#Setup babeld
 	setup_babel
