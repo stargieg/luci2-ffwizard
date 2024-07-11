@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=151
+PKG_RELEASE:=152
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
@@ -197,7 +197,7 @@ define Package/$(PKG_NAME)-batadv/install
 endef
 
 define Package/$(PKG_NAME)-babel/install
-	$(INSTALL_DIR) $(1)/etc/ffwizard.d
+	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/usr/sbin/
 	$(INSTALL_BIN) files/etc/ffwizard.d/32-babel.sh $(1)/etc/ffwizard.d/
 	$(INSTALL_BIN) files/usr/sbin/babelneighbor2hosts.sh $(1)/usr/sbin/
 	$(INSTALL_BIN) files/usr/sbin/babelnode2hosts.sh $(1)/usr/sbin/
