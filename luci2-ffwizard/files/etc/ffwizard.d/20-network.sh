@@ -360,6 +360,10 @@ setup_wifi() {
 			if [ ! -z "$bssid" ] ; then
 				uci_set wireless $sec bssid "$bssid"
 			fi
+			config_get wds $cfg wds
+			if [ ! -z "$wds" ] ; then
+				uci_set wireless $sec wds "$wds"
+			fi
 		else
 			#TODO check valid htmode. adhoc works with HT40
 			#[ $hw_n == 1 ] && uci_set wireless $device htmode "HT20"
