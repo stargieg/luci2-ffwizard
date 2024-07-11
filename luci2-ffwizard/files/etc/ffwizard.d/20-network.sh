@@ -102,13 +102,10 @@ setup_bridge() {
 		setup_ip $cfg "$ipaddr" "br-$cfg"
 		if ! uci_get network br$cfg >/dev/null ; then
 			uci_add network device "br$cfg"
-		else
-			uci_remove network "br$cfg" ports 2>/dev/null
 		fi
 		uci_set network br$cfg name "br-$cfg"
 		uci_set network br$cfg type "bridge"
 		uci_set network br$cfg bridge_empty "1"
-		uci_add_list network br$cfg ports "dummy0"
 		#for batman
 		#uci_set network br$cfg mtu "1532"
 		#TODO
@@ -543,6 +540,7 @@ if [ "$br" == "1" ] ; then
 		uci_set network $br_name _ifname "$ifname"
 	else
 		uci_remove network br$br_name ports 2>/dev/null
+		uci_add_list network br$br_name ports "dummy0"
 		config_load network
 		for device in $br_ifaces ; do
 			config_foreach get_ports device "$device"
