@@ -1,0 +1,46 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+setup_ether() {
+	local cfg="$1"
+	config_get enabled $cfg enabled "0" 2>/dev/null
+	[ "$enabled" == "0" ] && return
+	config_get babel_mesh $cfg babel_mesh "0"
+	[ "$babel_mesh" == "0" ] && return
+	babel_enabled=1
+}
+
+setup_wifi() {
+	local cfg="$1"
+	config_get enabled $cfg enabled "0" 2>/dev/null
+	[ "$enabled" == "0" ] && return
+	config_get babel_mesh $cfg babel_mesh "0"
+	[ "$babel_mesh" == "0" ] && return
+	babel_enabled=1
+}
+
+babel_enabled=0
+#Setup ether and wifi
+config_load ffwizard
+config_foreach setup_ether ether
+config_foreach setup_wifi wifi
+
+if [ "$babel_enabled" == "0" ] ; then
+	if [ -s /etc/rc.d/S*babeld ] ; then
+		/etc/init.d/babeld disable
+	fi
+	crontab -l | grep -q 'babelneighbor2hosts' && crontab -l | sed -e '/.*babelneighbor2hosts.*/d' | crontab -
+	crontab -l | grep -q 'babelnode2hosts' && crontab -l | sed -e '/.*babelnode2hosts.*/d' | crontab -
+	#crontab -l | grep -q 'babel-dyn-addr' && crontab -l | sed -e '/.*babel-dyn-addr.*/d' | crontab -
+else
+	crontab -l | grep -q 'babelneighbor2hosts' || \
+		echo "*/5 * * * *     /usr/sbin/babelneighbor2hosts.sh" >> /etc/crontabs/root
+	crontab -l | grep -q 'babelnode2hosts' || \
+		echo "*/11 * * * *    /usr/sbin/babelnode2hosts.sh" >> /etc/crontabs/root
+	#crontab -l | grep -q 'babel-dyn-addr' || \
+	#	echo "*/8 * * * *    /usr/sbin/babel-dyn-addr.sh" >> /etc/crontabs/root
+	crontab -l | grep -q 'dnsmasq' || \
+		echo "*/5 * * * * killall -HUP dnsmasq" >> /etc/crontabs/root
+fi
+exit 0
