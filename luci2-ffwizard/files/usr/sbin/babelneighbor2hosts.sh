@@ -5,7 +5,7 @@
 . /lib/functions/network.sh
 
 log() {
-	logger -s -t babelneighbor2hosts $@
+	logger -t babelneighbor2hosts $@
 }
 
 print_interface() {
@@ -43,20 +43,20 @@ fi
 unbound=0
 [ -x /usr/lib/unbound/babelneighbour.sh ] && unbound=1
 rm -f /tmp/babelneighbor2hosts.tmp
-domain="$(uci_get luci_olsrd2 general domain olsr)"
+domain="$(uci_get system @system[-1] domain olsr)"
 domain_custom=""
 if [ ! "$domain" == "olsr" ] ; then
 	domain_custom="$domain"
 	domain="olsr"
 fi
-log "domain $domain"
+#log "domain $domain $domain_custom"
 llneighborips=""
 llneighborip=""
 json_get_keys keys
 for key in $keys ; do
 	json_select ${key}
 	json_get_var device dev
-	log "llneighborip ${key//_/:}%${device}"
+	#log "llneighborip ${key//_/:}%${device}"
 	llneighborips="$llneighborips ${key//_/:}%${device}"
 	json_select ..
 done
@@ -74,22 +74,19 @@ for llneighborip in $llneighborips ; do
 		json_select ${key}
 		neighborip=${key//_/:}
 		neighborip=${neighborip%:*}
+		neighborip="$neighborip""1"
 		refmetric=""
 		json_get_var refmetric refmetric
 		if [ "$refmetric" = "0" ] ; then
 			json_get_var via via
 			llvia=$(echo $llneighborip | cut -d '%' -f 1)
 			if [ "$via" = "$llvia" ] ; then
-				if ping6 -c1 -W3 -q "$neighborip""1" >/dev/null ; then
-					neighborip="$neighborip""1"
-				#elif ping6 -c1 -W3 -q "$neighborip""2" >/dev/null ; then
-				#	neighborip="$neighborip""2"
-				else
-					log "neighborip na $neighborip $llneighborip"
+				if ! ping6 -c1 -W3 -q "$neighborip" >/dev/null ; then
+					log "neighborip ping fail $neighborip $llneighborip"
 					json_select ..
 					continue
 				fi
-				log "neighborip $neighborip $llneighborip"
+				#log "neighborip $neighborip $llneighborip"
 				neighborname=$(nslookup $neighborip $llneighborip | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
 				neighborips=$(nslookup $neighborname $neighborip | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 				for j in $neighborips ; do

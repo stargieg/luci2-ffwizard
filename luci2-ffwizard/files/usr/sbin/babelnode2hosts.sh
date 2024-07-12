@@ -4,7 +4,7 @@
 . /usr/share/libubox/jshn.sh
 
 log() {
-	logger -s -t babelnode2hosts $@
+	logger -t babelnode2hosts $@
 }
 
 if ! ubus list babeld >/dev/null ; then
@@ -31,7 +31,7 @@ json_get_keys keys
 for key in $keys ; do
 	json_select ${key}
 	json_get_var device dev
-	log "llneighborip ${key//_/:}%${device}"
+	#log "llneighborip ${key//_/:}%${device}"
 	llneighborips="$llneighborips ${key//_/:}%${device}"
 	json_select ..
 done
@@ -46,7 +46,7 @@ fi
 unbound=0
 [ -x /usr/lib/unbound/babelv2node.sh ] && unbound=1
 rm -f /tmp/babelnode2hosts.tmp
-domain="$(uci_get luci_babeld2 general domain babel)"
+domain="$(uci_get system @system[-1] domain olsr)"
 domain_custom=""
 if [ ! "$domain" == "olsr" ] ; then
 	domain_custom="$domain"

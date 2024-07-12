@@ -22,6 +22,10 @@ setup_system() {
 		uci_set system $cfg hostname "$hostname"
 	fi
 
+	if ! [ "$domain" == "olsr" ] ; then
+		uci_set system $cfg domain "$domain"
+	fi
+
 	# Set Timezone
 	uci_set system $cfg zonename "Europe/Berlin"
 	uci_set system $cfg timezone "CET-1CEST,M3.5.0,M10.5.0/3"
@@ -44,6 +48,9 @@ config_load ffwizard
 
 # Set Hostname
 config_get hostname ffwizard hostname "OpenWrt"
+
+# Set Domain
+config_get domain ffwizard domain "olsr"
 
 # Set lat lon
 config_get location ffwizard location

@@ -17,6 +17,9 @@ return view.extend({
 		o = s.option(form.Value, "hostname", _("Router Name"), "");
 		o.datatype = "host";
 		o.placeholder = "OpenWrt";
+		o = s.option(form.Value, "domain", _("Router Domain"), "");
+		o.datatype = "hostname";
+		o.placeholder = "olsr";
 		o = s.option(form.Flag, "br", _("Netzwerkbrücke für AP-DHCP und Batman"), "");
 		o.datatype = "bool";
 		o.rmempty = false;
