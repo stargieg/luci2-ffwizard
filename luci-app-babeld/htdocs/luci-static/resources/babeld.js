@@ -25,7 +25,7 @@ function renderTableXRoutes(ubus_data, target_div) {
 			var prefixRow = document.createElement('tr');
 			prefixRow.setAttribute('class', 'tr');
 			var prefixContent = '<td class="td" data-title="xroutes_' + '%h'.format(protocol) + '_prefix">' + '%h'.format(prefix) + '</td>\
-                                 <td class="td" data-title="xroutes_' + '%h'.format(protocol) + '_metric">' + '%h'.format(data[protocol][prefix]["metric"]) + '</td>\
+                                 <td class="td" data-title="xroutes_' + '%h'.format(protocol) + '_metric">' + '%d'.format(data[protocol][prefix]["metric"]) + '</td>\
                                  <td class="td" data-title="xroutes_' + '%h'.format(protocol) + '_src-prefix">' + '%h'.format(data[protocol][prefix]["src-prefix"]) + '</td>';
 
 			prefixRow.innerHTML = prefixContent;
@@ -57,7 +57,7 @@ function renderTableRoutes(ubus_data, target_div) {
                              <th class="th" style="font-weight: 700;">Refmetric</th>\
                              <th class="th" style="font-weight: 700;">ID</th>\
                              <th class="th" style="font-weight: 700;">Seq. No.</th>\
-                             <th class="th" style="font-weight: 700;">Channes</th>\
+                             <th class="th" style="font-weight: 700;">Channel</th>\
                              <th class="th" style="font-weight: 700;">Age</th>\
                              <th class="th" style="font-weight: 700;">Via</th>\
                              <th class="th" style="font-weight: 700;">Nexthop</th>\
@@ -72,17 +72,17 @@ function renderTableRoutes(ubus_data, target_div) {
 			prefixRow.setAttribute('class', 'tr');
 			var prefixContent = '<td class="td" data-title="routes_' + '%h'.format(protocol) + '_prefix">' + '%h'.format(prefix) + '</td>\
                                  <td class="td" data-title="routes_' + '%h'.format(protocol) + '_src-prefix">' + '%h'.format(data[protocol][prefix]["src-prefix"]) + '</td>\
-                                 <td class="td" data-title="routes_' + '%h'.format(protocol) + '_metric">' + '%h'.format(data[protocol][prefix]["route_metric"]) + '</td>\
-                                 <td class="td" data-title="routes_' + '%h'.format(protocol) + '_rout-smoothed-metric">' + '%h'.format(data[protocol][prefix]["route_smoothed_metric"]) + '</td>\
-                                 <td class="td" data-title="routes_' + '%h'.format(protocol) + '_refmetric">' + '%h'.format(data[protocol][prefix]["refmetric"]) + '</td>\
+                                 <td class="td" data-title="routes_' + '%h'.format(protocol) + '_route_metric">' + '%d'.format(data[protocol][prefix]["route_metric"]) + '</td>\
+                                 <td class="td" data-title="routes_' + '%h'.format(protocol) + '_route_smoothed_metric">' + '%d'.format(data[protocol][prefix]["route_smoothed_metric"]) + '</td>\
+                                 <td class="td" data-title="routes_' + '%h'.format(protocol) + '_refmetric">' + '%d'.format(data[protocol][prefix]["refmetric"]) + '</td>\
                                  <td class="td" data-title="routes_' + '%h'.format(protocol) + '_id">' + '%h'.format(data[protocol][prefix]["id"]) + '</td>\
-                                 <td class="td" data-title="routes_' + '%h'.format(protocol) + '_seqno">' + '%h'.format(data[protocol][prefix]["seqno"]) + '</td>\
-                                 <td class="td" data-title="routes_' + '%h'.format(protocol) + '_channels">' + '%h'.format(data[protocol][prefix]["channels"]) + '</td>\
-                                 <td class="td" data-title="routes_' + '%h'.format(protocol) + '_age">' + '%h'.format(data[protocol][prefix]["age"]) + '</td>\
+                                 <td class="td" data-title="routes_' + '%h'.format(protocol) + '_seqno">' + '%d'.format(data[protocol][prefix]["seqno"]) + '</td>\
+                                 <td class="td" data-title="routes_' + '%h'.format(protocol) + '_channels">' + '%d'.format(data[protocol][prefix]["channels"]) + '</td>\
+                                 <td class="td" data-title="routes_' + '%h'.format(protocol) + '_age">' + '%d'.format(data[protocol][prefix]["age"]) + '</td>\
                                  <td class="td" data-title="routes_' + '%h'.format(protocol) + '_via">' + '%h'.format(data[protocol][prefix]["via"]) + '</td>\
                                  <td class="td" data-title="routes_' + '%h'.format(protocol) + '_nexthop">' + '%h'.format(data[protocol][prefix]["nexthop"]) + '</td>\
-                                 <td class="td" data-title="routes_' + '%h'.format(protocol) + '_installed">' + '%h'.format(data[protocol][prefix]["installed"]) + '</td>\
-                                 <td class="td" data-title="routes_' + '%h'.format(protocol) + '_feasible">' + '%h'.format(data[protocol][prefix]["feasible"]) + '</td>';
+                                 <td class="td" data-title="routes_' + '%h'.format(protocol) + '_installed">' + '%b'.format(data[protocol][prefix]["installed"]) + '</td>\
+                                 <td class="td" data-title="routes_' + '%h'.format(protocol) + '_feasible">' + '%b'.format(data[protocol][prefix]["feasible"]) + '</td>';
 
 			prefixRow.innerHTML = prefixContent;
 			table.appendChild(prefixRow);
@@ -123,12 +123,12 @@ function renderTableNeighbours(ubus_data, target_div) {
 			neighbourRow.setAttribute('class', 'tr');
 			var neighbourContent = '<td class="td" data-title="' + '%h'.format(protocol) + '_neighbour">' + '%h'.format(neighbour) + '</td>\
                                     <td class="td" data-title="neighbours_' + '%h'.format(protocol) + '_dev">' + '%h'.format(data[protocol][neighbour]["dev"]) + '</td>\
-                                    <td class="td" data-title="neighbours_' + '%h'.format(protocol) + '_hello-reach">' + '%h'.format(data[protocol][neighbour]["hello-reach"]) + '</td>\
-                                    <td class="td" data-title="neighbours_' + '%h'.format(protocol) + '_rxcost">' + '%h'.format(data[protocol][neighbour]["rxcost"]) + '</td>\
-                                    <td class="td" data-title="neighbours_' + '%h'.format(protocol) + '_txcost">' + '%h'.format(data[protocol][neighbour]["txcost"]) + '</td>\
-                                    <td class="td" data-title="neighbours_' + '%h'.format(protocol) + '_rtt">' + '%h'.format(data[protocol][neighbour]["rtt"]) + '</td>\
-                                    <td class="td" data-title="neighbours_' + '%h'.format(protocol) + '_channel">' + '%h'.format(data[protocol][neighbour]["channel"]) + '</td>\
-                                    <td class="td" data-title="neighbours_' + '%h'.format(protocol) + '_if_up">' + '%h'.format(data[protocol][neighbour]["if_up"]) + '</td>';
+                                    <td class="td" data-title="neighbours_' + '%h'.format(protocol) + '_hello-reach">' + '%d'.format(data[protocol][neighbour]["hello-reach"]) + '</td>\
+                                    <td class="td" data-title="neighbours_' + '%h'.format(protocol) + '_rxcost">' + '%d'.format(data[protocol][neighbour]["rxcost"]) + '</td>\
+                                    <td class="td" data-title="neighbours_' + '%h'.format(protocol) + '_txcost">' + '%d'.format(data[protocol][neighbour]["txcost"]) + '</td>\
+                                    <td class="td" data-title="neighbours_' + '%h'.format(protocol) + '_rtt">' + '%d'.format(data[protocol][neighbour]["rtt"]) + '</td>\
+                                    <td class="td" data-title="neighbours_' + '%h'.format(protocol) + '_channel">' + '%d'.format(data[protocol][neighbour]["channel"]) + '</td>\
+                                    <td class="td" data-title="neighbours_' + '%h'.format(protocol) + '_if_up">' + '%b'.format(data[protocol][neighbour]["if_up"]) + '</td>';
 
 			neighbourRow.innerHTML = neighbourContent;
 			table.appendChild(neighbourRow);
