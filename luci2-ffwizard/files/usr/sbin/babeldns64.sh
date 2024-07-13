@@ -54,7 +54,7 @@ dns64nodes=""
 log "id route_metric route_smoothed_metric refmetric"
 json_get_keys keys
 for key in $keys ; do
-	if [ "$key" == "64_ff9b___97" ] ; then
+	if [ "$key" == "64_ff9b___96" ] ; then
 		json_select ${key}
 		json_get_var route_metric route_metric
 		json_get_var route_smoothed_metric route_smoothed_metric
