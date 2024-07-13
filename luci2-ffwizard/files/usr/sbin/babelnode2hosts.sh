@@ -29,10 +29,14 @@ llneighborips=""
 llneighborip=""
 json_get_keys keys
 for key in $keys ; do
+	llneighborip=""
 	json_select ${key}
 	json_get_var device dev
 	#log "llneighborip ${key//_/:}%${device}"
-	llneighborips="$llneighborips ${key//_/:}%${device}"
+	llneighborip="${key//_/:}%${device}"
+	if ping6 -c1 -W3 -q "$llneighborip" >/dev/null ; then
+		llneighborips="$llneighborips $llneighborip"
+	fi
 	json_select ..
 done
 json_cleanup
@@ -57,7 +61,9 @@ for key in $keys ; do
 	json_select ${key}
 	node=${key//_/:}
 	node=${node%:*}
-	node="$node""1"
+	node=${node%::1}
+	node=${node%::}
+	node="$node""::1"
 	ret=""
 	for j in $llneighborips ; do
 		[ -z $ret ] || continue
