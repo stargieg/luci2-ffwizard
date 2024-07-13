@@ -17,9 +17,11 @@ setup_system() {
 		log_system "No valid Hostname! Set rand Hostname $hostname"
 		uci_set system $cfg hostname "$hostname"
 		uci_set ffwizard ffwizard hostname "$hostname"
+		uci_get snmpd && uci_set snmp @system[-1] sysName "$hostname"
 	else
 		log_system "Set Hostname $hostname"
 		uci_set system $cfg hostname "$hostname"
+		uci_get snmpd && uci_set snmp system sysName "$hostname"
 	fi
 
 	if ! [ "$domain" == "olsr" ] ; then
@@ -66,3 +68,4 @@ config_foreach setup_system system
 #Save
 uci_commit system
 uci_commit ffwizard
+uci_get snmpd && uci_commit snmpd
