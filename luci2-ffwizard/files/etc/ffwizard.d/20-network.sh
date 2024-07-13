@@ -369,9 +369,10 @@ setup_wifi() {
 			#[ $hw_n == 1 ] && uci_set wireless $device htmode "HT20"
 			#[ $hw_ac == 1 ] && uci_set wireless $device htmode "VHT20"
 			uci_set wireless $sec mode "mesh"
-			uci_set wireless $sec mesh_id 'freifunk'
-			uci_set wireless $sec mesh_fwding '0'
-			uci_set wireless $sec mesh_rssi_threshold '0'
+			config_get ssid $cfg ssid "freifunk" #Mesh-Freifunk-Berlin
+			uci_set wireless $sec mesh_id  "$ssid"
+			uci_set wireless $sec mesh_fwding "0"
+			uci_set wireless $sec mesh_rssi_threshold "0"
 		fi
 		uci_set wireless $sec network "$cfg_mesh"
 		uci_set wireless $sec mcast_rate "18000"
