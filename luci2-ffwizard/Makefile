@@ -202,6 +202,7 @@ define Package/$(PKG_NAME)-babel/install
 	$(INSTALL_BIN) files/usr/sbin/babelneighbor2hosts.sh $(1)/usr/sbin/
 	$(INSTALL_BIN) files/usr/sbin/babelnode2hosts.sh $(1)/usr/sbin/
 	$(INSTALL_BIN) files/usr/sbin/babeldns64.sh $(1)/usr/sbin/
+	$(INSTALL_BIN) files/usr/sbin/babel-dyn-addr.sh $(1)/usr/sbin/
 	$(INSTALL_BIN) files/etc/uci-defaults/32_ffwizard_babel $(1)/etc/uci-defaults/
 endef
 
