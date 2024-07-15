@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=166
+PKG_RELEASE:=167
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
@@ -93,6 +93,13 @@ define Package/$(PKG_NAME)-babel
   DEPENDS:=luci2-ffwizard
   TITLE:=Babel mesh protokol
   EXTRA_DEPENDS:=kmod-dummy, babeld
+endef
+
+define Package/$(PKG_NAME)-babel-ub
+  $(call Package/luci2-ffwizard/template)
+  DEPENDS:=luci2-ffwizard-babel
+  TITLE:=Babel ipv6 unbound
+  EXTRA_DEPENDS:=unbound-control
 endef
 
 define Package/$(PKG_NAME)-kadnode
@@ -204,6 +211,14 @@ define Package/$(PKG_NAME)-babel/install
 	$(INSTALL_BIN) files/usr/sbin/babeldns64.sh $(1)/usr/sbin/
 	$(INSTALL_BIN) files/usr/sbin/babel-dyn-addr.sh $(1)/usr/sbin/
 	$(INSTALL_BIN) files/etc/uci-defaults/32_ffwizard_babel $(1)/etc/uci-defaults/
+endef
+
+define Package/$(PKG_NAME)-babel-ub/install
+	$(INSTALL_DIR) $(1)/usr/lib/unbound $(1)/etc/uci-defaults/
+	$(INSTALL_BIN) files/etc/uci-defaults/65_unbound_babel $(1)/etc/uci-defaults/
+	$(INSTALL_BIN) files/usr/lib/unbound/babelneighbour.sh $(1)/usr/lib/unbound
+	$(INSTALL_BIN) files/usr/lib/unbound/babelnode.sh $(1)/usr/lib/unbound
+	$(INSTALL_BIN) files/usr/lib/unbound/babel.awk $(1)/usr/lib/unbound
 endef
 
 define Package/$(PKG_NAME)-kadnode/install

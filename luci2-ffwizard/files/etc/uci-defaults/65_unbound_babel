@@ -1,0 +1,29 @@
+#!/bin/sh
+
+addrc() {
+    local cmd="$1"
+    grep -v exit /etc/rc.local > /tmp/rc.local
+    echo "$cmd" >> /tmp/rc.local
+    echo 'exit 0' >> /tmp/rc.local
+    mv /tmp/rc.local /etc/rc.local
+    $cmd
+}
+
+if ! grep -q "babelneighbor.conf" /etc/rc.local ; then
+    addrc "mkdir -p /var/lib/unbound"
+    addrc "touch /var/lib/unbound/babelneighbor.conf"
+    addrc "touch /var/lib/unbound/babelnode.conf"
+    addrc "chown -R unbound:unbound /var/lib/unbound"
+fi
+
+addub() {
+    local cmd="$1"
+    if ! grep -q "$cmd" /etc/unbound/unbound_srv.conf ; then
+        echo "include: $cmd" >> /etc/unbound/unbound_srv.conf
+    fi
+}
+
+addub "/var/lib/unbound/babelneighbor.conf"
+addub "/var/lib/unbound/babelnode.conf"
+
+exit 0

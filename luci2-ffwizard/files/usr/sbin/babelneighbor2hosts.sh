@@ -140,5 +140,5 @@ if [ -f /tmp/babelneighbor2hosts.tmp ] ; then
 	fi
 fi
 if [ $unbound == 1 ] ; then
-	/usr/lib/unbound/olsrv2neighbour.sh
+	/usr/lib/unbound/babelneighbour.sh
 fi

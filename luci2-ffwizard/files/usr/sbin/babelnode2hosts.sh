@@ -128,5 +128,5 @@ if [ -f /tmp/babelnode2hosts.tmp ] ; then
 	fi
 fi
 if [ $unbound == 1 ] ; then
-	/usr/lib/unbound/babelv2node.sh
+	/usr/lib/unbound/babelnode.sh
 fi
