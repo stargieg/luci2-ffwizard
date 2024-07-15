@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=167
+PKG_RELEASE:=168
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
@@ -243,6 +243,7 @@ $(eval $(call BuildPackage,luci2-ffwizard-olsrv2-ipv6))
 $(eval $(call BuildPackage,luci2-ffwizard-olsrv2-ipv6-ub))
 $(eval $(call BuildPackage,luci2-ffwizard-batadv))
 $(eval $(call BuildPackage,luci2-ffwizard-babel))
+$(eval $(call BuildPackage,luci2-ffwizard-babel-ub))
 $(eval $(call BuildPackage,luci2-ffwizard-kadnode))
 $(eval $(call BuildPackage,luci2-ffwizard-fw))
 $(eval $(call BuildPackage,unbound-dnsmasq-dhcp))
