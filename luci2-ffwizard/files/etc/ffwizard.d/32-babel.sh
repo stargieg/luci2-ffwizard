@@ -158,7 +158,6 @@ config_load ffwizard
 config_foreach setup_ether ether
 config_foreach setup_wifi wifi
 
-
 if [ "$babel_enabled" == "1" ] ; then
 	if ! [ -s /etc/rc.d/S*babeld ] ; then
 		/etc/init.d/babeld enable
@@ -169,6 +168,8 @@ if [ "$babel_enabled" == "1" ] ; then
 	config_get ip6prefix ffwizard ip6prefix 2>/dev/null
 	if [ ! -z "$ip6prefix" ] ; then
 		setup_filter_redistribute "$ip6prefix"
+	else
+		setup_filter_redistribute
 	fi
 	#Setup babeld
 	setup_babel
