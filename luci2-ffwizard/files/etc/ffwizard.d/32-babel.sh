@@ -38,7 +38,7 @@ setup_ether() {
 	config_get dhcp_br $cfg dhcp_br "0"
 	[ "$dhcp_br" == "0" ] || return
 	config_get babel_mesh $cfg babel_mesh "0"
-	[ "$olsr_mesh" == "0" ] && return
+	[ "$babel_mesh" == "0" ] && return
 	config_get device $cfg device "0"
 	[ "$device" == "0" ] && return
 	log_babel "Setup ether $cfg"
