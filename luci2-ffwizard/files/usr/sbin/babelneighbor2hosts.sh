@@ -16,7 +16,15 @@ print_interface() {
 	for i in $lanaddrs6 ; do
 		if [ ! "$i" = "::1" ] ; then
 			if echo "$i" | grep -q -v ^fe ; then
-				echo "$i" "$hostname" >> "$out"
+				if echo $i | grep -q ^fd ; then
+					echo "$i $hostname.$domain $hostname" >> "$out"
+				else
+					if [ -z "$domain_custom" ] ; then
+						echo "$i $hostname.$domain $hostname" >> "$out"
+					else
+						echo "$i $hostname.$domain_custom $hostname.$domain $hostname" >> "$out"
+					fi
+				fi
 			fi
 		fi
 	done
@@ -121,7 +129,7 @@ touch /tmp/hosts/babelneighbor
 
 if [ -f /tmp/babelneighbor2hosts.tmp ] ; then
 	if [ -f /tmp/hosts/babelneighbor ] ; then
-		cat /tmp/babelneighbor2hosts.tmp | sort > /tmp/babelneighbor
+		cat /tmp/babelneighbor2hosts.tmp | sort | uniq > /tmp/babelneighbor
 		rm /tmp/babelneighbor2hosts.tmp
 		new=$(md5sum /tmp/babelneighbor | cut -d ' ' -f 1)
 		old=$(md5sum /tmp/hosts/babelneighbor | cut -d ' ' -f 1)
@@ -132,7 +140,7 @@ if [ -f /tmp/babelneighbor2hosts.tmp ] ; then
 			fi
 		fi
 	else
-		cat /tmp/babelneighbor2hosts.tmp | sort > /tmp/hosts/babelneighbor
+		cat /tmp/babelneighbor2hosts.tmp | sort  | uniq > /tmp/hosts/babelneighbor
 		rm /tmp/babelneighbor2hosts.tmp
 		if [ $unbound == 0 ] ; then
 			killall -HUP dnsmasq

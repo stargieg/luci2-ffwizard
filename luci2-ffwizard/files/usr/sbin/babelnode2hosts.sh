@@ -120,7 +120,7 @@ if [ -f /tmp/babelnode2hosts.tmp ] ; then
 			fi
 		fi
 	else
-		cat /tmp/babelnode2hosts.tmp | sort > /tmp/hosts/babelnode
+		cat /tmp/babelnode2hosts.tmp | sort | uniq > /tmp/hosts/babelnode
 		rm /tmp/babelnode2hosts.tmp
 		if [ $unbound == 0 ] ; then
 			killall -HUP dnsmasq
