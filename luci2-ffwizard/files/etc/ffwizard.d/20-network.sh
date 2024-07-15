@@ -30,15 +30,15 @@ setup_ip() {
 		uci_set network $cfg ipaddr "$IP"
 		uci_set network $cfg netmask "$NETMASK"
 	else
-		if [ "$cfg" == "lan" ] ; then
+		#if [ "$cfg" == "lan" ] ; then
 			#Magemant Access via lan ipv4
-			uci_set network $cfg ipaddr "192.168.1.1"
-			uci_set network $cfg netmask "255.255.255.0"
-		else
+		#	uci_set network $cfg ipaddr "192.168.1.1"
+		#	uci_set network $cfg netmask "255.255.255.0"
+		#else
 			#ipv6 only via ip6assign
 			uci_remove network $cfg ipaddr 2>/dev/null
 			uci_remove network $cfg netmask 2>/dev/null
-		fi
+		#fi
 	fi
 	uci_set network $cfg proto "static"
 	#if [ "$cfg" == "wan" ] ; then
