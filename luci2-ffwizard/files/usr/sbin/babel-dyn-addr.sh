@@ -1,7 +1,6 @@
 #!/bin/sh
 
 . /lib/functions.sh
-. /usr/share/libubox/jshn.sh
 
 log() {
 	logger -t babel-dyn-addr $@
@@ -174,82 +173,89 @@ if pidof babeldns64.sh | grep -q ' ' >/dev/null ; then
 	return 1
 fi
 
-json_init
-json_load "$(ubus call babeld get_routes)"
-if ! json_select "IPv6" ; then
+prefix=""
+metric=65535
+genmask=128
+#ubus call babeld get_routes | jsonfilter -e '@.IPv6.A' valid
+#ubus call babeld get_routes | jsonfilter -e '@.IPv6.64' invalid
+#label for object key is duplicated eg. "::/0" if more than one internet gateway
+#BUG parser error
+ubus call babeld get_routes | \
+sed -e 's/^\t\t\(".*"\): {/\t\t\{\n\t\t\t"prefix": \1,/' \
+-e 's/^\(\t".*": \){/\1[/' \
+-e 's/^\t}/\t]/' \
+-e 's/src-prefix/src_prefix/' | \
+jsonfilter -e '@.IPv6[@.prefix="::\/0"]' > /tmp/babel-dyn-addr.json
+while read line; do
+	eval $(jsonfilter -s "$line" \
+		-e 'installed=@.installed' \
+		-e 'src_prefix=@.src_prefix' \
+		-e 'refmetric=@.refmetric' )
+	if [ "$installed" == "1" ] ; then
+		if [ $refmetric -le $metric ] ; then
+			src_mask="$(echo $src_prefix | cut -d '/' -f 2)"
+			if [ $src_mask -le $genmask ] ; then
+				prefix="$src_prefix"
+				metric=$refmetric
+				genmask=$src_mask
+			fi
+		fi
+	fi
+done < /tmp/babel-dyn-addr.json
+rm /tmp/babel-dyn-addr.json
+
+if [ "$prefix" == "" ] ; then
 	log "Exit no IPv6 neighbor entry"
 	return 1
 fi
 
 uciprefix=$(uci_get network fflandhcp ffprefix)
-prefix=""
-json_get_keys keys
-for key in $keys ; do
-	if [ "$key" == "___0" ] ; then
-		json_select ${key}
-		#json_get_var route_metric route_metric
-		json_get_var src_prefix src-prefix
-		#json_get_var route_smoothed_metric route_smoothed_metric
-		#json_get_var refmetric refmetric
-		#json_get_var id id
-		#log "$id $route_metric $route_smoothed_metric $refmetric $src_prefix"
-		prefix="$src_prefix"
-		json_select ..
-	fi
-done
-
 if [ "$prefix" == "$uciprefix" ] ; then
 	ip6prefix_new=$(uci_get network fflandhcp ffprefix)
 else
-	genmask="$(echo $prefix | cut -d '/' -f 2)"
+	#genmask="$(echo $prefix | cut -d '/' -f 2)"
 	destination="$(echo $prefix | cut -d '/' -f 1)"
 	if [ $genmask == 48 ] || [ $genmask -eq 42 ] || [ $genmask -eq 56 ] || [ $genmask -eq 60 ]; then
 		ula="$(echo $destination | cut -b -2)"
-		#json_get_var mtr domain_metric_out_raw
-		#json_get_var dis domain_distance
-		if [ $ula != fd -a $ula != fe -a $mtr -lt $metric -a $dis -lt $distance ] ; then
-			metric=$mtr
-			distance=$dis
-			if [ ! "$destination" == "$srcip6prefix" ] ; then
-				log "new attached_net_src $attached_net_src"
-				case $genmask in
-				60)
-					srcip6prefix_new="$destination"
-					ip6prefix_new=$(calc_from_60 $destination)
-					ip6prefix_mask_new="64"
-					ip6prefix_new="$ip6prefix_new/$ip6prefix_mask_new"
-					;;
-				56)
-					srcip6prefix_new="$destination"
-					ip6prefix_new=$(calc_from_56 $destination 64)
-					ip6prefix_mask_new="64"
-					#ip6prefix_new=$(calc_from_56 $destination 62)
-					#ip6prefix_mask_new="62"
-					ip6prefix_new="$ip6prefix_new/$ip6prefix_mask_new"
-					;;
-				52)
-					srcip6prefix_new="$destination"
-					ip6prefix_new=$(calc_from_52 $destination 64)
-					ip6prefix_mask_new="64"
-					#ip6prefix_new=$(calc_from_56 $destination 62)
-					#ip6prefix_mask_new="62"
-					ip6prefix_new="$ip6prefix_new/$ip6prefix_mask_new"
-					;;
-				48)
-					srcip6prefix_new="$destination"
-					ip6prefix_new=$(calc_from_48 $destination 64)
-					ip6prefix_mask_new="64"
-					#ip6prefix_new=$(calc_from_56 $destination 62)
-					#ip6prefix_mask_new="62"
-					ip6prefix_new="$ip6prefix_new/$ip6prefix_mask_new"
-					;;
-				*)
-					log "wrong mask src $genmask"
-					;;
-				esac
-			else
-				ip6prefix_new="$ip6prefix/$ip6prefix_mask"
-			fi
+		if [ ! "$destination" == "$srcip6prefix" ] ; then
+			log "new attached_net_src $attached_net_src"
+			case $genmask in
+			60)
+				srcip6prefix_new="$destination"
+				ip6prefix_new=$(calc_from_60 $destination)
+				ip6prefix_mask_new="64"
+				ip6prefix_new="$ip6prefix_new/$ip6prefix_mask_new"
+				;;
+			56)
+				srcip6prefix_new="$destination"
+				ip6prefix_new=$(calc_from_56 $destination 64)
+				ip6prefix_mask_new="64"
+				#ip6prefix_new=$(calc_from_56 $destination 62)
+				#ip6prefix_mask_new="62"
+				ip6prefix_new="$ip6prefix_new/$ip6prefix_mask_new"
+				;;
+			52)
+				srcip6prefix_new="$destination"
+				ip6prefix_new=$(calc_from_52 $destination 64)
+				ip6prefix_mask_new="64"
+				#ip6prefix_new=$(calc_from_56 $destination 62)
+				#ip6prefix_mask_new="62"
+				ip6prefix_new="$ip6prefix_new/$ip6prefix_mask_new"
+				;;
+			48)
+				srcip6prefix_new="$destination"
+				ip6prefix_new=$(calc_from_48 $destination 64)
+				ip6prefix_mask_new="64"
+				#ip6prefix_new=$(calc_from_56 $destination 62)
+				#ip6prefix_mask_new="62"
+				ip6prefix_new="$ip6prefix_new/$ip6prefix_mask_new"
+				;;
+			*)
+				log "wrong mask src $genmask"
+				;;
+			esac
+		else
+			ip6prefix_new="$ip6prefix/$ip6prefix_mask"
 		fi
 	fi
 fi

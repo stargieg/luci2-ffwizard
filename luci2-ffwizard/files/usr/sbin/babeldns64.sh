@@ -1,7 +1,6 @@
 #!/bin/sh
 
 . /lib/functions.sh
-. /usr/share/libubox/jshn.sh
 
 log() {
 	logger -t babeldns64 $@
@@ -43,56 +42,71 @@ if pidof babeldns64.sh | grep -q ' ' >/dev/null ; then
 	return 1
 fi
 
-json_init
-json_load "$(ubus call babeld get_routes)"
-if ! json_select "IPv6" ; then
+dns64nodeid=""
+metric=65535
+#ubus call babeld get_routes | jsonfilter -e '@.IPv6.A' valid
+#ubus call babeld get_routes | jsonfilter -e '@.IPv6.64' invalid
+#label for object key is duplicated eg. "::/0" if more than one internet gateway
+#BUG parser error
+ubus call babeld get_routes | \
+sed -e 's/^\t\t\(".*"\): {/\t\t\{\n\t\t\t"prefix": \1,/' \
+-e 's/^\(\t".*": \){/\1[/' \
+-e 's/^\t}/\t]/' \
+-e 's/src-prefix/src_prefix/' | \
+jsonfilter -e '@.IPv6[@.prefix="64:ff9b::\/96"]' > /tmp/babeldns64.json
+while read line; do
+	eval $(jsonfilter -s "$line" \
+		-e 'installed=@.installed' \
+		-e 'id=@.id' \
+		-e 'refmetric=@.refmetric')
+	if [ "$installed" == "1" ] ; then
+		if [ $refmetric -lt $metric ] ; then
+			dns64nodeid="$id"
+			metric=$refmetric
+		fi
+	fi
+done < /tmp/babeldns64.json
+
+if [ "$dns64nodeid" == "" ] ; then
 	log "Exit no IPv6 neighbor entry"
+	rm /tmp/babeldns64.json
 	return 1
 fi
 
-dns64nodes=""
-log "id route_metric route_smoothed_metric refmetric"
-json_get_keys keys
-for key in $keys ; do
-	if [ "$key" == "64_ff9b___96" ] ; then
-		json_select ${key}
-		json_get_var route_metric route_metric
-		json_get_var route_smoothed_metric route_smoothed_metric
-		json_get_var refmetric refmetric
-		json_get_var id id
-		log "$id $route_metric $route_smoothed_metric $refmetric"
-		dns64nodes="$dns64nodes $id"
-		json_select ..
-	fi
-done
-
 dns_server=""
-for dns64node in $dns64nodes ; do
-	for key in $keys ; do
-		json_select ${key}
-		json_get_var id id
-		if [ "$id" == "$dns64node" ] ; then
-			node=${key//_/:}
+ubus call babeld get_routes | \
+sed -e 's/^\t\t\(".*"\): {/\t\t\{\n\t\t\t"prefix": \1,/' \
+-e 's/^\(\t".*": \){/\1[/' \
+-e 's/^\t}/\t]/' \
+-e 's/src-prefix/src_prefix/' | \
+jsonfilter -e '@.IPv6[@.id="'$dns64nodeid'"]' > /tmp/babeldns64.json
+while read line; do
+	eval $(jsonfilter -s "$line" \
+		-e 'installed=@.installed' \
+		-e 'prefix=@.prefix' \
+		-e 'src_prefix=@.src_prefix' \
+		-e 'refmetric=@.refmetric')
+	if [ "$installed" == "1" ] ; then
+		if [ "$src_prefix" == "::/0" ] ; then
+			node="$prefix"
 			node=${node%:*}
-			node="$node""1"
+			node="$node"":1"
 			dns=""
 			if ping6 -c1 -W3 -q "$node" >/dev/null ; then
-				log "$id $node"
 				nslookup "twitter.com" $node | grep -q '64:ff9b::' && dns="$node"
 				nslookup "v4.ipv6-test.com" $node | grep -q '64:ff9b::' && dns="$node"
 				nslookup "ipv4.lookup.test-ipv6.com" $node | grep -q '64:ff9b::' && dns="$node"
+				if [ -z "$dns" ] ; then
+					log "Node $node no service"
+				else
+					dns_server="$dns_server $dns"
+				fi
 			else
 				log "Node $node unreachable"
 			fi
-			if ! [ -z "$dns" ] ; then
-				log "dns $dns"
-				dns_server="$dns_server $dns"
-			fi
 		fi
-		json_select ..
-	done
-done
-json_cleanup
+	fi
+done < /tmp/babeldns64.json
 
 if ! [ -z "$dns_server" ] ; then
 	log "found nat64 on $dns_server"
@@ -120,3 +134,4 @@ else
 	uci_commit dhcp
 	/etc/init.d/dnsmasq reload
 fi
+rm -f /tmp/babeldns64.json
