@@ -1,7 +1,6 @@
 #!/bin/sh
 
 . /lib/functions.sh
-. /usr/share/libubox/jshn.sh
 
 log() {
 	logger -t babelnode2hosts $@
@@ -18,35 +17,37 @@ if pidof babelnode2hosts.sh | grep -q ' ' >/dev/null ; then
 	return 1
 fi
 
-json_init
-json_load "$(ubus call babeld get_neighbours)"
-if ! json_select "IPv6" ; then
-	log "Exit no IPv6 neighbor entry"
-	return 1
-fi
-
-llneighborips=""
-llneighborip=""
-json_get_keys keys
-for key in $keys ; do
-	llneighborip=""
-	json_select ${key}
-	json_get_var device dev
-	#log "llneighborip ${key//_/:}%${device}"
-	llneighborip="${key//_/:}%${device}"
-	if ping6 -c1 -W3 -q "$llneighborip" >/dev/null ; then
-		llneighborips="$llneighborips $llneighborip"
+neighborips=""
+ubus call babeld get_routes | \
+sed -e 's/^\t\t\(".*"\): {/\t\t\{\n\t\t\t"prefix": \1,/' \
+-e 's/^\(\t".*": \){/\1[/' \
+-e 's/^\t}/\t]/' \
+-e 's/src-prefix/src_prefix/' | \
+jsonfilter -e '@.IPv6[@.refmetric=0]' > /tmp/babelnode2hosts.json
+while read line; do
+	eval $(jsonfilter -s "$line" \
+		-e 'installed=@.installed' \
+		-e 'prefix=@.prefix' \
+		-e 'src_prefix=@.src_prefix')
+	if [ "$installed" == "1" ] ; then
+		if [ "$src_prefix" == "::/0" ] ; then
+			mask="$(echo $prefix | cut -d '/' -f 2)"
+			neighborip=${prefix%/*}
+			if [ $mask -lt 128 ] ; then
+				neighborip="$neighborip""1"
+			fi
+			if ping6 -c1 -W3 -q "$neighborip" >/dev/null 2>&1 ; then
+				if nslookup "$neighborip" "$neighborip" >/dev/null 2>&1 ;then
+					neighborips="$neighborips $neighborip"
+				fi
+			fi
+		fi
 	fi
-	json_select ..
-done
-json_cleanup
+done < /tmp/babelnode2hosts.json
+rm /tmp/babelnode2hosts.json
+neighborips=$(for i in $neighborips;do echo $i;done | uniq)
+#log "$neighborips"
 
-json_init
-json_load "$(ubus call babeld get_routes)"
-if ! json_select "IPv6" ; then
-	log "Exit no IPv6 neighbor entry"
-	return 1
-fi
 unbound=0
 [ -x /usr/lib/unbound/babelv2node.sh ] && unbound=1
 rm -f /tmp/babelnode2hosts.tmp
@@ -56,56 +57,104 @@ if [ ! "$domain" == "olsr" ] ; then
 	domain_custom="$domain"
 	domain="olsr"
 fi
-json_get_keys keys
-for key in $keys ; do
-	json_select ${key}
-	node=${key//_/:}
-	node=${node%:*}
-	node=${node%::1}
-	node=${node%::}
-	node="$node""::1"
-	ret=""
-	for j in $llneighborips ; do
-		[ -z $ret ] || continue
-		nodename=$(nslookup $node $j | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
-		nodeips=$(nslookup $nodename $j | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
-		for k in $nodeips ; do
-			if echo $k | grep -q -v ^fe ; then
-				if echo $k | grep -q ^fd ; then
-					echo "$k $nodename.$domain" >>/tmp/babelnode2hosts.tmp
-				else
-					if [ -z "$domain_custom" ] ; then
-						echo "$k $nodename.$domain" >>/tmp/babelnode2hosts.tmp
-					else
-						echo "$k $nodename.$domain_custom $nodename.$domain" >>/tmp/babelnode2hosts.tmp
-					fi
-				fi
-				ret="1"
+ubus call babeld get_routes | \
+sed -e 's/^\t\t\(".*"\): {/\t\t\{\n\t\t\t"prefix": \1,/' \
+-e 's/^\(\t".*": \){/\1[/' \
+-e 's/^\t}/\t]/' \
+-e 's/src-prefix/src_prefix/' | \
+jsonfilter -e '@.IPv6[@.refmetric>0]' > /tmp/babelnode2hosts.json
+while read line; do
+	eval $(jsonfilter -s "$line" \
+		-e 'installed=@.installed' \
+		-e 'prefix=@.prefix' \
+		-e 'src_prefix=@.src_prefix')
+	if [ "$installed" == "1" ] ; then
+		if [ "$src_prefix" == "::/0" ] ; then
+			mask="$(echo $prefix | cut -d '/' -f 2)"
+			node=${prefix%/*}
+			if [ $mask -lt 128 ] ; then
+				node="$node""1"
 			fi
-		done
-	done
-	if [ -z $ret ] ; then
-		nodename=$(nslookup $node $node | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
-		nodeips=$(nslookup $nodename $node | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
-		for k in $nodeips ; do
-			if echo $k | grep -q -v ^fe ; then
-				if echo $k | grep -q ^fd ; then
-					echo "$k $nodename.$domain" >>/tmp/babelnode2hosts.tmp
-				else
-					if [ -z "$domain_custom" ] ; then
-						echo "$k $nodename.$domain" >>/tmp/babelnode2hosts.tmp
-					else
-						echo "$k $nodename.$domain_custom $nodename.$domain" >>/tmp/babelnode2hosts.tmp
+			echo $node | grep -q -v ^64 || continue
+			echo $node | grep -q -v ^fe || continue
+			ret=""
+			for j in $neighborips ; do
+				[ -z $ret ] || continue
+				nodename=$(nslookup $node $j 2>/dev/null | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
+				if ! [ -z $nodename ] ; then
+					nodeips=$(nslookup $nodename $j 2>/dev/null | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
+					if [ -z "$nodeips" ] ; then
+						nodeips=$node
 					fi
+					for k in $nodeips ; do
+						echo $k | grep -q -v ^64 || continue
+						echo $k | grep -q -v ^fe || continue
+						if echo $k | grep -q ^fd ; then
+							#log "ns $j $k $nodename.$domain"
+							echo "$k $nodename.$domain" >>/tmp/babelnode2hosts.tmp
+						else
+							if [ -z "$domain_custom" ] ; then
+								#log "ns $j $k $nodename.$domain"
+								echo "$k $nodename.$domain" >>/tmp/babelnode2hosts.tmp
+							else
+								#log "ns $j $k $nodename.$domain_custom $nodename.$domain"
+								echo "$k $nodename.$domain_custom $nodename.$domain" >>/tmp/babelnode2hosts.tmp
+							fi
+						fi
+						ret="1"
+					done
+				fi
+			done
+			if [ -z $ret ] ; then
+				nodename=$(nslookup $node $node 2>/dev/null | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
+				if [ -z $nodename ] ; then
+					nodename=$(wget -q -T 2 -O - --no-check-certificate https://[$node]/cgi-bin/luci/ 2>/dev/null | \
+					grep 'href="/"' | \
+					sed -e 's/.*>\([0-9a-zA-Z-]*\)<.*/\1/')
+					if [ -z $nodename ] ; then
+						nodename=$(wget -q -T 2 -O - http://[$node]/cgi-bin/luci/ 2>/dev/null | \
+						grep 'href="/"' | \
+						sed -e 's/.*>\([0-9a-zA-Z-]*\)<.*/\1/')
+					fi
+					if [ -z $nodename ] ; then
+							log "node $node no dns,https,http service"
+					else
+						if [ -z "$domain_custom" ] ; then
+							#log "https $node $nodename.$domain"
+							echo "$node $nodename.$domain" >>/tmp/babelnode2hosts.tmp
+						else
+							#log "https $node $nodename.$domain_custom $nodename.$domain"
+							echo "$node $nodename.$domain_custom $nodename.$domain" >>/tmp/babelnode2hosts.tmp
+						fi
+					fi
+				else
+					nodeips=$(nslookup $nodename $node | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
+					if [ -z "$nodeips" ] ; then
+						nodeips=$node
+					fi
+					for k in $nodeips ; do
+						echo $k | grep -q -v ^64 || continue
+						echo $k | grep -q -v ^fe || continue
+						if echo $k | grep -q ^fd ; then
+							#log "ns $k $nodename.$domain"
+							echo "$k $nodename.$domain" >>/tmp/babelnode2hosts.tmp
+						else
+							if [ -z "$domain_custom" ] ; then
+								#log "ns $k $nodename.$domain"
+								echo "$k $nodename.$domain" >>/tmp/babelnode2hosts.tmp
+							else
+								#log "ns $k $nodename.$domain_custom $nodename.$domain"
+								echo "$k $nodename.$domain_custom $nodename.$domain" >>/tmp/babelnode2hosts.tmp
+							fi
+						fi
+					done
 				fi
 			fi
-		done
+		fi
 	fi
-	json_select ..
-done
-json_cleanup
+done < /tmp/babelnode2hosts.json
+rm /tmp/babelnode2hosts.json
 mkdir -p /tmp/hosts
-touch /tmp/hosts/babelneighbor
 
 if [ -f /tmp/babelnode2hosts.tmp ] ; then
 	if [ -f /tmp/hosts/babelnode ] ; then
@@ -126,6 +175,8 @@ if [ -f /tmp/babelnode2hosts.tmp ] ; then
 			killall -HUP dnsmasq
 		fi
 	fi
+else
+	log "no nodes"
 fi
 if [ $unbound == 1 ] ; then
 	/usr/lib/unbound/babelnode.sh

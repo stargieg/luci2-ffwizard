@@ -1,7 +1,6 @@
 #!/bin/sh
 
 . /lib/functions.sh
-. /usr/share/libubox/jshn.sh
 . /lib/functions/network.sh
 
 log() {
@@ -41,13 +40,6 @@ if pidof babelneighbor2hosts.sh | grep -q ' ' >/dev/null ; then
 	return 1
 fi
 
-json_init
-json_load "$(ubus call babeld get_neighbours)"
-if ! json_select "IPv6" ; then
-	log "Exit no IPv6 neighbor entry"
-	return 1
-fi
-
 unbound=0
 [ -x /usr/lib/unbound/babelneighbour.sh ] && unbound=1
 rm -f /tmp/babelneighbor2hosts.tmp
@@ -57,50 +49,60 @@ if [ ! "$domain" == "olsr" ] ; then
 	domain_custom="$domain"
 	domain="olsr"
 fi
-#log "domain $domain $domain_custom"
-llneighborips=""
-json_get_keys keys
-for key in $keys ; do
-	llneighborip=""
-	json_select ${key}
-	json_get_var device dev
-	llneighborip="${key//_/:}%${device}"
-	if ping6 -c1 -W3 -q "$llneighborip" >/dev/null ; then
-		llneighborips="$llneighborips $llneighborip"
-	fi
-	json_select ..
-done
-json_cleanup
-
-json_init
-json_load "$(ubus call babeld get_routes)"
-if ! json_select "IPv6" ; then
-	log "Exit no IPv6 neighbor entry"
-	return 1
-fi
-for llneighborip in $llneighborips ; do
-	json_get_keys keys
-	for key in $keys ; do
-		json_select ${key}
-		neighborip=${key//_/:}
-		neighborip=${neighborip%:*}
-		neighborip=${neighborip%::1}
-		neighborip=${neighborip%::}
-		neighborip="$neighborip""::1"
-		refmetric=""
-		json_get_var refmetric refmetric
-		if [ "$refmetric" = "0" ] ; then
-			json_get_var via via
-			llvia=$(echo $llneighborip | cut -d '%' -f 1)
-			if [ "$via" = "$llvia" ] ; then
-				if ! ping6 -c1 -W3 -q "$neighborip" >/dev/null ; then
-					log "neighborip ping fail $neighborip $llneighborip"
-					json_select ..
-					continue
+ubus call babeld get_routes | \
+sed -e 's/^\t\t\(".*"\): {/\t\t\{\n\t\t\t"prefix": \1,/' \
+-e 's/^\(\t".*": \){/\1[/' \
+-e 's/^\t}/\t]/' \
+-e 's/src-prefix/src_prefix/' | \
+jsonfilter -e '@.IPv6[@.refmetric=0]' > /tmp/babelneighbor2hosts.json
+while read line; do
+	eval $(jsonfilter -s "$line" \
+		-e 'installed=@.installed' \
+		-e 'prefix=@.prefix' \
+		-e 'src_prefix=@.src_prefix' \
+		-e 'refmetric=@.refmetric' \
+		-e 'id=@.id' \
+		-e 'via=@.via')
+	if [ "$installed" == "1" ] ; then
+		if [ "$src_prefix" == "::/0" ] ; then
+			mask="$(echo $prefix | cut -d '/' -f 2)"
+			neighborip=${prefix%/*}
+			if [ $mask -lt 128 ] ; then
+				neighborip="$neighborip""1"
+			fi
+			echo $neighborip | grep -q -v ^64 || continue
+			echo $neighborip | grep -q -v ^fe || continue
+			if ! ping6 -c1 -W3 -q "$neighborip" >/dev/null ; then
+				log "neighborip ping fail $neighborip via $via id $id"
+				continue
+			fi
+			#log "neighborip $neighborip $llneighborip"
+			neighborname=$(nslookup $neighborip $llneighborip 2>/dev/null | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
+			if [ -z $neighborname ] ; then
+				neighborname=$(wget -q -T 2 -O - --no-check-certificate https://[$neighborip]/cgi-bin/luci/ 2>/dev/null | \
+				grep 'href="/"' | \
+				sed -e 's/.*>\([0-9a-zA-Z-]*\)<.*/\1/')
+				if [ -z $neighborname ] ; then
+					neighborname=$(wget -q -T 2 -O - http://[$neighborip]/cgi-bin/luci/ 2>/dev/null | \
+					grep 'href="/"' | \
+					sed -e 's/.*>\([0-9a-zA-Z-]*\)<.*/\1/')
 				fi
-				#log "neighborip $neighborip $llneighborip"
-				neighborname=$(nslookup $neighborip $llneighborip | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
+				if [ -z $neighborname ] ; then
+					log "neighbor $neighborip no dns,https,http service"
+				else
+					if [ -z "$domain_custom" ] ; then
+						#log "https $neighborip $neighborname.$domain"
+						echo "$neighborip $neighborname.$domain" >>/tmp/babelneighbor2hosts.tmp
+					else
+						#log "https $neighborip $neighborname.$domain_custom $neighborname.$domain"
+						echo "$neighborip $neighborname.$domain_custom $neighborname.$domain" >>/tmp/babelneighbor2hosts.tmp
+					fi
+				fi
+			else
 				neighborips=$(nslookup $neighborname $neighborip | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
+				if [ -z "$neighborips" ] ; then
+					neighborips=$neighborip
+				fi
 				for j in $neighborips ; do
 					if echo $j | grep -q -v ^fe ; then
 						if echo $j | grep -q ^fd ; then
@@ -116,9 +118,9 @@ for llneighborip in $llneighborips ; do
 				done
 			fi
 		fi
-		json_select ..
-	done
-done
+	fi
+done < /tmp/babelneighbor2hosts.json
+rm /tmp/babelneighbor2hosts.json
 
 #Add local hostname
 hostname="$(cat /proc/sys/kernel/hostname)"

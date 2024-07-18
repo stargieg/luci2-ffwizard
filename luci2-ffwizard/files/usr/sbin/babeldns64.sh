@@ -31,10 +31,20 @@ setup_dhcp_ra_pref_default() {
 	fi
 }
 
+chk_red() {
+	local cfg=$1
+	config_get ip $cfg ip
+	[ "$ip" == "64:ff9b::/96" ] && exit 1
+	[ "$ip" == "::/0" ] && exit 1
+}
+
 if ! ubus list babeld >/dev/null ; then
 	log "babeld ubus-mod not running"
 	return 1
 fi
+
+config_load babeld
+config_foreach chk_red filter
 
 if pidof babeldns64.sh | grep -q ' ' >/dev/null ; then
 	log "killall babeldns64.sh"

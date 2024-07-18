@@ -37,8 +37,8 @@ if [ "$babel_enabled" == "0" ] ; then
 else
 	crontab -l | grep -q 'babelneighbor2hosts' || \
 		echo "*/5 * * * *     /usr/sbin/babelneighbor2hosts.sh" >> /etc/crontabs/root
-	#crontab -l | grep -q 'babelnode2hosts' || \
-	#	echo "*/11 * * * *    /usr/sbin/babelnode2hosts.sh" >> /etc/crontabs/root
+	crontab -l | grep -q 'babelnode2hosts' || \
+		echo "*/11 * * * *    /usr/sbin/babelnode2hosts.sh" >> /etc/crontabs/root
 	crontab -l | grep -q 'babeldns64' || \
 		echo "*/15 * * * *    /usr/sbin/babeldns64.sh" >> /etc/crontabs/root
 	crontab -l | grep -q 'babel-dyn-addr' || \

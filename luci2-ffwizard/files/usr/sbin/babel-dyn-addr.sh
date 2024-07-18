@@ -157,6 +157,16 @@ calc_from_48() {
 	echo :
 }
 
+chk_red() {
+	local cfg=$1
+	config_get ip $cfg ip
+	[ "$ip" == "64:ff9b::/96" ] && exit 1
+	[ "$ip" == "::/0" ] && exit 1
+}
+
+config_load babeld
+config_foreach chk_red filter
+
 if uci_get ffwizard ffwizard ip6prefix ; then
 	log "prefix set by ffwizard"
 	return 1
