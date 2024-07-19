@@ -177,6 +177,12 @@ if [ -f /tmp/babelnode2hosts.tmp ] ; then
 	fi
 else
 	log "no nodes"
+	if [ -f /tmp/hosts/babelnode ] ; then
+		rm /tmp/hosts/babelnode
+		if [ $unbound == 0 ] ; then
+			killall -HUP dnsmasq
+		fi
+	fi
 fi
 if [ $unbound == 1 ] ; then
 	/usr/lib/unbound/babelnode.sh

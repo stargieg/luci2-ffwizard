@@ -148,6 +148,14 @@ if [ -f /tmp/babelneighbor2hosts.tmp ] ; then
 			killall -HUP dnsmasq
 		fi
 	fi
+else
+	log "no neighbor"
+	if [ -f /tmp/hosts/babelneighbor ] ; then
+		rm /tmp/hosts/babelneighbor
+		if [ $unbound == 0 ] ; then
+			killall -HUP dnsmasq
+		fi
+	fi
 fi
 if [ $unbound == 1 ] ; then
 	/usr/lib/unbound/babelneighbour.sh
