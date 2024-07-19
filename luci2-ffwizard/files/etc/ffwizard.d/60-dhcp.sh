@@ -71,6 +71,9 @@ setup_ether() {
 			uci_set dhcp $cfg ra "server"
 			uci_set dhcp $cfg ra_preference "low"
 			uci_set dhcp $cfg ra_default "1"
+			uci_set dhcp $cfg ra_lifetime "300"
+			uci_set dhcp $cfg preferred_lifetime "5m"
+			uci_set dhcp $cfg ra_useleasetime "1"
 		fi
 		return
 	fi
