@@ -76,8 +76,8 @@ while read line; do
 				log "neighborip ping fail $neighborip via $via id $id"
 				continue
 			fi
-			#log "neighborip $neighborip $llneighborip"
-			neighborname=$(nslookup $neighborip $llneighborip 2>/dev/null | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
+			#log "neighborip $neighborip"
+			neighborname=$(nslookup $neighborip $neighborip 2>/dev/null | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
 			if [ -z $neighborname ] ; then
 				neighborname=$(wget -q -T 2 -O - --no-check-certificate https://[$neighborip]/cgi-bin/luci/ 2>/dev/null | \
 				grep 'href="/"' | \
