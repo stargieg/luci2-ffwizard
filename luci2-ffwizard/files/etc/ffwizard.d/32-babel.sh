@@ -113,11 +113,11 @@ setup_wifi() {
 		#babeld.j2
 		uci_set babeld "$iface_sec" split_horizon "true"
 		uci_set babeld "$iface_sec" link_quality "false"
-		uci_set babeld "$iface_sec" rxcost "96"
+		uci_set babeld "$iface_sec" rxcost "256"
 	else
 		uci_set babeld "$iface_sec" type "wireless"
 		#babeld.j2
-		uci_set babeld "$iface_sec" split_horizon "true"
+		uci_set babeld "$iface_sec" split_horizon "false"
 		uci_set babeld "$iface_sec" link_quality "true"
 		uci_set babeld "$iface_sec" rxcost "256"
 	fi
@@ -128,10 +128,11 @@ setup_wifi() {
 setup_filter_redistribute() {
 	local ip="$1"
 	log_babel "Setup filter_redistribute"
+	local eq=$(echo $ip | cut -d '/' -f 2)
 	uci_add babeld filter ; cfg="$CONFIG_SECTION"
 	uci_set babeld $cfg type "redistribute"
 	uci_set babeld $cfg ip "$ip"
-	uci_set babeld $cfg eq '64'
+	uci_set babeld $cfg eq "$eq"
 	#uci_set babeld $cfg proto '4'
 	#uci_set babeld $cfg action 'metric 128'
 	#uci_set babeld $cfg if "$iface"
