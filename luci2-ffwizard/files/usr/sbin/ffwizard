@@ -26,7 +26,7 @@ log_ffwizard "reload system"
 ubus call rc init '{"name":"system","action":"reload"}' 2>/dev/null || /etc/init.d/system reload
 log_ffwizard "restart network"
 ubus call rc init '{"name":"network","action":"restart"}' 2>/dev/null || /etc/init.d/network restart
-sleep 10
+sleep 20
 for service in $(ls /tmp/ff/) ; do
 	log_ffwizard "restart $service"
 	ubus call rc init '{"name":"'$service'","action":"restart"}' 2>/dev/null || /etc/init.d/$service restart
