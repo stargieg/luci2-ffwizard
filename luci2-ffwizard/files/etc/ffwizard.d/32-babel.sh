@@ -12,6 +12,18 @@ log_babel() {
 	logger -s -t ffwizard_babeld $@
 }
 
+setup_filter_redistribute() {
+	local ip="$1"
+	log_babel "Setup filter_redistribute"
+	local eq=$(echo $ip | cut -d '/' -f 2)
+	uci_add babeld filter ; cfg="$CONFIG_SECTION"
+	uci_set babeld $cfg type "redistribute"
+	uci_set babeld $cfg ip "$ip"
+	uci_set babeld $cfg eq "$eq"
+	#uci_set babeld $cfg proto '4'
+	#uci_set babeld $cfg action 'metric 128'
+	#uci_set babeld $cfg if "$iface"
+}
 
 setup_babel() {
 	log_babel "Setup babeld"
@@ -41,7 +53,8 @@ setup_ether() {
 	[ "$babel_mesh" == "0" ] && return
 	config_get device $cfg device "0"
 	[ "$device" == "0" ] && return
-	log_babel "Setup ether $cfg"
+	config_get dhcp_ip6 $cfg dhcp_ip6 2>/dev/null
+	log_babel "Setup ether $cfg $dhcp_ip6"
 
 	# /sys/class/net/<iface>/speed
 	# Indicates the interface latest or current speed value. Value is
@@ -88,6 +101,10 @@ setup_ether() {
 	uci_set babeld "$iface_sec" link_quality "false"
 	uci_set babeld "$iface_sec" rxcost "96"
 	setup_filter_in "$device"
+	#Setup IP6 Prefix
+	if [ ! -z "$dhcp_ip6" ] ; then
+		setup_filter_redistribute "$dhcp_ip6"
+	fi
 	babel_enabled=1
 }
 
@@ -123,19 +140,6 @@ setup_wifi() {
 	fi
 	setup_filter_in "$device"
 	babel_enabled=1
-}
-
-setup_filter_redistribute() {
-	local ip="$1"
-	log_babel "Setup filter_redistribute"
-	local eq=$(echo $ip | cut -d '/' -f 2)
-	uci_add babeld filter ; cfg="$CONFIG_SECTION"
-	uci_set babeld $cfg type "redistribute"
-	uci_set babeld $cfg ip "$ip"
-	uci_set babeld $cfg eq "$eq"
-	#uci_set babeld $cfg proto '4'
-	#uci_set babeld $cfg action 'metric 128'
-	#uci_set babeld $cfg if "$iface"
 }
 
 remove_section() {

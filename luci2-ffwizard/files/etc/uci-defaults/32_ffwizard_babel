@@ -43,7 +43,5 @@ else
 		echo "*/15 * * * *    /usr/sbin/babeldns64.sh" >> /etc/crontabs/root
 	crontab -l | grep -q 'babel-dyn-addr' || \
 		echo "*/8 * * * *    /usr/sbin/babel-dyn-addr.sh" >> /etc/crontabs/root
-	crontab -l | grep -q 'dnsmasq' || \
-		echo "*/5 * * * * killall -HUP dnsmasq" >> /etc/crontabs/root
 fi
 exit 0

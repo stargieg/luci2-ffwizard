@@ -170,6 +170,7 @@ setup_ether() {
 		config_get ipaddr $cfg mesh_ip 2>/dev/null
 		setup_ip "$cfg" "$ipaddr"
 		config_get ipaddr $cfg dhcp_ip 2>/dev/null
+		config_get ip6addr $cfg dhcp_ip6 2>/dev/null
 		uci_remove network $cfg ip6class 2>/dev/null
 		uci_remove network $cfg ip6assign 2>/dev/null
 		if [ ! -z "$ipaddr" ] ; then
@@ -180,6 +181,17 @@ setup_ether() {
 			ipaddr="$OCTET_1_3.$OCTET_4"
 			setup_ip "$cfg_dhcp" "$ipaddr/$PREFIX"
 			uci_set network $cfg_dhcp device "@$cfg"
+			if [ ! -z "$ip6addr" ] ; then
+				uci_set network $cfg_dhcp ip6class "$cfg_dhcp"
+				uci_set network $cfg_dhcp ip6assign '64'
+				uci_set network $cfg_dhcp ip6prefix "$ip6addr"
+			fi
+		elif [ ! -z "$ip6addr" ] ; then
+			setup_ip "$cfg_dhcp"
+			uci_set network $cfg_dhcp device "@$cfg"
+			uci_set network $cfg_dhcp ip6class "$cfg_dhcp"
+			uci_set network $cfg_dhcp ip6assign '64'
+			uci_set network $cfg_dhcp ip6prefix "$ip6addr"
 		fi
 	fi
 	case $cfg in

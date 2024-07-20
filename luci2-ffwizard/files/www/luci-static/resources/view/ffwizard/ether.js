@@ -37,6 +37,10 @@ return view.extend({
 		o.placeholder = "192.168.112.0/28";
 		o.datatype = "cidr4";
 		o.optional = true;
+		o = s.option(form.Value, "dhcp_ip6", _("IP6 Netz DHCP Netz Batman Gateway mode und olsr Hna6"), "");
+		o.placeholder = "2001:920:1959:e67f::/64";
+		o.datatype = "cidr6";
+		o.optional = true;
 
 		return m.render();
 	}

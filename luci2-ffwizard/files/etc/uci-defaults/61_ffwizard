@@ -65,6 +65,9 @@ mv /etc/crontabs/root_new /etc/crontabs/root
 #TODO remove it from freifunk-common luci package
 crontab -l | grep -q 'ff_olsr_watchdog' && crontab -l | sed -e '/.*ff_olsr_watchdog.*/d' | crontab -
 
+uci get snmpd && crontab -l | grep -q 'snmpd' || \
+	echo "*/5 * * * * netstat -nlu | grep -q :::161 || /etc/init.d/snmpd restart" >> /etc/crontabs/root
+
 uci -q batch <<-EOF >/dev/null
 	delete ucitrack.@ffwizard[-1]
 	add ucitrack ffwizard
