@@ -303,8 +303,8 @@ setup_wifi() {
 	uci_set wireless $device noscan "1"
 	uci_set wireless $device country "DE"
 	uci_set wireless $device legacy_rates "0"
-	#read from Luci_ui
-	uci_set wireless $device distance "500"
+	config_get distance $cfg distance "1000"
+	uci_set wireless $device distance "$distance"
 	if [ ! "$compat" = "1" ] ; then
 		uci_set wireless $device cell_density '0'
 	fi

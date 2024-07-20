@@ -17,8 +17,13 @@ return view.extend({
 		o.placeholder = "0";
 		o.datatype = "range(0,254)";
 		o = s.option(form.Value, "channel", _("Der Funkkanal oder die Funk Kanalliste sind abhängieg von dem Gerät"), "0-300");
+		o.optional = true;
 		o.placeholder = "0";
 		o.datatype = "range(0,300)";
+		o = s.option(form.Value, 'distance', _('Distance Optimization in Meter'), _('Distance to farthest network member in meters. Set only for distances above 1000 meter; otherwise it is harmful.'));
+		o.optional = true;
+		o.datatype = 'or(range(0,114750),"auto")';
+		o.placeholder = 'auto';
 		o = s.option(form.ListValue, "iface_mode", _("Interface Modus"), "");
 		o.value("adhoc","IBSS/Ad-Hoc");
 		o.value("mesh","802.11s-Mesh");
