@@ -49,7 +49,7 @@ neighborips=$(for i in $neighborips;do echo $i;done | uniq)
 #log "$neighborips"
 
 unbound=0
-[ -x /usr/lib/unbound/babelv2node.sh ] && unbound=1
+[ -x /usr/lib/unbound/babelnode.sh ] && unbound=1
 rm -f /tmp/babelnode2hosts.tmp
 domain="$(uci_get system @system[-1] domain olsr)"
 domain_custom=""
@@ -108,13 +108,17 @@ while read line; do
 			if [ -z $ret ] ; then
 				nodename=$(nslookup $node $node 2>/dev/null | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
 				if [ -z $nodename ] ; then
-					nodename=$(wget -q -T 2 -O - --no-check-certificate https://[$node]/cgi-bin/luci/ 2>/dev/null | \
-					grep 'href="/"' | \
-					sed -e 's/.*>\([0-9a-zA-Z-]*\)<.*/\1/')
-					if [ -z $nodename ] ; then
-						nodename=$(wget -q -T 2 -O - http://[$node]/cgi-bin/luci/ 2>/dev/null | \
+					if ping6 -c1 -W3 -q "$nodename" >/dev/null 2>&1 ; then
+						nodename=$(wget -q -T 2 -O - --no-check-certificate https://[$node]/cgi-bin/luci/ 2>/dev/null | \
 						grep 'href="/"' | \
 						sed -e 's/.*>\([0-9a-zA-Z-]*\)<.*/\1/')
+					fi
+					if [ -z $nodename ] ; then
+						if ping6 -c1 -W3 -q "$nodename" >/dev/null 2>&1 ; then
+							nodename=$(wget -q -T 2 -O - http://[$node]/cgi-bin/luci/ 2>/dev/null | \
+							grep 'href="/"' | \
+							sed -e 's/.*>\([0-9a-zA-Z-]*\)<.*/\1/')
+						fi
 					fi
 					if [ -z $nodename ] ; then
 							log "node $node no dns,https,http service"
