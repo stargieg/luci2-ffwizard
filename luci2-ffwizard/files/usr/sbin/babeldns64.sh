@@ -76,11 +76,10 @@ while read line; do
 		fi
 	fi
 done < /tmp/babeldns64.json
+rm /tmp/babeldns64.json
 
 if [ "$dns64nodeid" == "" ] ; then
 	log "Exit no IPv6 neighbor entry"
-	rm /tmp/babeldns64.json
-	return 1
 fi
 
 dns_server=""
@@ -133,15 +132,18 @@ if ! [ -z "$dns_server" ] ; then
 	/etc/init.d/dnsmasq reload
 else
 	log "not found"
-	uci_remove dhcp @dnsmasq[-1] nat64
-	uci_remove dhcp @dnsmasq[-1] server
-	uci_add_list dhcp @dnsmasq[-1] server "2a00:1098:2c::1"
-	uci_add_list dhcp @dnsmasq[-1] server "2a01:4f8:c2c:123f::1"
-	uci_add_list dhcp @dnsmasq[-1] server "2a00:1098:2b::1"
-	uci_commit dhcp
-	config_load dhcp
-	config_foreach setup_dhcp_ra_pref_default dhcp
-	uci_commit dhcp
-	/etc/init.d/dnsmasq reload
+	nat64=$(uci_get dhcp @dnsmasq[-1] nat64)
+	if [ "$nat64" == "1" ] ; then
+		uci_remove dhcp @dnsmasq[-1] nat64
+		uci_remove dhcp @dnsmasq[-1] server
+		uci_add_list dhcp @dnsmasq[-1] server "2a00:1098:2c::1"
+		uci_add_list dhcp @dnsmasq[-1] server "2a01:4f8:c2c:123f::1"
+		uci_add_list dhcp @dnsmasq[-1] server "2a00:1098:2b::1"
+		uci_commit dhcp
+		config_load dhcp
+		config_foreach setup_dhcp_ra_pref_default dhcp
+		uci_commit dhcp
+		/etc/init.d/dnsmasq reload
+	fi
 fi
 rm -f /tmp/babeldns64.json
