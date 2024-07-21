@@ -20,6 +20,15 @@ setup_wifi() {
 	babel_enabled=1
 }
 
+addrc() {
+    local cmd="$1"
+    grep -v exit /etc/rc.local > /tmp/rc.local
+    echo "$cmd" >> /tmp/rc.local
+    echo 'exit 0' >> /tmp/rc.local
+    mv /tmp/rc.local /etc/rc.local
+    $cmd
+}
+
 babel_enabled=0
 #Setup ether and wifi
 config_load ffwizard
@@ -43,5 +52,10 @@ else
 		echo "*/15 * * * *    /usr/sbin/babeldns64.sh" >> /etc/crontabs/root
 	crontab -l | grep -q 'babel-dyn-addr' || \
 		echo "*/8 * * * *    /usr/sbin/babel-dyn-addr.sh" >> /etc/crontabs/root
+
+	if ! grep -q "/etc/init.d/babeld" /etc/rc.local ; then
+		addrc '( sleep 20 ; /etc/init.d/babeld restart ) &'
+	fi
+
 fi
 exit 0
