@@ -129,7 +129,7 @@ if ! [ -z "$dns_server" ] ; then
 	config_load dhcp
 	config_foreach setup_dhcp_ra_pref_add dhcp
 	uci_commit dhcp
-	/etc/init.d/dnsmasq reload
+	/etc/init.d/dnsmasq restart
 else
 	log "not found"
 	nat64=$(uci_get dhcp @dnsmasq[-1] nat64)
@@ -143,7 +143,7 @@ else
 		config_load dhcp
 		config_foreach setup_dhcp_ra_pref_default dhcp
 		uci_commit dhcp
-		/etc/init.d/dnsmasq reload
+		/etc/init.d/dnsmasq restart
 	fi
 fi
 rm -f /tmp/babeldns64.json
