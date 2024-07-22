@@ -183,6 +183,7 @@ if pidof babel-dyn-addr.sh | grep -q ' ' >/dev/null ; then
 	return 1
 fi
 
+ip6prefix_new=""
 prefix=""
 metric=65535
 genmask=128
@@ -223,7 +224,6 @@ uciprefix=$(uci_get network fflandhcp ffprefix)
 if [ "$prefix" == "$uciprefix" ] ; then
 	ip6prefix_new=$(uci_get network fflandhcp ip6prefix)
 else
-	#genmask="$(echo $prefix | cut -d '/' -f 2)"
 	destination="$(echo $prefix | cut -d '/' -f 1)"
 	if [ $genmask == 48 ] || [ $genmask -eq 42 ] || [ $genmask -eq 56 ] || [ $genmask -eq 60 ]; then
 		ula="$(echo $destination | cut -b -2)"
@@ -265,7 +265,8 @@ else
 				;;
 			esac
 		else
-			ip6prefix_new="$ip6prefix/$ip6prefix_mask"
+			log "wrong mask src $genmask"
+			ip6prefix_new=""
 		fi
 	fi
 fi
@@ -285,27 +286,29 @@ for key in $keys ; do
 	fi
 done
 
-if [ "$valid" == "1" -a ! "$ip6prefix_new" == "$uciprefix" ] ; then
+if [ "$valid" == "0" -o "$ip6prefix_new" == "" ] ; then
+	if [ ! "$uciprefix" == "" ] ; then
+		uci_remove network fflandhcp ip6prefix 2>/dev/null
+		uci_set network fflandhcp ip6class "local"
+		uci_remove network fflandhcp ffprefix 2>/dev/null
+		uci_set network fflandhcp ip6assign '64'
+		uci_commit network
+		log "reload network with no ip6prefix"
+		ubus call rc init '{"name":"network","action":"reload"}' 2>/dev/null || /etc/init.d/network reload
+		sleep 3
+		ubus call rc init '{"name":"odhcpd","action":"restart"}' 2>/dev/null || /etc/init.d/odhcpd restart
+		ubus call rc init '{"name":"dnsmasq","action":"restart"}' 2>/dev/null || /etc/init.d/dnsmasq restart
+	fi
+elif [ ! "$prefix" == "$uciprefix" ] ; then
 	ip6prefix="$ip6prefix_new"
 	uci_set network fflandhcp ip6prefix "$ip6prefix"
 	uci_set network fflandhcp ip6class "fflandhcp"
 	uci_set network fflandhcp ffprefix "$prefix"
 	uci_set network fflandhcp ip6assign '64'
 	uci_commit network
-	log "reload network with $ip6prefix"
+	log "reload network with new $ip6prefix and old $uciprefix"
 	ubus call rc init '{"name":"network","action":"reload"}' 2>/dev/null || /etc/init.d/network reload
 	sleep 3
-	ubus call rc init '{"name":"odhcpd","action":"reload"}' 2>/dev/null || /etc/init.d/odhcpd restart
-	ubus call rc init '{"name":"dnsmasq","action":"reload"}' 2>/dev/null || /etc/init.d/dnsmasq restart
-elif [ "$valid" == "0" ] ; then
-	uci_remove network fflandhcp ip6prefix "$ip6prefix"
-	uci_remove network fflandhcp ip6class "fflandhcp"
-	uci_remove network fflandhcp ffprefix "$prefix"
-	uci_remove network fflandhcp ip6assign '64'
-	uci_commit network
-	log "reload network with no ip6prefix"
-	ubus call rc init '{"name":"network","action":"reload"}' 2>/dev/null || /etc/init.d/network reload
-	sleep 3
-	ubus call rc init '{"name":"odhcpd","action":"reload"}' 2>/dev/null || /etc/init.d/odhcpd restart
-	ubus call rc init '{"name":"dnsmasq","action":"reload"}' 2>/dev/null || /etc/init.d/dnsmasq restart
+	ubus call rc init '{"name":"odhcpd","action":"restart"}' 2>/dev/null || /etc/init.d/odhcpd restart
+	ubus call rc init '{"name":"dnsmasq","action":"restart"}' 2>/dev/null || /etc/init.d/dnsmasq restart
 fi
