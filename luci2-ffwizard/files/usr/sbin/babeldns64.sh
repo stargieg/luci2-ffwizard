@@ -117,22 +117,27 @@ while read line; do
 	fi
 done < /tmp/babeldns64.json
 
+nat64=$(uci_get dhcp @dnsmasq[-1] nat64)
 if ! [ -z "$dns_server" ] ; then
 	log "found nat64 on $dns_server"
-	uci_set dhcp @dnsmasq[-1] rebind_protection "0"
-	uci_set dhcp @dnsmasq[-1] nat64 "1"
-	uci_remove dhcp @dnsmasq[-1] server 2>/dev/null
-	for server in $dns_server ; do
-		uci_add_list dhcp @dnsmasq[-1] server "$server"
-	done
-	uci_commit dhcp
-	config_load dhcp
-	config_foreach setup_dhcp_ra_pref_add dhcp
-	uci_commit dhcp
-	/etc/init.d/dnsmasq restart
+	if [ "$nat64" == "1" ] ; then
+		uciserver=" $(uci_get dhcp @dnsmasq[-1] server)"
+	fi
+	if ! [ "$dns_server" == "$uciserver" ] ; then
+		uci_set dhcp @dnsmasq[-1] rebind_protection "0"
+		uci_set dhcp @dnsmasq[-1] nat64 "1"
+		uci_remove dhcp @dnsmasq[-1] server 2>/dev/null
+		for server in $dns_server ; do
+			uci_add_list dhcp @dnsmasq[-1] server "$server"
+		done
+		uci_commit dhcp
+		config_load dhcp
+		config_foreach setup_dhcp_ra_pref_add dhcp
+		uci_commit dhcp
+		/etc/init.d/dnsmasq restart
+	fi
 else
 	log "not found"
-	nat64=$(uci_get dhcp @dnsmasq[-1] nat64)
 	if [ "$nat64" == "1" ] ; then
 		uci_remove dhcp @dnsmasq[-1] nat64
 		uci_remove dhcp @dnsmasq[-1] server
