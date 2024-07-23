@@ -36,13 +36,16 @@ setup_dhcp() {
 			uci_set dhcp $cfg_dhcp ignore "1"
 			uci_set dhcp $cfg_dhcp dhcpv4 "disabled"
 		fi
-		uci_set dhcp $cfg_dhcp leasetime "15m"
+		uci_set dhcp $cfg_dhcp leasetime "2m"
 		uci_add_list dhcp $cfg_dhcp dhcp_option "119,olsr"
 		uci_add_list dhcp $cfg_dhcp domain "olsr"
 		uci_set dhcp $cfg_dhcp dhcpv6 "server"
 		uci_set dhcp $cfg_dhcp ra "server"
 		uci_set dhcp $cfg_dhcp ra_preference "low"
 		uci_set dhcp $cfg_dhcp ra_default "1"
+		uci_set dhcp $cfg_dhcp ra_useleasetime "1"
+		uci_set dhcp $cfg_dhcp ra_lifetime "120"
+		uci_set dhcp $cfg_dhcp preferred_lifetime "2m"
 }
 
 setup_dhcp_ignore() {
