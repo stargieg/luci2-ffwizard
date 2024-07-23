@@ -169,6 +169,11 @@ setup_ether() {
 		log_net "Setup $cfg IP"
 		config_get ipaddr $cfg mesh_ip 2>/dev/null
 		setup_ip "$cfg" "$ipaddr"
+		#TODO set mtu6 1473 for nat64 over pppoe
+		#BUG mtu6 is not working with OpenWrt 23.05.3
+		#use network.@device[0].mtu='1473'
+		#where network.@device[0].name='br-lan'
+		#and network.lan.mtu='1473' for OpenWrt 19.07.10
 		config_get ipaddr $cfg dhcp_ip 2>/dev/null
 		config_get ip6addr $cfg dhcp_ip6 2>/dev/null
 		uci_remove network $cfg ip6class 2>/dev/null
@@ -391,6 +396,14 @@ setup_wifi() {
 		uci_set wireless $sec encryption "none"
 		config_get ipaddr $cfg mesh_ip
 		setup_ip "$cfg_mesh" "$ipaddr"
+		#TODO set mtu6 1473 for nat64 over pppoe
+		#BUG mtu6 is not working with OpenWrt 23.05.3
+		#use network.@device[0].mtu='1473'
+		#create network.@device[2].name='phy0-mesh0' "phy$idx-${iface_mode:-mesh}0"
+		#BUG mtu6 is working for wireless with OpenWrt 23.05.3
+		#create network.@device[2].mtu6='1473'
+		#and network.lan.mtu='1473' for OpenWrt 19.07.10
+		#?
 		uci_remove network $cfg_mesh ip6class 2>/dev/null
 		uci_remove network $cfg_mesh ip6assign 2>/dev/null
 	else
