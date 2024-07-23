@@ -105,6 +105,7 @@ while read line; do
 				nslookup "twitter.com" $node | grep -q '64:ff9b::' && dns="$node"
 				nslookup "v4.ipv6-test.com" $node | grep -q '64:ff9b::' && dns="$node"
 				nslookup "ipv4.lookup.test-ipv6.com" $node | grep -q '64:ff9b::' && dns="$node"
+				nslookup "ipv4.google.com" $node | grep -q '64:ff9b::' && dns="$node"
 				if [ -z "$dns" ] ; then
 					log "Node $node no service"
 				else
@@ -123,6 +124,11 @@ if ! [ -z "$dns_server" ] ; then
 	if [ "$nat64" == "1" ] ; then
 		uciserver=" $(uci_get dhcp @dnsmasq[-1] server)"
 	fi
+	#Add more dns64 server for redundancy
+	#https://developers.cloudflare.com/1.1.1.1/infrastructure/ipv6-networks/
+	dns_server="$dns_server 2606:4700:4700::64 2606:4700:4700::6400"
+	#https://developers.google.com/speed/public-dns/docs/dns64
+	dns_server="$dns_server 2001:4860:4860::64 2001:4860:4860::6464"
 	if ! [ "$dns_server" == "$uciserver" ] ; then
 		uci_set dhcp @dnsmasq[-1] rebind_protection "0"
 		uci_set dhcp @dnsmasq[-1] nat64 "1"
