@@ -137,6 +137,7 @@ setup_dhcpbase() {
 	uci_add_list dhcp @dnsmasq[-1] server "2a00:1098:2c::1"
 	uci_add_list dhcp @dnsmasq[-1] server "2a01:4f8:c2c:123f::1"
 	uci_add_list dhcp @dnsmasq[-1] server "2a00:1098:2b::1"
+	uci_set dhcp @dnsmasq[-1] allservers "1"
 }
 
 setup_odhcpbase() {
