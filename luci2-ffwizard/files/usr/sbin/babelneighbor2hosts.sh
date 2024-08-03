@@ -50,10 +50,10 @@ if [ ! "$domain" == "olsr" ] ; then
 	domain="olsr"
 fi
 ubus call babeld get_routes | \
-sed -e 's/^\t\t\(".*"\): {/\t\t\{\n\t\t\t"prefix": \1,/' \
--e 's/^\(\t".*": \){/\1[/' \
--e 's/^\t}/\t]/' \
--e 's/src-prefix/src_prefix/' | \
+#sed -e 's/^\t\t\(".*"\): {/\t\t\{\n\t\t\t"prefix": \1,/' \
+#-e 's/^\(\t".*": \){/\1[/' \
+#-e 's/^\t}/\t]/' \
+#-e 's/src-prefix/src_prefix/' | \
 jsonfilter -e '@.IPv6[@.refmetric=0]' > /tmp/babelneighbor2hosts.json
 while read line; do
 	eval $(jsonfilter -s "$line" \

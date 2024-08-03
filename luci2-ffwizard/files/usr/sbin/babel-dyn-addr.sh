@@ -192,10 +192,10 @@ genmask=128
 #label for object key is duplicated eg. "::/0" if more than one internet gateway
 #BUG parser error
 ubus call babeld get_routes | \
-sed -e 's/^\t\t\(".*"\): {/\t\t\{\n\t\t\t"prefix": \1,/' \
--e 's/^\(\t".*": \){/\1[/' \
--e 's/^\t}/\t]/' \
--e 's/src-prefix/src_prefix/' | \
+#sed -e 's/^\t\t\(".*"\): {/\t\t\{\n\t\t\t"prefix": \1,/' \
+#-e 's/^\(\t".*": \){/\1[/' \
+#-e 's/^\t}/\t]/' \
+#-e 's/src-prefix/src_prefix/' | \
 jsonfilter -e '@.IPv6[@.prefix="::\/0"]' > /tmp/babel-dyn-addr.json
 while read line; do
 	eval $(jsonfilter -s "$line" \
@@ -272,10 +272,10 @@ else
 fi
 
 keys=$(ubus call babeld get_routes | \
-sed -e 's/^\t\t\(".*"\): {/\t\t\{\n\t\t\t"prefix": \1,/' \
--e 's/^\(\t".*": \){/\1[/' \
--e 's/^\t}/\t]/' \
--e 's/src-prefix/src_prefix/' | \
+#sed -e 's/^\t\t\(".*"\): {/\t\t\{\n\t\t\t"prefix": \1,/' \
+#-e 's/^\(\t".*": \){/\1[/' \
+#-e 's/^\t}/\t]/' \
+#-e 's/src-prefix/src_prefix/' | \
 jsonfilter -e '@.IPv6[@.src_prefix="::\/0"].prefix')
 
 valid="1"

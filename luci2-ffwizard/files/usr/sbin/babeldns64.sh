@@ -59,10 +59,10 @@ metric=65535
 #label for object key is duplicated eg. "::/0" if more than one internet gateway
 #BUG parser error
 ubus call babeld get_routes | \
-sed -e 's/^\t\t\(".*"\): {/\t\t\{\n\t\t\t"prefix": \1,/' \
--e 's/^\(\t".*": \){/\1[/' \
--e 's/^\t}/\t]/' \
--e 's/src-prefix/src_prefix/' | \
+#sed -e 's/^\t\t\(".*"\): {/\t\t\{\n\t\t\t"prefix": \1,/' \
+#-e 's/^\(\t".*": \){/\1[/' \
+#-e 's/^\t}/\t]/' \
+#-e 's/src-prefix/src_prefix/' | \
 jsonfilter -e '@.IPv6[@.prefix="64:ff9b::\/96"]' > /tmp/babeldns64.json
 while read line; do
 	eval $(jsonfilter -s "$line" \
@@ -84,10 +84,10 @@ fi
 
 dns_server=""
 ubus call babeld get_routes | \
-sed -e 's/^\t\t\(".*"\): {/\t\t\{\n\t\t\t"prefix": \1,/' \
--e 's/^\(\t".*": \){/\1[/' \
--e 's/^\t}/\t]/' \
--e 's/src-prefix/src_prefix/' | \
+#sed -e 's/^\t\t\(".*"\): {/\t\t\{\n\t\t\t"prefix": \1,/' \
+#-e 's/^\(\t".*": \){/\1[/' \
+#-e 's/^\t}/\t]/' \
+#-e 's/src-prefix/src_prefix/' | \
 jsonfilter -e '@.IPv6[@.id="'$dns64nodeid'"]' > /tmp/babeldns64.json
 while read line; do
 	eval $(jsonfilter -s "$line" \
