@@ -19,20 +19,16 @@ fi
 
 neighborips=""
 ubus call babeld get_routes | \
-#sed -e 's/^\t\t\(".*"\): {/\t\t\{\n\t\t\t"prefix": \1,/' \
-#-e 's/^\(\t".*": \){/\1[/' \
-#-e 's/^\t}/\t]/' \
-#-e 's/src-prefix/src_prefix/' | \
 jsonfilter -e '@.IPv6[@.refmetric=0]' > /tmp/babelnode2hosts.json
 while read line; do
 	eval $(jsonfilter -s "$line" \
 		-e 'installed=@.installed' \
-		-e 'prefix=@.prefix' \
+		-e 'address=@.address' \
 		-e 'src_prefix=@.src_prefix')
-	if [ "$installed" == "1" ] ; then
+	if [ "$installed" == "1" -a "$address" != "::/0" -a "$address" != "64:ff9b::/96" ] ; then
 		if [ "$src_prefix" == "::/0" ] ; then
-			mask="$(echo $prefix | cut -d '/' -f 2)"
-			neighborip=${prefix%/*}
+			mask="$(echo $address | cut -d '/' -f 2)"
+			neighborip=${address%/*}
 			if [ $mask -lt 128 ] ; then
 				neighborip="$neighborip""1"
 			fi
@@ -58,20 +54,16 @@ if [ ! "$domain" == "olsr" ] ; then
 	domain="olsr"
 fi
 ubus call babeld get_routes | \
-sed -e 's/^\t\t\(".*"\): {/\t\t\{\n\t\t\t"prefix": \1,/' \
--e 's/^\(\t".*": \){/\1[/' \
--e 's/^\t}/\t]/' \
--e 's/src-prefix/src_prefix/' | \
 jsonfilter -e '@.IPv6[@.refmetric>0]' > /tmp/babelnode2hosts.json
 while read line; do
 	eval $(jsonfilter -s "$line" \
 		-e 'installed=@.installed' \
-		-e 'prefix=@.prefix' \
+		-e 'address=@.address' \
 		-e 'src_prefix=@.src_prefix')
-	if [ "$installed" == "1" ] ; then
+	if [ "$installed" == "1" -a "$address" != "::/0" -a "$address" != "64:ff9b::/96" ] ; then
 		if [ "$src_prefix" == "::/0" ] ; then
-			mask="$(echo $prefix | cut -d '/' -f 2)"
-			node=${prefix%/*}
+			mask="$(echo $address | cut -d '/' -f 2)"
+			node=${address%/*}
 			if [ $mask -lt 128 ] ; then
 				node="$node""1"
 			fi

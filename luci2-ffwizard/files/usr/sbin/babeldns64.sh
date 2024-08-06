@@ -54,16 +54,8 @@ fi
 
 dns64nodeid=""
 metric=65535
-#ubus call babeld get_routes | jsonfilter -e '@.IPv6.A' valid
-#ubus call babeld get_routes | jsonfilter -e '@.IPv6.64' invalid
-#label for object key is duplicated eg. "::/0" if more than one internet gateway
-#BUG parser error
 ubus call babeld get_routes | \
-#sed -e 's/^\t\t\(".*"\): {/\t\t\{\n\t\t\t"prefix": \1,/' \
-#-e 's/^\(\t".*": \){/\1[/' \
-#-e 's/^\t}/\t]/' \
-#-e 's/src-prefix/src_prefix/' | \
-jsonfilter -e '@.IPv6[@.prefix="64:ff9b::\/96"]' > /tmp/babeldns64.json
+jsonfilter -e '@.IPv6[@.address="64:ff9b::/96"]' > /tmp/babeldns64.json
 while read line; do
 	eval $(jsonfilter -s "$line" \
 		-e 'installed=@.installed' \
@@ -84,36 +76,39 @@ fi
 
 dns_server=""
 ubus call babeld get_routes | \
-#sed -e 's/^\t\t\(".*"\): {/\t\t\{\n\t\t\t"prefix": \1,/' \
-#-e 's/^\(\t".*": \){/\1[/' \
-#-e 's/^\t}/\t]/' \
-#-e 's/src-prefix/src_prefix/' | \
 jsonfilter -e '@.IPv6[@.id="'$dns64nodeid'"]' > /tmp/babeldns64.json
 while read line; do
 	eval $(jsonfilter -s "$line" \
 		-e 'installed=@.installed' \
-		-e 'prefix=@.prefix' \
+		-e 'address=@.address' \
 		-e 'src_prefix=@.src_prefix' \
 		-e 'refmetric=@.refmetric')
-	if [ "$installed" == "1" ] ; then
-		if [ "$src_prefix" == "::/0" ] ; then
-			node="$prefix"
-			node=${node%:*}
-			node="$node"":1"
-			dns=""
-			if ping6 -c1 -W3 -q "$node" >/dev/null ; then
-				nslookup "twitter.com" $node | grep -q '64:ff9b::' && dns="$node"
-				nslookup "v4.ipv6-test.com" $node | grep -q '64:ff9b::' && dns="$node"
-				nslookup "ipv4.lookup.test-ipv6.com" $node | grep -q '64:ff9b::' && dns="$node"
-				nslookup "ipv4.google.com" $node | grep -q '64:ff9b::' && dns="$node"
+	if [ "$installed" == "1" -a "$address" != "::/0" -a "$address" != "64:ff9b::/96" ] ; then
+		node="$address"
+		node=${node%:*}
+		node="$node"":1"
+		dns=""
+		if ping6 -c1 -W3 -q "$node" >/dev/null ; then
+			nslookup "twitter.com" $node | grep -q '64:ff9b::' && dns="$node"
+			nslookup "v4.ipv6-test.com" $node | grep -q '64:ff9b::' && dns="$node"
+			nslookup "ipv4.lookup.test-ipv6.com" $node | grep -q '64:ff9b::' && dns="$node"
+			nslookup "ipv4.google.com" $node | grep -q '64:ff9b::' && dns="$node"
+			if [ -z "$dns" ] ; then
+				log "Node $node no service"
+			else
+				dns=""
+				ping6 -c1 -W3 -q "twitter.com" && dns="$node"
+				ping6 -c1 -W3 -q "v4.ipv6-test.com" && dns="$node"
+				ping6 -c1 -W3 -q "ipv4.lookup.test-ipv6.com" && dns="$node"
+				ping6 -c1 -W3 -q "ipv4.google.com" && dns="$node"
 				if [ -z "$dns" ] ; then
 					log "Node $node no service"
 				else
 					dns_server="$dns_server $dns"
 				fi
-			else
-				log "Node $node unreachable"
 			fi
+		else
+			log "Node $node unreachable"
 		fi
 	fi
 done < /tmp/babeldns64.json
