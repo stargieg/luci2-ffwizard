@@ -36,7 +36,7 @@ setup_dhcp() {
 			uci_set dhcp $cfg_dhcp ignore "1"
 			uci_set dhcp $cfg_dhcp dhcpv4 "disabled"
 		fi
-		uci_set dhcp $cfg_dhcp leasetime "2m"
+		uci_set dhcp $cfg_dhcp leasetime "4m"
 		uci_add_list dhcp $cfg_dhcp dhcp_option "119,olsr"
 		uci_add_list dhcp $cfg_dhcp domain "olsr"
 		uci_set dhcp $cfg_dhcp dhcpv6 "server"
@@ -44,8 +44,9 @@ setup_dhcp() {
 		uci_set dhcp $cfg_dhcp ra_preference "low"
 		uci_set dhcp $cfg_dhcp ra_default "1"
 		uci_set dhcp $cfg_dhcp ra_useleasetime "1"
-		uci_set dhcp $cfg_dhcp ra_lifetime "120"
 		uci_set dhcp $cfg_dhcp preferred_lifetime "2m"
+		uci_add_list dhcp $cfg_dhcp ra_flags "managed-config"
+		uci_add_list dhcp $cfg_dhcp ra_flags "other-config"
 }
 
 setup_dhcp_ignore() {
@@ -67,16 +68,16 @@ setup_ether() {
 			uci_set dhcp $cfg start "100"
 			uci_set dhcp $cfg limit "150"
 			uci_set dhcp $cfg ignore "0"
-			uci_set dhcp $cfg leasetime "15m"
+			uci_set dhcp $cfg leasetime "4m"
 			uci_add_list dhcp $cfg dhcp_option "119,olsr"
 			uci_add_list dhcp $cfg domain "olsr"
 			uci_set dhcp $cfg dhcpv6 "server"
 			uci_set dhcp $cfg ra "server"
 			uci_set dhcp $cfg ra_preference "low"
 			uci_set dhcp $cfg ra_default "1"
-			uci_set dhcp $cfg ra_lifetime "300"
-			uci_set dhcp $cfg preferred_lifetime "5m"
-			uci_set dhcp $cfg ra_useleasetime "1"
+			uci_set dhcp $cfg preferred_lifetime "2m"
+			uci_add_list dhcp $cfg ra_flags "managed-config"
+			uci_add_list dhcp $cfg ra_flags "other-config"
 		fi
 		return
 	fi
