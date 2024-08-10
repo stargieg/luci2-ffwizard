@@ -60,7 +60,72 @@ handle_contact() {
 #                    #
 ######################
 
-# Draft for OLSRv2-Links currently not used
+babel_links() {
+	json_select $2
+	json_get_var remoteIP address
+	json_get_var ifName dev
+	localIP="ff02::1"
+	json_get_var linkQuality txcost
+	#json_get_var linkQuality rxcost
+	linkQuality=$((linkQuality*100000/65535))
+	linkQuality=$((100000-linkQuality))
+	if [ "$linkQuality" -eq 100000 ] ; then
+		linkQuality=1
+	else
+		linkQuality="0.""$linkQuality"
+	fi
+	json_select ..
+	local remotehost=""
+	while read line; do
+		eval $(jsonfilter -s "$line" \
+			-e 'installed=@.installed' \
+			-e 'address=@.address' \
+			-e 'src_prefix=@.src_prefix' \
+			-e 'refmetric=@.refmetric' \
+			-e 'id=@.id' \
+			-e 'via=@.via')
+		if [ "$remoteIP" == "$via" -a "$installed" == "1" -a "$address" != "::/0" -a "$address" != "64:ff9b::/96" ] ; then
+			if [ "$src_prefix" == "::/0" ] ; then
+				mask="$(echo $address | cut -d '/' -f 2)"
+				neighborip=${address%/*}
+				if [ $mask -lt 128 ] ; then
+					neighborip="$neighborip""1"
+				fi
+				echo $neighborip | grep -q -v ^64 || continue
+				echo $neighborip | grep -q -v ^fe || continue
+				if ! ping6 -c1 -W3 -q "$neighborip" >/dev/null ; then
+					log "neighborip ping fail $neighborip via $via id $id"
+					continue
+				fi
+				#log "neighborip $neighborip"
+				neighborname=$(nslookup $neighborip $neighborip 2>/dev/null | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
+				if [ -z $neighborname ] ; then
+					neighborname=$(wget -q -T 2 -O - --no-check-certificate https://[$neighborip]/cgi-bin/luci/ 2>/dev/null | \
+					grep 'href="/"' | \
+					sed -e 's/.*>\([0-9a-zA-Z-]*\)<.*/\1/')
+					if [ -z $neighborname ] ; then
+						neighborname=$(wget -q -T 2 -O - http://[$neighborip]/cgi-bin/luci/ 2>/dev/null | \
+						grep 'href="/"' | \
+						sed -e 's/.*>\([0-9a-zA-Z-]*\)<.*/\1/')
+					fi
+					if [ -z $neighborname ] ; then
+						log "neighbor $neighborip no dns,https,http service"
+					else
+						remotehost="$neighborname.olsr"
+					fi
+				else
+					remotehost="$neighborname.olsr"
+				fi
+			fi
+		fi
+	done < /tmp/babelinks.json
+	if [ -z $remotehost ] ; then
+		log "neighbor $neighborip no dns,https,http service"
+	else
+		babelinks="$babelinks$localIP $remoteIP $remotehost $linkQuality $ifName;"
+	fi
+}
+
 olsr2_links() {
 	json_select $2
 	json_get_var localIP link_bindto
@@ -123,11 +188,21 @@ if [ -z "$latitude" ] || [ -z "$longitude" ]; then
 	printf "latitude/longitude is not set.\nStopping now...\n"
 	exit 2
 fi
-domain=""                                                                                                               
-domain="$(uci_get luci_olsrd2 general domain)"                                                                           
-[ -z "$domain" ] && domain="olsr"                                                                                       
+domain=""
+domain="$(uci_get system @system[-1] domain)"
+[ -z "$domain" ] && domain="olsr"
 domain=".$domain"
 
+# collect data on Babel-links
+ubus call babeld get_routes | \
+	jsonfilter -e '@.IPv6[@.refmetric=0]' > /tmp/babelinks.json
+json_load "$(ubus call babeld get_neighbours)"
+babelinks=""
+if json_is_a IPv6 array;then
+	json_for_each_item babel_links IPv6
+fi
+json_cleanup
+rm /tmp/babelinks.json
 # collect data on OLSR-links
 json_load "$(printf "/nhdpinfo json link" | nc ::1 2009 2>/dev/null)" 2>/dev/null
 olsr2links=""
@@ -283,6 +358,17 @@ json_close_object
 json_add_array links
 	IFSORIG="$IFS"
 	IFS=';'
+	for i in ${babelinks} ; do
+		IFS="$IFSORIG"
+		set -- $i
+		json_add_object
+		#json_add_string sourceAddr6 "$1"
+		json_add_string destAddr6 "$2"
+		json_add_string id "$3"
+		json_add_double quality "$4"
+		json_close_object
+		IFS=';'
+	done
 	for i in ${olsr2links} ; do
 		IFS="$IFSORIG"
 		set -- $i
