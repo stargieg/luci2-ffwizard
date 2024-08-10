@@ -94,10 +94,8 @@ babel_links() {
 				echo $neighborip | grep -q -v ^64 || continue
 				echo $neighborip | grep -q -v ^fe || continue
 				if ! ping6 -c1 -W3 -q "$neighborip" >/dev/null ; then
-					log "neighborip ping fail $neighborip via $via id $id"
 					continue
 				fi
-				#log "neighborip $neighborip"
 				neighborname=$(nslookup $neighborip $neighborip 2>/dev/null | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
 				if [ -z $neighborname ] ; then
 					neighborname=$(wget -q -T 2 -O - --no-check-certificate https://[$neighborip]/cgi-bin/luci/ 2>/dev/null | \
@@ -108,9 +106,7 @@ babel_links() {
 						grep 'href="/"' | \
 						sed -e 's/.*>\([0-9a-zA-Z-]*\)<.*/\1/')
 					fi
-					if [ -z $neighborname ] ; then
-						log "neighbor $neighborip no dns,https,http service"
-					else
+					if ! [ -z $neighborname ] ; then
 						remotehost="$neighborname.olsr"
 					fi
 				else
@@ -119,9 +115,7 @@ babel_links() {
 			fi
 		fi
 	done < /tmp/babelinks.json
-	if [ -z $remotehost ] ; then
-		log "neighbor $neighborip no dns,https,http service"
-	else
+	if ! [ -z $remotehost ] ; then
 		babelinks="$babelinks$localIP $remoteIP $remotehost $linkQuality $ifName;"
 	fi
 }
