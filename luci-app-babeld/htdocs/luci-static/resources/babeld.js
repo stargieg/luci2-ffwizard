@@ -80,7 +80,7 @@ function renderTableRoutes(ubus_data, target_div) {
                                  <td class="td" data-title="routes_' + '%h'.format(protocol) + '_via">' + '%h'.format(data[protocol][prefix]["via"]) + '</td>\
                                  <td class="td" data-title="routes_' + '%h'.format(protocol) + '_nexthop">' + '%h'.format(data[protocol][prefix]["nexthop"]) + '</td>\
                                  <td class="td" data-title="routes_' + '%h'.format(protocol) + '_installed">' + '%b'.format(data[protocol][prefix]["installed"]) + '</td>\
-                                 <td class="td" data-title="routes_' + '%h'.format(protocol) + '_feasible">' + '%h'.format(data[protocol][prefix]["feasible"]) + '</td>';
+                                 <td class="td" data-title="routes_' + '%h'.format(protocol) + '_feasible">' + '%b'.format(data[protocol][prefix]["feasible"]) + '</td>';
 
 			prefixRow.innerHTML = prefixContent;
 			table.appendChild(prefixRow);
@@ -106,8 +106,8 @@ function renderTableNeighbours(ubus_data, target_div) {
 		headerRow.setAttribute('class', 'tr table-titles');
 		var headerContent = '<th class="th" style="font-weight: 700;">' + '%h'.format(protocol) + ' Neighbour</th>\
                              <th class="th" style="font-weight: 700;">Device</th>\
-                             <th class="th" style="font-weight: 700;">Hello-Reach</th>\
-                             <th class="th" style="font-weight: 700;">U Hello-Reach</th>\
+                             <th class="th" style="font-weight: 700;">Multicast Hellos</th>\
+                             <th class="th" style="font-weight: 700;">Unicast Hellos</th>\
                              <th class="th" style="font-weight: 700;">RX cost</th>\
                              <th class="th" style="font-weight: 700;">TX cost</th>\
                              <th class="th" style="font-weight: 700;">RTT</th>\
