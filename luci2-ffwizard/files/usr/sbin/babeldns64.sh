@@ -136,6 +136,7 @@ if ! [ -z "$dns_server" ] ; then
 		config_foreach setup_dhcp_ra_pref_add dhcp
 		uci_commit dhcp
 		/etc/init.d/dnsmasq restart
+		/etc/init.d/odhcpd restart
 	fi
 else
 	log "not found"
@@ -150,6 +151,7 @@ else
 		config_foreach setup_dhcp_ra_pref_default dhcp
 		uci_commit dhcp
 		/etc/init.d/dnsmasq restart
+		/etc/init.d/odhcpd restart
 	fi
 fi
 rm -f /tmp/babeldns64.json
