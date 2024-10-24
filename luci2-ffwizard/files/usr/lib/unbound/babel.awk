@@ -61,16 +61,18 @@
   if (hst != "-") {
     # TODO fqdn 300 IN CAA 0 issue letsencrypt.org
     if ( bconf == 1 ) {
+      w = ( "local-data: \"" fqdn ". 300 IN CAA 0 issue letsencrypt.org\"" ) ;
       x = ( "local-data: \"" fqdn ". 300 IN AAAA " adr "\"" ) ;
       y = ( "local-data-ptr: \"" adr " 300 " fqdn "\"" ) ;
-      print ( x "\n" y "\n" ) > conffile ;
+      print ( w "\n" x "\n" y "\n" ) > conffile ;
     }
 
     # only for provided hostnames and full /128 assignments
     qpr = ipv6_ptr( adr ) ;
+    w = ( fqdn ". 300 IN CAA 0 issue letsencrypt.org" ) ;
     x = ( fqdn ". 300 IN AAAA " adr ) ;
     y = ( qpr ". 300 IN PTR " fqdn ) ;
-    print ( x "\n" y ) > pipefile ;
+    print ( w "\n" x "\n" y ) > pipefile ;
   }
   else if (olsrhst != "-") {
     fqdn = tolower( olsrhst ) ;
