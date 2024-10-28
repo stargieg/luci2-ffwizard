@@ -73,8 +73,8 @@ while read line; do
 				continue
 			fi
 			#log "neighborip $neighborip"
-			neighborname=$(nslookup $neighborip $neighborip 2>/dev/null | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
-			if [ -z $neighborname ] ; then
+			neighbornames=$(nslookup $neighborip $neighborip 2>/dev/null | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
+			if [ -z "$neighbornames" ] ; then
 				neighborname=$(wget -q -T 2 -O - --no-check-certificate https://[$neighborip]/cgi-bin/luci/ 2>/dev/null | \
 				grep 'href="/"' | \
 				sed -e 's/.*>\([0-9a-zA-Z-]*\)<.*/\1/')
@@ -95,22 +95,24 @@ while read line; do
 					fi
 				fi
 			else
-				neighborips=$(nslookup $neighborname $neighborip | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
-				if [ -z "$neighborips" ] ; then
-					neighborips=$neighborip
-				fi
-				for j in $neighborips ; do
-					if echo $j | grep -q -v ^fe ; then
-						if echo $j | grep -q ^fd ; then
-							echo "$j $neighborname.$domain" >>/tmp/babelneighbor2hosts.tmp
-						else
-							if [ -z "$domain_custom" ] ; then
+				for neighborname in $neighbornames ; do
+					neighborips=$(nslookup $neighborname $neighborip | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
+					if [ -z "$neighborips" ] ; then
+						neighborips=$neighborip
+					fi
+					for j in $neighborips ; do
+						if echo $j | grep -q -v ^fe ; then
+							if echo $j | grep -q ^fd ; then
 								echo "$j $neighborname.$domain" >>/tmp/babelneighbor2hosts.tmp
 							else
-								echo "$j $neighborname.$domain_custom $neighborname.$domain" >>/tmp/babelneighbor2hosts.tmp
+								if [ -z "$domain_custom" ] ; then
+									echo "$j $neighborname.$domain" >>/tmp/babelneighbor2hosts.tmp
+								else
+									echo "$j $neighborname.$domain_custom $neighborname.$domain" >>/tmp/babelneighbor2hosts.tmp
+								fi
 							fi
 						fi
-					fi
+					done
 				done
 			fi
 		fi
