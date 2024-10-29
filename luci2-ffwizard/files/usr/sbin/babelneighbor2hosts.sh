@@ -53,13 +53,12 @@ ubus call babeld get_routes | \
 jsonfilter -e '@.IPv6[@.refmetric=0]' > /tmp/babelneighbor2hosts.json
 while read line; do
 	eval $(jsonfilter -s "$line" \
-		-e 'installed=@.installed' \
 		-e 'address=@.address' \
 		-e 'src_prefix=@.src_prefix' \
 		-e 'refmetric=@.refmetric' \
 		-e 'id=@.id' \
 		-e 'via=@.via')
-	if [ "$installed" == "1" -a "$address" != "::/0" -a "$address" != "64:ff9b::/96" ] ; then
+	if [ "$address" != "::/0" -a "$address" != "64:ff9b::/96" ] ; then
 		if [ "$src_prefix" == "::/0" ] ; then
 			mask="$(echo $address | cut -d '/' -f 2)"
 			neighborip=${address%/*}
