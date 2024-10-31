@@ -39,9 +39,9 @@ if [ "$(uci_get system @system[0] hostname)" == "OpenWrt" ]; then
 	uci_commit uhttpd
 
 	#uci_set network lan ipaddr "192.168.1.1"
-	uci_remove network loopback ip6addr 2>/dev/null
-	uci_add_list network loopback ip6addr "::1/128"
-	uci_add_list network loopback ip6addr "$ula_addr""2/128"
+	#uci_remove network loopback ip6addr 2>/dev/null
+	#uci_add_list network loopback ip6addr "::1/128"
+	#uci_add_list network loopback ip6addr "$ula_addr""2/128"
 
 	#uci_set network lan dns "85.214.20.141 213.73.91.35 194.150.168.168 2001:4ce8::53 2001:910:800::12"
 	# https://nat64.dresel.systems/ "Service eingestellt...  "
