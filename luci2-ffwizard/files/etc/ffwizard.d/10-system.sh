@@ -17,11 +17,36 @@ setup_system() {
 		log_system "No valid Hostname! Set rand Hostname $hostname"
 		uci_set system $cfg hostname "$hostname"
 		uci_set ffwizard ffwizard hostname "$hostname"
-		uci_get snmpd && uci_set snmp @system[-1] sysName "$hostname"
 	else
 		log_system "Set Hostname $hostname"
 		uci_set system $cfg hostname "$hostname"
-		uci_get snmpd && uci_set snmp system sysName "$hostname"
+	fi
+
+	if uci_get snmpd ; then
+		uci_set snmpd @system[-1] sysName "$hostname"
+		# Set Contact mail address
+		if [ ! -z "$mail" ] ; then
+			uci_set snmpd @system[-1] sysContact "$mail"
+		fi
+		# Set nickname
+		if [ ! -z "$nickname" ] ; then
+			uci_set snmpd @system[-1] sysDescr "$nickname"
+		fi
+		# Set Location
+		if [ ! -z "$location" ] ; then
+			uci_set snmpd @system[-1] sysLocation "$location"
+		fi
+	fi
+
+	if uci_get freifunk ; then
+		# Set Contact mail address
+		if [ ! -z "$mail" ] ; then
+			uci_set freifunk contact "$mail"
+		fi
+		# Set nickname
+		if [ ! -z "$nickname" ] ; then
+			uci_set freifunk nickname "$nickname"
+		fi
 	fi
 
 	if ! [ "$domain" == "olsr" ] ; then
@@ -54,11 +79,13 @@ config_get hostname ffwizard hostname "OpenWrt"
 # Set Domain
 config_get domain ffwizard domain "olsr"
 
-# Set lat lon
+# Set loc lat lon
 config_get location ffwizard location
 config_get latitude ffwizard latitude
 config_get longitude ffwizard longitude
 
+config_get mail ffwizard mail
+config_get nickname ffwizard nickname
 
 #Load dhcp config
 config_load system
@@ -69,3 +96,4 @@ config_foreach setup_system system
 uci_commit system
 uci_commit ffwizard
 uci_get snmpd && uci_commit snmpd
+uci_get freifunk && uci_commit freifunk
