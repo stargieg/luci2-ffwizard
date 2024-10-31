@@ -27,7 +27,8 @@ setup_ether() {
 	fi
 	uci_set ffwizard $cfg device $cfg
 	uci_set ffwizard $cfg dhcp_br "0"
-	uci_set ffwizard $cfg olsr_mesh "1"
+	uci_set ffwizard $cfg babel_mesh "1"
+	uci_set ffwizard $cfg olsr_mesh "0"
 	uci_set ffwizard $cfg bat_mesh "0"
 }
 
@@ -40,7 +41,8 @@ setup_wifi() {
 	fi
 	uci_set ffwizard $cfg enabled "1"
 	uci_set ffwizard $cfg phy_idx $idx
-	uci_set ffwizard $cfg olsr_mesh "1"
+	uci_set ffwizard $cfg babel_mesh "1"
+	uci_set ffwizard $cfg olsr_mesh "0"
 	uci_set ffwizard $cfg bat_mesh "0"
 	uci_set ffwizard $cfg vap "1"
 	uci_set ffwizard $cfg vap_br "1"
