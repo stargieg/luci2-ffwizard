@@ -180,8 +180,20 @@ if [ "$babel_enabled" == "1" ] ; then
 	setup_babel
 	uci_commit babeld
 
+	crontab -l | grep -q 'babelneighbor2hosts' || \
+		echo "*/5 * * * *     /usr/sbin/babelneighbor2hosts.sh" >> /etc/crontabs/root
+	crontab -l | grep -q 'babelnode2hosts' || \
+		echo "*/11 * * * *    /usr/sbin/babelnode2hosts.sh" >> /etc/crontabs/root
+	crontab -l | grep -q 'babeldns64' || \
+		echo "*/15 * * * *    /usr/sbin/babeldns64.sh" >> /etc/crontabs/root
+	crontab -l | grep -q 'babel-dyn-addr' || \
+		echo "*/8 * * * *    /usr/sbin/babel-dyn-addr.sh" >> /etc/crontabs/root
 else
 	/sbin/uci revert babeld
 	ubus call rc init '{"name":"babeld","action":"stop"}' 2>/dev/null || /etc/init.d/babeld stop
 	ubus call rc init '{"name":"babeld","action":"disable"}' 2>/dev/null || /etc/init.d/babeld disable
+	crontab -l | grep -q 'babelneighbor2hosts' && crontab -l | sed -e '/.*babelneighbor2hosts.*/d' | crontab -
+	crontab -l | grep -q 'babelnode2hosts' && crontab -l | sed -e '/.*babelnode2hosts.*/d' | crontab -
+	crontab -l | grep -q 'babeldns64' && crontab -l | sed -e '/.*babeldns64.*/d' | crontab -
+	crontab -l | grep -q 'babel-dyn-addr' && crontab -l | sed -e '/.*babel-dyn-addr.*/d' | crontab -
 fi
