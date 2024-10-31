@@ -20,12 +20,6 @@ return view.extend({
 		o = s.option(form.Value, "domain", _("Router Domain"), "");
 		o.datatype = "hostname";
 		o.placeholder = "olsr";
-		o = s.option(form.Value, "nickname", _("Nickname"), "");
-		o.datatype = "string";
-		o.placeholder = "Tomi";
-		o = s.option(form.Value, "mail", _("Kontakt E-Mail Adresse"), "");
-		o.datatype = "string";
-		o.placeholder = "tomi99@myspace.world";
 		o = s.option(form.Flag, "br", _("Netzwerkbrücke für AP-DHCP und Batman"), "");
 		o.datatype = "bool";
 		o.rmempty = false;
@@ -37,6 +31,21 @@ return view.extend({
 		o.datatype = "cidr6";
 		o.placeholder = "2a00:c1a0:488f:8404::/62";
 		o.optional = true;
+		o = s.option(form.Value, "nickname", _("Nickname"), "");
+		o.datatype = "string";
+		o.placeholder = "Tomi";
+		o = s.option(form.Value, "mail", _("Kontakt E-Mail Adresse"), "");
+		o.datatype = "string";
+		o.placeholder = "tomi99@myspace.world";
+		o = s.option(form.Value, "location", _("Beschreibung des Ortes oder Gebäudes"), "");
+		o.datatype = "string";
+		o.placeholder = "Museum";
+        o = s.option(form.Value, 'latitude', _('Latitude'), _('e.g.') + ' 48.12345');
+        o.optional = true;
+        o.rmempty = false;
+        o = s.option(form.Value, 'longitude', _('Longitude'), _('e.g.') + ' 10.12345');
+        o.optional = true;
+        o.rmempty = false;
 
 		return m.render();
 	}
