@@ -195,7 +195,7 @@ setup_dhcp_ra_pref() {
 		#normaly 1500 uplink
 		#uci_set dhcp "$cfg" ra_mtu "1492"
 		#ppoe 1492 uplink
-		uci_set dhcp "$cfg" ra_mtu "1473"
+		uci_set dhcp "$cfg" ra_mtu "1472"
 		uci_remove dhcp "$cfg" dhcp_option 2>/dev/null
 		uci_add_list dhcp $cfg dhcp_option "108,0:0:7:8"
 	fi
