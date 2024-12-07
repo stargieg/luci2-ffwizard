@@ -147,6 +147,15 @@ remove_section() {
 	uci_remove babeld $cfg
 }
 
+addrc() {
+    local cmd="$1"
+    grep -v exit /etc/rc.local > /tmp/rc.local
+    echo "$cmd" >> /tmp/rc.local
+    echo 'exit 0' >> /tmp/rc.local
+    mv /tmp/rc.local /etc/rc.local
+    $cmd
+}
+
 #Load babeld config
 config_load babeld
 #Remove interface
