@@ -42,6 +42,7 @@ setup_ip() {
 	fi
 	if [ "$cfg" == "fflandhcp" ] ; then
 		uci_add_list network $cfg ip6class "local"
+		uci_set network $cfg ip6assign '64'
 	fi
 	uci_set network $cfg proto "static"
 	#if [ "$cfg" == "wan" ] ; then
@@ -524,7 +525,7 @@ config_get ip6prefix ffwizard ip6prefix
 if [ ! -z "$ip6prefix" ] ; then
 	uci_set network "$br_name" ip6prefix "$ip6prefix"
 	uci_set network "$br_name" ip6assign "64"
-	#uci_remove network "$br_name" ip6class 2>/dev/null
+	uci_remove network "$br_name" ip6class 2>/dev/null
 	uci_add_list network "$br_name" ip6class "$br_name"
 	#ip6_addr="$(echo $ip6prefix | cut -d '/' -f 1)"
 	#if ! uci_get network loprefix 2>/dev/null 1>/dev/null ; then
