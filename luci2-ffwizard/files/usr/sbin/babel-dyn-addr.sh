@@ -184,7 +184,7 @@ if pidof babel-dyn-addr.sh | grep -q ' ' >/dev/null ; then
 fi
 
 ip6prefix_new=""
-prefix=""
+prefixs=""
 metric=65535
 genmask=128
 ubus call babeld get_routes | \
@@ -195,82 +195,92 @@ while read line; do
 		-e 'src_prefix=@.src_prefix' \
 		-e 'refmetric=@.refmetric' )
 	if [ "$installed" == "1" ] ; then
-		if [ $refmetric -le $metric ] ; then
-			src_mask="$(echo $src_prefix | cut -d '/' -f 2)"
-			if [ $src_mask -le $genmask ] ; then
-				prefix="$src_prefix"
+		src_mask="$(echo $src_prefix | cut -d '/' -f 2)"
+		if [ $src_mask -eq 48 ] || [ $src_mask -eq 52 ] || [ $src_mask -eq 56 ] || [ $src_mask -eq 60 ]; then
+			if [ $refmetric -le $metric ] ; then
+				prefixs="$src_prefix $prefixs"
 				metric=$refmetric
-				genmask=$src_mask
+				#genmask=$src_mask
+			else
+				prefixs="$prefixs $src_prefix"
+				metric=$refmetric
 			fi
 		fi
 	fi
 done < /tmp/babel-dyn-addr.json
 rm /tmp/babel-dyn-addr.json
 
-if [ "$prefix" == "" ] ; then
+if [ "$prefixs" == "" ] ; then
 	log "Exit no IPv6 neighbor entry"
 	return 1
 fi
 
-uciprefix=$(uci_get network fflandhcp ffprefix)
-if [ "$prefix" == "$uciprefix" ] ; then
-	ip6prefix_new=$(uci_get network fflandhcp ip6prefix)
-else
-	destination="$(echo $prefix | cut -d '/' -f 1)"
-	if [ $genmask == 48 ] || [ $genmask -eq 42 ] || [ $genmask -eq 56 ] || [ $genmask -eq 60 ]; then
-		ula="$(echo $destination | cut -b -2)"
-		if [ ! "$destination" == "$srcip6prefix" ] ; then
-			log "new attached_net_src $attached_net_src"
-			case $genmask in
-			60)
-				srcip6prefix_new="$destination"
-				ip6prefix_new=$(calc_from_60 $destination)
-				ip6prefix_mask_new="64"
-				ip6prefix_new="$ip6prefix_new/$ip6prefix_mask_new"
-				;;
-			56)
-				srcip6prefix_new="$destination"
-				ip6prefix_new=$(calc_from_56 $destination 64)
-				ip6prefix_mask_new="64"
-				#ip6prefix_new=$(calc_from_56 $destination 62)
-				#ip6prefix_mask_new="62"
-				ip6prefix_new="$ip6prefix_new/$ip6prefix_mask_new"
-				;;
-			52)
-				srcip6prefix_new="$destination"
-				ip6prefix_new=$(calc_from_52 $destination 64)
-				ip6prefix_mask_new="64"
-				#ip6prefix_new=$(calc_from_56 $destination 62)
-				#ip6prefix_mask_new="62"
-				ip6prefix_new="$ip6prefix_new/$ip6prefix_mask_new"
-				;;
-			48)
-				srcip6prefix_new="$destination"
-				ip6prefix_new=$(calc_from_48 $destination 64)
-				ip6prefix_mask_new="64"
-				#ip6prefix_new=$(calc_from_56 $destination 62)
-				#ip6prefix_mask_new="62"
-				ip6prefix_new="$ip6prefix_new/$ip6prefix_mask_new"
-				;;
-			*)
+for prefix in $prefixs ; do
+	uciprefix=$(uci_get network fflandhcp ffprefix)
+	if [ "$prefix" == "$uciprefix" ] ; then
+		ip6prefix_new=$(uci_get network fflandhcp ip6prefix)
+	else
+		destination="$(echo $prefix | cut -d '/' -f 1)"
+		genmask="$(echo $prefix | cut -d '/' -f 2)"
+		if [ $genmask -eq 48 ] || [ $genmask -eq 52 ] || [ $genmask -eq 56 ] || [ $genmask -eq 60 ]; then
+			ula="$(echo $destination | cut -b -2)"
+			if [ ! "$destination" == "$srcip6prefix" ] ; then
+				log "new attached_net_src $attached_net_src"
+				case $genmask in
+				60)
+					srcip6prefix_new="$destination"
+					ip6prefix_new=$(calc_from_60 $destination)
+					ip6prefix_mask_new="64"
+					ip6prefix_new="$ip6prefix_new/$ip6prefix_mask_new"
+					;;
+				56)
+					srcip6prefix_new="$destination"
+					ip6prefix_new=$(calc_from_56 $destination 64)
+					ip6prefix_mask_new="64"
+					#ip6prefix_new=$(calc_from_56 $destination 62)
+					#ip6prefix_mask_new="62"
+					ip6prefix_new="$ip6prefix_new/$ip6prefix_mask_new"
+					;;
+				52)
+					srcip6prefix_new="$destination"
+					ip6prefix_new=$(calc_from_52 $destination 64)
+					ip6prefix_mask_new="64"
+					#ip6prefix_new=$(calc_from_56 $destination 62)
+					#ip6prefix_mask_new="62"
+					ip6prefix_new="$ip6prefix_new/$ip6prefix_mask_new"
+					;;
+				48)
+					srcip6prefix_new="$destination"
+					ip6prefix_new=$(calc_from_48 $destination 64)
+					ip6prefix_mask_new="64"
+					#ip6prefix_new=$(calc_from_56 $destination 62)
+					#ip6prefix_mask_new="62"
+					ip6prefix_new="$ip6prefix_new/$ip6prefix_mask_new"
+					;;
+				*)
+					log "wrong mask src $genmask"
+					;;
+				esac
+			else
 				log "wrong mask src $genmask"
-				;;
-			esac
-		else
-			log "wrong mask src $genmask"
-			ip6prefix_new=""
+				ip6prefix_new=""
+			fi
 		fi
 	fi
-fi
 
-keys=$(ubus call babeld get_routes | \
-jsonfilter -e '@.IPv6[@.src_prefix="::/0"].address')
+	keys=$(ubus call babeld get_routes | \
+	jsonfilter -e '@.IPv6[@.src_prefix="::/0"].address')
 
-valid="1"
-for key in $keys ; do
-	if [ "$key" == "$ip6prefix_new" ] ; then
-		log "##############dublicated $key ########################"
-		valid="0"
+	valid="1"
+	for key in $keys ; do
+		if [ "$key" == "$ip6prefix_new" ] ; then
+			log "##############dublicated $ip6prefix_new ########################"
+			valid="0"
+		fi
+	done
+	if [ $valid == 1 ] ; then
+		log "##############valid $ip6prefix_new ########################"
+		break
 	fi
 done
 
@@ -286,6 +296,8 @@ if [ "$valid" == "0" -o "$ip6prefix_new" == "" ] ; then
 		sleep 3
 		ubus call rc init '{"name":"odhcpd","action":"restart"}' 2>/dev/null || /etc/init.d/odhcpd restart
 		ubus call rc init '{"name":"dnsmasq","action":"restart"}' 2>/dev/null || /etc/init.d/dnsmasq restart
+	else
+		log "no ip6prefix found"
 	fi
 elif [ ! "$prefix" == "$uciprefix" ] ; then
 	ip6prefix="$ip6prefix_new"
