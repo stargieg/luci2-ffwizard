@@ -188,6 +188,11 @@ if [ "$babel_enabled" == "1" ] ; then
 		echo "*/15 * * * *    /usr/sbin/babeldns64.sh" >> /etc/crontabs/root
 	crontab -l | grep -q 'babel-dyn-addr' || \
 		echo "*/8 * * * *    /usr/sbin/babel-dyn-addr.sh" >> /etc/crontabs/root
+
+	if ! grep -q "/etc/init.d/babeld" /etc/rc.local ; then
+		addrc '( sleep 60 ; /etc/init.d/babeld restart ) &'
+	fi
+
 else
 	/sbin/uci revert babeld
 	ubus call rc init '{"name":"babeld","action":"stop"}' 2>/dev/null || /etc/init.d/babeld stop
@@ -196,4 +201,5 @@ else
 	crontab -l | grep -q 'babelnode2hosts' && crontab -l | sed -e '/.*babelnode2hosts.*/d' | crontab -
 	crontab -l | grep -q 'babeldns64' && crontab -l | sed -e '/.*babeldns64.*/d' | crontab -
 	crontab -l | grep -q 'babel-dyn-addr' && crontab -l | sed -e '/.*babel-dyn-addr.*/d' | crontab -
+	sed -e '/.*babeld restart.*/d' -i /etc/rc.local
 fi
