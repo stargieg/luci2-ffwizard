@@ -41,11 +41,11 @@ setup_system() {
 	if uci_get freifunk ; then
 		# Set Contact mail address
 		if [ ! -z "$mail" ] ; then
-			uci_set freifunk contact "$mail"
+			uci_set freifunk contact mail "$mail"
 		fi
 		# Set nickname
 		if [ ! -z "$nickname" ] ; then
-			uci_set freifunk nickname "$nickname"
+			uci_set freifunk contact nickname "$nickname"
 		fi
 	fi
 
