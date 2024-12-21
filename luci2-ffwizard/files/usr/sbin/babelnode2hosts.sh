@@ -83,14 +83,14 @@ while read line; do
 							echo $k | grep -q -v ^64 || continue
 							echo $k | grep -q -v ^fe || continue
 							if echo $k | grep -q ^fd ; then
-								#log "ns $j $k $nodename.$domain"
+								#log "ret from neighb $j for ip $k : $nodename.$domain"
 								echo "$k $nodename.$domain" >>/tmp/babelnode2hosts.tmp
 							else
 								if [ -z "$domain_custom" ] ; then
-									#log "ns $j $k $nodename.$domain"
+									#log "ret from neighb $j for ip $k : $nodename.$domain"
 									echo "$k $nodename.$domain" >>/tmp/babelnode2hosts.tmp
 								else
-									#log "ns $j $k $nodename.$domain_custom $nodename.$domain"
+									#log "ret from neighb $j for ip $k : $nodename.$domain_custom $nodename.$domain"
 									echo "$k $nodename.$domain_custom $nodename.$domain" >>/tmp/babelnode2hosts.tmp
 								fi
 							fi
@@ -100,15 +100,16 @@ while read line; do
 				fi
 			done
 			if [ -z $ret ] ; then
+				nodename=""
 				nodenames=$(nslookup $node $node 2>/dev/null | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
 				if [ -z "$nodenames" ] ; then
-					if ping6 -c1 -W3 -q "$nodename" >/dev/null 2>&1 ; then
+					if ping6 -c1 -W3 -q "$node" >/dev/null 2>&1 ; then
 						nodename=$(wget -q -T 2 -O - --no-check-certificate https://[$node]/cgi-bin/luci/ 2>/dev/null | \
 						grep 'href="/"' | \
 						sed -e 's/.*>\([0-9a-zA-Z-]*\)<.*/\1/')
 					fi
 					if [ -z $nodename ] ; then
-						if ping6 -c1 -W3 -q "$nodename" >/dev/null 2>&1 ; then
+						if ping6 -c1 -W3 -q "$node" >/dev/null 2>&1 ; then
 							nodename=$(wget -q -T 2 -O - http://[$node]/cgi-bin/luci/ 2>/dev/null | \
 							grep 'href="/"' | \
 							sed -e 's/.*>\([0-9a-zA-Z-]*\)<.*/\1/')
@@ -126,7 +127,8 @@ while read line; do
 						fi
 					fi
 				else
-					for nodename in $nodenames ; do
+						#log "nslookup on $node for hostnames: $nodenames"
+						for nodename in $nodenames ; do
 						nodeips=$(nslookup $nodename $node | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 						if [ -z "$nodeips" ] ; then
 							nodeips=$node
