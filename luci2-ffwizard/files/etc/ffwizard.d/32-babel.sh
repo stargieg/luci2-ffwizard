@@ -156,6 +156,13 @@ addrc() {
     $cmd
 }
 
+get_seed() {
+	dd if=/dev/urandom bs=2 count=1 2>&- | hexdump | if read -r line
+	then
+		echo "0x${line#* }"
+	fi
+}
+
 #Load babeld config
 config_load babeld
 #Remove interface
@@ -191,8 +198,11 @@ if [ "$babel_enabled" == "1" ] ; then
 
 	crontab -l | grep -q 'babelneighbor2hosts' || \
 		echo "*/5 * * * *     /usr/sbin/babelneighbor2hosts.sh" >> /etc/crontabs/root
+	SEED=$(get_seed)
+	MIN1="$((SEED % 29))"
+	MIN2="$((MIN1 + 30))"
 	crontab -l | grep -q 'babelnode2hosts' || \
-		echo "*/11 * * * *    /usr/sbin/babelnode2hosts.sh" >> /etc/crontabs/root
+		echo "$MIN1,$MIN2 * * * *  /usr/sbin/babelnode2hosts.sh" >> /etc/crontabs/root
 	crontab -l | grep -q 'babeldns64' || \
 		echo "*/15 * * * *    /usr/sbin/babeldns64.sh" >> /etc/crontabs/root
 	crontab -l | grep -q 'babel-dyn-addr' || \
