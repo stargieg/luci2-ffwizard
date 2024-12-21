@@ -27,6 +27,7 @@ if [ "$commonname" != "$sys_fqdn" ] ; then
 	[ -f "$crtfile" ] && rm -f "$crtfile"
 	[ -f "$keyfile" ] && rm -f "$keyfile"
 	uci_set uhttpd defaults commonname "$sys_fqdn"
+	uci_set uhttpd main redirect_https "1"
 	uci_commit uhttpd
 fi
 
