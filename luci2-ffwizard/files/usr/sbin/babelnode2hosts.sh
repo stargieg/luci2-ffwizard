@@ -67,6 +67,7 @@ while read line; do
 			if [ $mask -lt 128 ] ; then
 				node="$node""1"
 			fi
+			echo $node | grep -q -v ::$ || continue
 			echo $node | grep -q -v ^64 || continue
 			echo $node | grep -q -v ^fe || continue
 			ret=""
@@ -80,6 +81,7 @@ while read line; do
 							nodeips=$node
 						fi
 						for k in $nodeips ; do
+							echo $k | grep -q -v ::$ || continue
 							echo $k | grep -q -v ^64 || continue
 							echo $k | grep -q -v ^fe || continue
 							if echo $k | grep -q ^fd ; then
@@ -134,6 +136,7 @@ while read line; do
 							nodeips=$node
 						fi
 						for k in $nodeips ; do
+							echo $k | grep -q -v ::$ || continue
 							echo $k | grep -q -v ^64 || continue
 							echo $k | grep -q -v ^fe || continue
 							if echo $k | grep -q ^fd ; then
