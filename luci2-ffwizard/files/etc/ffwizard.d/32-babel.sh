@@ -13,13 +13,13 @@ log_babel() {
 }
 
 setup_filter_redistribute() {
-	local ip="$1"
+	#local ip="$1"
 	log_babel "Setup filter_redistribute"
-	local eq=$(echo $ip | cut -d '/' -f 2)
+	#local eq=$(echo $ip | cut -d '/' -f 2)
 	uci_add babeld filter ; cfg="$CONFIG_SECTION"
 	uci_set babeld $cfg type "redistribute"
-	uci_set babeld $cfg ip "$ip"
-	uci_set babeld $cfg eq "$eq"
+	#uci_set babeld $cfg ip "$ip"
+	#uci_set babeld $cfg eq "$eq"
 	#uci_set babeld $cfg proto '4'
 	#uci_set babeld $cfg action 'metric 128'
 	#uci_set babeld $cfg if "$iface"
@@ -115,9 +115,9 @@ setup_ether() {
 	uci_set babeld "$iface_sec" rxcost "96"
 	setup_filter_in "$device"
 	#Setup IP6 Prefix
-	if [ ! -z "$dhcp_ip6" ] ; then
-		setup_filter_redistribute "$dhcp_ip6"
-	fi
+	#if [ ! -z "$dhcp_ip6" ] ; then
+	#	setup_filter_redistribute "$dhcp_ip6"
+	#fi
 	babel_enabled=1
 }
 
@@ -199,12 +199,12 @@ if [ "$babel_enabled" == "1" ] ; then
 	mkdir -p /tmp/ff
 	touch /tmp/ff/babeld
 	#Setup IP6 Prefix
-	config_get ip6prefix ffwizard ip6prefix 2>/dev/null
-	if [ ! -z "$ip6prefix" ] ; then
-		setup_filter_redistribute "$ip6prefix"
-	else
+	#config_get ip6prefix ffwizard ip6prefix 2>/dev/null
+	#if [ ! -z "$ip6prefix" ] ; then
+	#	setup_filter_redistribute "$ip6prefix"
+	#else
 		setup_filter_redistribute
-	fi
+	#fi
 
 	setup_filter_redistribute_local
 
