@@ -25,6 +25,19 @@ setup_filter_redistribute() {
 	#uci_set babeld $cfg if "$iface"
 }
 
+setup_filter_redistribute_local() {
+	log_babel "Setup filter_redistribute local"
+	uci_add babeld filter ; cfg="$CONFIG_SECTION"
+	uci_set babeld $cfg type "redistribute"
+	uci_set babeld $cfg local "true"
+	uci_set babeld $cfg eq "128"
+	uci_set babeld $cfg action "deny"
+	uci_add babeld filter ; cfg="$CONFIG_SECTION"
+	uci_set babeld $cfg type "redistribute"
+	uci_set babeld $cfg local "true"
+	uci_set babeld $cfg action "allow"
+}
+
 setup_babel() {
 	log_babel "Setup babeld"
 	uci_add babeld general ; cfg="$CONFIG_SECTION"
@@ -192,6 +205,9 @@ if [ "$babel_enabled" == "1" ] ; then
 	else
 		setup_filter_redistribute
 	fi
+
+	setup_filter_redistribute_local
+
 	#Setup babeld
 	setup_babel
 	uci_commit babeld
