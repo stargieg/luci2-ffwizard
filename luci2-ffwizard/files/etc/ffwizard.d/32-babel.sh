@@ -29,7 +29,8 @@ setup_filter_redistribute() {
 	#uci_set babeld $cfg eq "$eq"
 	uci_set babeld $cfg le "64"
 	#uci_set babeld $cfg proto '4'
-	uci_set babeld $cfg action 'metric 128'
+	#uci_set babeld $cfg action 'metric 128'
+	uci_set babeld $cfg action "allow"
 	#uci_set babeld $cfg if "$iface"
 }
 
