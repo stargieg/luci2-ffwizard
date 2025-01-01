@@ -16,12 +16,20 @@ setup_filter_redistribute() {
 	#local ip="$1"
 	log_babel "Setup filter_redistribute"
 	#local eq=$(echo $ip | cut -d '/' -f 2)
+
+	uci_add babeld filter ; cfg="$CONFIG_SECTION"
+	uci_set babeld $cfg type "redistribute"
+	uci_set babeld $cfg ip "fd00::/8"
+	uci_set babeld $cfg ge "64"
+	uci_set babeld $cfg action "deny"
+
 	uci_add babeld filter ; cfg="$CONFIG_SECTION"
 	uci_set babeld $cfg type "redistribute"
 	#uci_set babeld $cfg ip "$ip"
 	#uci_set babeld $cfg eq "$eq"
+	uci_set babeld $cfg le "64"
 	#uci_set babeld $cfg proto '4'
-	#uci_set babeld $cfg action 'metric 128'
+	uci_set babeld $cfg action 'metric 128'
 	#uci_set babeld $cfg if "$iface"
 }
 
@@ -32,10 +40,10 @@ setup_filter_redistribute_local() {
 	uci_set babeld $cfg local "true"
 	uci_set babeld $cfg eq "128"
 	uci_set babeld $cfg action "deny"
-	uci_add babeld filter ; cfg="$CONFIG_SECTION"
-	uci_set babeld $cfg type "redistribute"
-	uci_set babeld $cfg local "true"
-	uci_set babeld $cfg action "allow"
+	#uci_add babeld filter ; cfg="$CONFIG_SECTION"
+	#uci_set babeld $cfg type "redistribute"
+	#uci_set babeld $cfg local "true"
+	#uci_set babeld $cfg action "allow"
 }
 
 setup_babel() {
@@ -114,10 +122,6 @@ setup_ether() {
 	uci_set babeld "$iface_sec" link_quality "false"
 	uci_set babeld "$iface_sec" rxcost "96"
 	setup_filter_in "$device"
-	#Setup IP6 Prefix
-	#if [ ! -z "$dhcp_ip6" ] ; then
-	#	setup_filter_redistribute "$dhcp_ip6"
-	#fi
 	babel_enabled=1
 }
 
@@ -198,15 +202,13 @@ if [ "$babel_enabled" == "1" ] ; then
 	fi
 	mkdir -p /tmp/ff
 	touch /tmp/ff/babeld
-	#Setup IP6 Prefix
-	#config_get ip6prefix ffwizard ip6prefix 2>/dev/null
-	#if [ ! -z "$ip6prefix" ] ; then
-	#	setup_filter_redistribute "$ip6prefix"
-	#else
-		setup_filter_redistribute
-	#fi
 
+	#Setup local filter
 	setup_filter_redistribute_local
+
+	#Setup IP6 Prefix
+	setup_filter_redistribute
+
 
 	#Setup babeld
 	setup_babel

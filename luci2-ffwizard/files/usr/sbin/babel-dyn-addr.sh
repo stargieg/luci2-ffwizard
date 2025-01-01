@@ -287,7 +287,7 @@ done
 if [ "$valid" == "0" -o "$ip6prefix_new" == "" ] ; then
 	if [ ! "$uciprefix" == "" ] ; then
 		uci_remove network fflandhcp ip6prefix 2>/dev/null
-		uci_set network fflandhcp ip6class "local"
+		#uci_add_list network fflandhcp ip6class "local"
 		uci_remove network fflandhcp ffprefix 2>/dev/null
 		uci_set network fflandhcp ip6assign '64'
 		uci_commit network
@@ -302,7 +302,8 @@ if [ "$valid" == "0" -o "$ip6prefix_new" == "" ] ; then
 elif [ ! "$prefix" == "$uciprefix" ] ; then
 	ip6prefix="$ip6prefix_new"
 	uci_set network fflandhcp ip6prefix "$ip6prefix"
-	uci_set network fflandhcp ip6class "fflandhcp"
+	#uci_add_list network fflandhcp ip6class "local"
+	#uci_add_list network fflandhcp ip6class "fflandhcp"
 	uci_set network fflandhcp ffprefix "$prefix"
 	uci_set network fflandhcp ip6assign '64'
 	uci_commit network

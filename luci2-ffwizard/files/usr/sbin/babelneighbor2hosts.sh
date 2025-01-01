@@ -13,17 +13,22 @@ print_interface() {
 	local out=$3
 	network_get_ipaddrs6 lanaddrs6 "$cfg"
 	for i in $lanaddrs6 ; do
-		if [ ! "$i" = "::1" ] ; then
-			if echo "$i" | grep -q -v ^fe ; then
-				if echo $i | grep -q ^fd ; then
-					echo "$i $hostname.$domain $hostname" >> "$out"
-				else
-					if [ -z "$domain_custom" ] ; then
-						echo "$i $hostname.$domain $hostname" >> "$out"
-					else
-						echo "$i $hostname.$domain_custom $hostname.$domain $hostname" >> "$out"
-					fi
-				fi
+		if [ "$i" = "::1" ] ; then
+			continue
+		fi
+		if echo "$i" | grep -q ^fe ; then
+			continue
+		fi
+		if echo "$i" | grep -q ^fd53 ; then
+			continue
+		fi
+		if echo $i | grep -q ^fd ; then
+			echo "$i $hostname.$domain $hostname" >> "$out"
+		else
+			if [ -z "$domain_custom" ] ; then
+				echo "$i $hostname.$domain $hostname" >> "$out"
+			else
+				echo "$i $hostname.$domain_custom $hostname.$domain $hostname" >> "$out"
 			fi
 		fi
 	done
