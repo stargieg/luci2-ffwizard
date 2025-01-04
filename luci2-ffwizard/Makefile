@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci2-ffwizard
-PKG_RELEASE:=213
+PKG_RELEASE:=214
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
@@ -92,7 +92,7 @@ define Package/$(PKG_NAME)-babel
   $(call Package/luci2-ffwizard/template)
   DEPENDS:=luci2-ffwizard
   TITLE:=Babel mesh protokol
-  EXTRA_DEPENDS:=kmod-dummy, babeld
+  EXTRA_DEPENDS:=kmod-dummy, babeld, owipcalc
 endef
 
 define Package/$(PKG_NAME)-babel-ub
