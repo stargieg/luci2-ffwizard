@@ -2,7 +2,7 @@
 	"luci-app-ffwizard": {
 		"description": "Grant UCI access for luci-app-ffwizard",
 		"read": {
-			"uci": [ "ffwizard" ]
+			"uci": [ "ffwizard", "network" ]
 		},
 		"write": {
 			"uci": [ "ffwizard" ]
