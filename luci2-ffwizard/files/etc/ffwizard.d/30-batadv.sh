@@ -173,7 +173,7 @@ if [ "$bat_enabled" == "1" ] ; then
 			uci_add_list network br$br_name ports $bat_iface
 			uci_set network br$br_name stp '1'
 			uci_set network br$br_name igmp_snooping '1'
-			uci_set network br$br_name ipv6 '0'
+			uci_set network br$br_name ipv6 '1'
 		fi
 		config_get ipaddr ffwizard dhcp_ip "0" 2>/dev/null
 		if [ "$ipaddr" != 0 ] ; then

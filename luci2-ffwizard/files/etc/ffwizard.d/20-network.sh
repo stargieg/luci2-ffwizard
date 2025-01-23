@@ -152,6 +152,7 @@ setup_bridge_fflandhcp() {
 	uci_add_list network $cfg ip6class "local"
 	uci_add_list network $cfg ip6class "$cfg"
 	uci_set network $cfg ip6assign '64'
+	uci_set network $cfg ip6hint '0'
 }
 
 setup_ether() {
