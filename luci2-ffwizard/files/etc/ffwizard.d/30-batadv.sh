@@ -58,9 +58,10 @@ setup_bat_base() {
 		uci_set network $cfg orig_interval
 		uci_set network $cfg vis_mode
 		uci_set network $cfg bridge_loop_avoidance "1"
-		uci_set network $cfg distributed_arp_table "1"
 		uci_set network $cfg network_coding
-		uci_set network $cfg hop_penalty
+		uci_set network $cfg hop_penalty "30"
+		uci_set network $cfg routing_algo "BATMAN_V"
+		#uci_set network $cfg routing_algo "BATMAN_IV"
 	fi
 }
 
