@@ -47,7 +47,7 @@ neighborips=$(for i in $neighborips;do echo $i;done | uniq)
 unbound=0
 [ -x /usr/lib/unbound/babelnode.sh ] && unbound=1
 rm -f /tmp/babelnode2hosts.tmp
-domain="$(uci_get system @system[-1] domain olsr)"
+domain="$(uci_get system @system[0] domain olsr)"
 domain_custom=""
 if [ ! "$domain" == "olsr" ] ; then
 	domain_custom="$domain"

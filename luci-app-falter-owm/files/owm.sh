@@ -171,8 +171,8 @@ OLSRCONFIG=$(printf "/config" | nc 127.0.0.1 9090)
 
 # collect nodes location
 uci_load system
-longitude="$(uci_get system @system[-1] longitude)"
-latitude="$(uci_get system @system[-1] latitude)"
+longitude="$(uci_get system @system[0] longitude)"
+latitude="$(uci_get system @system[0] latitude)"
 
 #
 #   Stop execution if lat/lon is not set.
@@ -182,7 +182,7 @@ if [ -z "$latitude" ] || [ -z "$longitude" ]; then
 	exit 2
 fi
 domain=""
-domain="$(uci_get system @system[-1] domain)"
+domain="$(uci_get system @system[0] domain)"
 [ -z "$domain" ] && domain="olsr"
 domain=".$domain"
 

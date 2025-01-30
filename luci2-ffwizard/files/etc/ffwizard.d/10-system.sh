@@ -23,18 +23,18 @@ setup_system() {
 	fi
 
 	if uci_get snmpd ; then
-		uci_set snmpd @system[-1] sysName "$hostname"
+		uci_set snmpd @system[0] sysName "$hostname"
 		# Set Contact mail address
 		if [ ! -z "$mail" ] ; then
-			uci_set snmpd @system[-1] sysContact "$mail"
+			uci_set snmpd @system[0] sysContact "$mail"
 		fi
 		# Set nickname
 		if [ ! -z "$nickname" ] ; then
-			uci_set snmpd @system[-1] sysDescr "$nickname"
+			uci_set snmpd @system[0] sysDescr "$nickname"
 		fi
 		# Set Location
 		if [ ! -z "$location" ] ; then
-			uci_set snmpd @system[-1] sysLocation "$location"
+			uci_set snmpd @system[0] sysLocation "$location"
 		fi
 	fi
 

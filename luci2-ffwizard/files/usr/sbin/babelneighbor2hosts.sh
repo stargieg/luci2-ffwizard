@@ -48,7 +48,7 @@ fi
 unbound=0
 [ -x /usr/lib/unbound/babelneighbour.sh ] && unbound=1
 rm -f /tmp/babelneighbor2hosts.tmp
-domain="$(uci_get system @system[-1] domain olsr)"
+domain="$(uci_get system @system[0] domain olsr)"
 domain_custom=""
 if [ ! "$domain" == "olsr" ] ; then
 	domain_custom="$domain"
