@@ -197,6 +197,7 @@ uci_commit ffwizard
 
 for prefix in $prefixs ; do
 	ffprefix_new=""
+	ffprefix_change="0"
 	if [ "$prefix" == "$uci_ffprefix" ] ; then
 		#log "found uci ip6prefix $uci_ffprefix $uci_ip6prefix"
 		ip6prefix_new=$(chk_dublicated $uci_ip6prefix)
@@ -205,6 +206,7 @@ for prefix in $prefixs ; do
 			#log "retry 1 $prefix"
 			ip6prefix_new=$(get_rand_addr $prefix $uci_mask)
 			ip6prefix_new=$(chk_dublicated $ip6prefix_new)
+			ffprefix_change="1"
 		fi
 		#retry 2
 		if [ -z "$ip6prefix_new" ] ; then
@@ -215,6 +217,9 @@ for prefix in $prefixs ; do
 		if [ -z "$ip6prefix_new" ] ; then
 			#log "remove uci ip6prefix $uci_ffprefix $uci_ip6prefix"
 			remove_prefix "$uci_ip6prefix"
+		elif [ "$ffprefix_change" == "1" ] ; then
+			set_new_prefix "$ip6prefix_new" "$prefix"
+			exit
 		else
 			exit
 		fi
