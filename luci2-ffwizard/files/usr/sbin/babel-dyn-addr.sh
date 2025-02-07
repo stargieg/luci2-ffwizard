@@ -43,7 +43,7 @@ chk_dublicated() {
 			-e 'installed=@.installed' \
 			-e 'route_metric=@.route_metric' \
 			-e 'address=@.address' )
-		[ "$installed" == "0" ] && continue
+		# [ "$installed" == "0" ] && continue
 		[ "$route_metric" -ge "16383" ] && continue
 		local invalid
 		invalid=$(owipcalc $address contains $ip6prefix)
