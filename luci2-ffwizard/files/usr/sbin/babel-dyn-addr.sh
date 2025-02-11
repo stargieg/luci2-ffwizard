@@ -100,7 +100,8 @@ get_rand_addr() {
 	src_mask_count=$(owipcalc $src_prefix howmany ::/$mask)
 	#log "src_mask_count: $src_mask_count"
 	#rand_offset=$(awk -v seed=$RANDOM 'BEGIN {srand(seed) ; print int(rand() * '$src_mask_count')}')
-	rand_offset=$(awk 'BEGIN {srand() ; print int(rand() * '$src_mask_count')}')
+	#rand_offset=$(awk 'BEGIN {srand() ; print int(rand() * '$src_mask_count')}')
+	rand_offset=$(head -n 1 /dev/urandom 2>/dev/null | md5sum | grep -o -e '[0-'$src_mask_count']' | head -1)
 	#log "rand_offset: $rand_offset"
 	while [ $rand_offset -gt 0 ] ; do
 		src_prefix=$(owipcalc $src_prefix next $mask)
