@@ -17,6 +17,9 @@ if pidof babelnode2hosts.sh | grep -q ' ' >/dev/null ; then
 	return 1
 fi
 
+max_refmetric=${1:-2000}
+log "max_refmetric $max_refmetric"
+
 neighborips=""
 ubus call babeld get_routes | \
 jsonfilter -e '@.IPv6[@.refmetric=0]' > /tmp/babelnode2hosts.json
@@ -59,7 +62,8 @@ while read line; do
 	eval $(jsonfilter -s "$line" \
 		-e 'installed=@.installed' \
 		-e 'address=@.address' \
-		-e 'src_prefix=@.src_prefix')
+		-e 'src_prefix=@.src_prefix' \
+		-e 'refmetric=@.refmetric')
 	if [ "$installed" == "1" -a "$address" != "::/0" -a "$address" != "64:ff9b::/96" ] ; then
 		if [ "$src_prefix" == "::/0" ] ; then
 			mask="$(echo $address | cut -d '/' -f 2)"
@@ -70,6 +74,7 @@ while read line; do
 			echo $node | grep -q -v ::$ || continue
 			echo $node | grep -q -v ^64 || continue
 			echo $node | grep -q -v ^fe || continue
+			[ $refmetric -le $max_refmetric ] || continue
 			ret=""
 			for j in $neighborips ; do
 				[ -z $ret ] || continue
@@ -129,8 +134,8 @@ while read line; do
 						fi
 					fi
 				else
-						#log "nslookup on $node for hostnames: $nodenames"
-						for nodename in $nodenames ; do
+					#log "nslookup on $node for hostnames: $nodenames"
+					for nodename in $nodenames ; do
 						nodeips=$(nslookup $nodename $node | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 						if [ -z "$nodeips" ] ; then
 							nodeips=$node

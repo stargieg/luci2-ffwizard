@@ -58,7 +58,7 @@ else
 	MIN1="$((SEED % 29))"
 	MIN2="$((MIN1 + 30))"
 	crontab -l | grep -q 'babelnode2hosts' || \
-		echo "$MIN1,$MIN2 * * * *  /usr/sbin/babelnode2hosts.sh" >> /etc/crontabs/root
+		echo "$MIN1,$MIN2 * * * *  /usr/sbin/babelnode2hosts.sh 2000" >> /etc/crontabs/root
 	crontab -l | grep -q 'babeldns64' || \
 		echo "*/15 * * * *    /usr/sbin/babeldns64.sh" >> /etc/crontabs/root
 	crontab -l | grep -q 'babel-dyn-addr' || \

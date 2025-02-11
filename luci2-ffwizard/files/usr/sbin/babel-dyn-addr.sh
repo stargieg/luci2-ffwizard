@@ -82,7 +82,9 @@ get_rand_addr() {
 		src_mask=$((src_mask+3))
 		#compat openwrt 19 doesn't support $RANDOM
 		#rand_offset=$(awk -v seed=$RANDOM 'BEGIN {srand(seed) ; print int(rand() * 9)}')
-		rand_offset=$(awk 'BEGIN {srand() ; print int(rand() * 9)}')
+		#fail
+		#rand_offset=$(awk 'BEGIN {srand() ; print int(rand() * 9)}')
+		rand_offset=$(head -n 1 /dev/urandom 2>/dev/null | md5sum | grep -o -e '[0-9]' | head -1)
 		#log "rand_offset: $rand_offset"
 		while [ $rand_offset -gt 0 ] ; do
 			src_prefix=$(owipcalc $src_prefix next $src_mask)
@@ -162,7 +164,7 @@ uci_prefix_exclude=$(uci_get ffwizard autoconf prefix_exclude)
 uci_ffprefix=$(uci_get network fflandhcp ffprefix)
 uci_ip6prefix=$(uci_get network fflandhcp ip6prefix)
 uci_ip6prefix_mask="$(echo $uci_ip6prefix | cut -d '/' -f 2)"
-if [ $uci_ip6prefix_mask != $uci_mask ] ; then
+if [ "$uci_ip6prefix_mask" != "$uci_mask" ] ; then
 	uci_ffprefix=""
 fi
 
