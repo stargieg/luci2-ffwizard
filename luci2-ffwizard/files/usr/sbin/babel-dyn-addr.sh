@@ -33,6 +33,7 @@ chk_red() {
 
 chk_dublicated() {
 	local ip6prefix="$1"
+	local prefix="$2"
 	local is_valid="1"
 	[ -z "$ip6prefix" ] && return
 	#log "chk_dublicated $ip6prefix"
@@ -45,6 +46,7 @@ chk_dublicated() {
 			-e 'address=@.address' )
 		# [ "$installed" == "0" ] && continue
 		[ "$route_metric" -ge "16383" ] && continue
+		[ "$address" == "$prefix" ] && continue
 		local invalid
 		invalid=$(owipcalc $address contains $ip6prefix)
 		if [ "$invalid" == "1" ] ; then
@@ -203,19 +205,19 @@ for prefix in $prefixs ; do
 	ffprefix_change="0"
 	if [ "$prefix" == "$uci_ffprefix" ] ; then
 		#log "found uci ip6prefix $uci_ffprefix $uci_ip6prefix"
-		ip6prefix_new=$(chk_dublicated $uci_ip6prefix)
+		ip6prefix_new=$(chk_dublicated $uci_ip6prefix $prefix)
 		#retry 1
 		if [ -z "$ip6prefix_new" ] ; then
 			#log "retry 1 $prefix"
 			ip6prefix_new=$(get_rand_addr $prefix $uci_mask)
-			ip6prefix_new=$(chk_dublicated $ip6prefix_new)
+			ip6prefix_new=$(chk_dublicated $ip6prefix_new $prefix)
 			ffprefix_change="1"
 		fi
 		#retry 2
 		if [ -z "$ip6prefix_new" ] ; then
 			#log "retry 2 $prefix"
 			ip6prefix_new=$(get_rand_addr $prefix $uci_mask)
-			ip6prefix_new=$(chk_dublicated $ip6prefix_new)
+			ip6prefix_new=$(chk_dublicated $ip6prefix_new $prefix)
 		fi
 		if [ -z "$ip6prefix_new" ] ; then
 			#log "remove uci ip6prefix $uci_ffprefix $uci_ip6prefix"
@@ -229,18 +231,18 @@ for prefix in $prefixs ; do
 	else
 		#log "try prefix $prefix"
 		ip6prefix_new=$(get_rand_addr $prefix $uci_mask)
-		ip6prefix_new=$(chk_dublicated $ip6prefix_new)
+		ip6prefix_new=$(chk_dublicated $ip6prefix_new $prefix)
 		#retry 1
 		if [ -z "$ip6prefix_new" ] ; then
 			#log "retry 1 $prefix"
 			ip6prefix_new=$(get_rand_addr $prefix $uci_mask)
-			ip6prefix_new=$(chk_dublicated $ip6prefix_new)
+			ip6prefix_new=$(chk_dublicated $ip6prefix_new $prefix)
 		fi
 		#retry 2
 		if [ -z "$ip6prefix_new" ] ; then
 			#log "retry 2 $prefix"
 			ip6prefix_new=$(get_rand_addr $prefix $uci_mask)
-			ip6prefix_new=$(chk_dublicated $ip6prefix_new)
+			ip6prefix_new=$(chk_dublicated $ip6prefix_new $prefix)
 		fi
 		if [ -n "$ip6prefix_new" ] ; then
 			set_new_prefix "$ip6prefix_new" "$prefix"
