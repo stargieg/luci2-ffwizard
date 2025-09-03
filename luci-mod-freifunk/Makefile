@@ -7,7 +7,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-mod-freifunk
-PKG_VERSION:=git-99.000.0-0
+PKG_VERSION:=99
 PKG_RELEASE:=9
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
