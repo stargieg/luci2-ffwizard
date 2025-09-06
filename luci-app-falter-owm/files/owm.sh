@@ -168,6 +168,9 @@ olsr6_links() {
 
 # This section is relevant for hopglass statistics feature (isUplink/isHotspot)
 OLSRCONFIG=$(printf "/config" | nc 127.0.0.1 9090)
+if [ -z "$OLSRCONFIG" ] ; then                                                                                                                     
+	OLSRCONFIG='{"config": {"hasIpv4Gateway": false,"hasIpv6Gateway": false}}'
+fi
 
 # collect nodes location
 uci_load system
