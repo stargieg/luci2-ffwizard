@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-falter-owm
 PKG_VERSION:=2023.02.25
-PKG_RELEASE:=13
+PKG_RELEASE:=14
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
@@ -54,7 +54,7 @@ endef
 
 define Package/$(PKG_NAME)-cmd/postinst
 #!/bin/sh
-if [ -z $${IPKG_INSTROOT} ] ; then
+if [ -z $${IPKG_INSTROOT} ] && [ -f /etc/uci-defaults/owm ] ; then
 	( . /etc/uci-defaults/owm ) && rm -f /etc/uci-defaults/owm
 	rm -f /tmp/luci-indexcache
 fi
@@ -65,7 +65,7 @@ define Package/$(PKG_NAME)-cmd/install
 	$(CP) files/owm.sh $(1)/usr/sbin/owm.sh
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(CP) files/owm-defaults $(1)/etc/uci-defaults/owm
-	$(INSTALL_DIR) $(1)/etc/init.d $(1)/etc/config $(1)/etc/uci-defaults
+	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DATA) files/antennas.config $(1)/etc/config/antennas
 endef
 
