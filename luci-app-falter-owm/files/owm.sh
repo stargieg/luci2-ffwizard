@@ -2,6 +2,8 @@
 
 . /lib/functions.sh
 . /usr/share/libubox/jshn.sh
+. /etc/os-release
+echo $VERSION | grep -q ^19* && compat=1
 
 #Divide by 65536.0 and round to 2 dec to get 1.00
 int2float() {
@@ -167,14 +169,22 @@ olsr6_links() {
 }
 
 # This section is relevant for hopglass statistics feature (isUplink/isHotspot)
-OLSRCONFIG=$(printf "/config" | nc 127.0.0.1 9090)
+OLSRCONFIG=$(printf "/config" | nc 127.0.0.1 9090 2>/dev/null)
 if [ -z "$OLSRCONFIG" ] ; then
 	eval $(jsonfilter -s "$(ubus call babeld get_info)" \
 			-e 'my_id=@.my_id' \
 			-e 'babeld_version=@.babeld_version' \
 			-e 'host=@.host')
 	
-	OLSRCONFIG='{"config": {"hasIpv4Gateway": false,"hasIpv6Gateway": false,"mainIp": "'$my_id'"}}'
+	if ubus list network.interface.fflandhcp >/dev/null 2>/dev/null ; then
+		eval $(jsonfilter -s "$(ubus call network.interface.fflandhcp status)" \
+			-e 'mainIp=@["ipv6-prefix-assignment"][0]["local-address"].address')
+	fi
+	if [ -z "$mainIp" ] ; then
+		mainIp="$my_id"
+	fi
+
+	OLSRCONFIG='{"config": {"hasIpv4Gateway": false,"hasIpv6Gateway": false,"mainIp": "'$mainIp'"}}'
 fi
 
 # collect nodes location
@@ -456,16 +466,25 @@ Content-length: $LEN\r
 $JSON_STRING\r\n"
 
 server="api.openwifimap.net"
-server_ips="$(nslookup -type=AAAA $server | grep -A2 $server | grep 'Address.*:' | cut -d ':' -f 2-)"
-server_ips="$server_ips $(nslookup -type=A $server | grep -A2 $server | grep 'Address.*:' | cut -d ':' -f 2-)"
+if [ "$compat" == "1" ] ; then
+	server_ips="$(nslookup $server | grep -A2 $server | grep -Eo '(::)?[0-9a-fA-F]{1,4}(::?[0-9a-fA-F]{1,4}){1,7}(::)?')"
+	server_ips="$server_ips $(nslookup $server | grep -A2 $server | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')"
+else
+	server_ips="$(nslookup -type=AAAA $server | grep -A2 $server | grep 'Address.*:' | cut -d ':' -f 2-)"
+	server_ips="$server_ips $(nslookup -type=A $server | grep -A2 $server | grep 'Address.*:' | cut -d ':' -f 2-)"
+fi
 if [ ! -z "$server_ips" ] ; then
 	printf  "Servername: $server\n"
 	for server_ip in $server_ips ; do
-		printf "Try Server IP: $server_ip\n"
-		printf "$MSG" | nc $server_ip 80 && break
-		printf "Fail\n"
-	done
+		printf "Try Server IP: $server_ip "
+		printf "$MSG" | nc $server_ip 80 >/tmp/owm_server_ret && ret=1
+		if [ $ret -eq 1 ] ; then
+			printf "OK\n"
+			break
+		else
+			printf "Fail\n"
+		fi
+		done
 else
 	printf "Fail nslookup $server\n"
 fi
-printf "\n\n"
