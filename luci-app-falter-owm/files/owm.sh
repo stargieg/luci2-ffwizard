@@ -168,8 +168,13 @@ olsr6_links() {
 
 # This section is relevant for hopglass statistics feature (isUplink/isHotspot)
 OLSRCONFIG=$(printf "/config" | nc 127.0.0.1 9090)
-if [ -z "$OLSRCONFIG" ] ; then                                                                                                                     
-	OLSRCONFIG='{"config": {"hasIpv4Gateway": false,"hasIpv6Gateway": false}}'
+if [ -z "$OLSRCONFIG" ] ; then
+	eval $(jsonfilter -s "$(ubus call babeld get_info)" \
+			-e 'my_id=@.my_id' \
+			-e 'babeld_version=@.babeld_version' \
+			-e 'host=@.host')
+	
+	OLSRCONFIG='{"config": {"hasIpv4Gateway": false,"hasIpv6Gateway": false,"mainIp": "'$my_id'"}}'
 fi
 
 # collect nodes location
@@ -360,6 +365,8 @@ json_add_array links
 		json_add_object
 		#json_add_string sourceAddr6 "$1"
 		json_add_string destAddr6 "$2"
+		json_add_string sourceAddr4 "$my_id"
+		json_add_string destAddr4 "$2"
 		json_add_string id "$3"
 		json_add_double quality "$4"
 		json_close_object
