@@ -456,7 +456,8 @@ Content-length: $LEN\r
 $JSON_STRING\r\n"
 
 server="api.openwifimap.net"
-server_ips="$(nslookup $server | grep -A2 $server | grep 'Address.*:' | cut -d ':' -f 2-)"
+server_ips="$(nslookup -type=AAAA $server | grep -A2 $server | grep 'Address.*:' | cut -d ':' -f 2-)"
+server_ips="$server_ips $(nslookup -type=A $server | grep -A2 $server | grep 'Address.*:' | cut -d ':' -f 2-)"
 if [ ! -z "$server_ips" ] ; then
 	printf  "Servername: $server\n"
 	for server_ip in $server_ips ; do
