@@ -28,10 +28,12 @@ endef
 define Package/$(PKG_NAME)/postinst
 #!/bin/sh
 if [ -z $${IPKG_INSTROOT} ] ; then
-	(. /etc/uci-defaults/30_luci-theme-material) && rm -f /etc/uci-defaults/30_luci-theme-material
 	rm -f /tmp/luci-indexcache
 	rm -rf /tmp/luci-modulecache/
 	killall -HUP rpcd 2>/dev/null
+fi
+if [ -z $${IPKG_INSTROOT} ] && [ -f /etc/uci-defaults/30_luci-theme-material ] ; then
+	(. /etc/uci-defaults/30_luci-theme-material) && rm -f /etc/uci-defaults/30_luci-theme-material
 fi
 endef
 
@@ -41,7 +43,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/www/
 	cp -pR ./htdocs/* $(1)/www/
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
-	$(INSTALL_DATA) ./root/etc/uci-defaults/* $(1)/etc/uci-defaults
+	$(INSTALL_DATA) ./root/etc/uci-defaults/30_luci-theme-material $(1)/etc/uci-defaults
 endef
 
 $(eval $(call BuildPackage,luci-theme-material))

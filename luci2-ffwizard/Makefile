@@ -123,6 +123,13 @@ endef
 define Build/Compile
 endef
 
+define Package/$(PKG_NAME)/postinst
+#!/bin/sh
+if [ -z $${IPKG_INSTROOT} ] && [ -f /etc/uci-defaults/61_ffwizard ] ; then
+	(. /etc/uci-defaults/61_ffwizard) && rm -f /etc/uci-defaults/61_ffwizard
+fi
+endef
+
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/share/rpcd/menu.d
 	$(INSTALL_DATA) files/usr/share/rpcd/menu.d/services.ffwizard.json $(1)/usr/share/rpcd/menu.d/
@@ -144,6 +151,15 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DATA) files/etc/config/ffwizard $(1)/etc/config/
 endef
 
+define Package/luci-app-ffwizard/postinst
+#!/bin/sh
+if [ -z $${IPKG_INSTROOT} ] ; then
+	rm -f /tmp/luci-indexcache
+	rm -rf /tmp/luci-modulecache/
+	killall -HUP rpcd 2>/dev/null
+fi
+endef
+
 define Package/luci-app-ffwizard/install
 	$(INSTALL_DIR) $(1)/www/luci-static/resources/view/ffwizard
 	$(INSTALL_DATA) files/www/luci-static/resources/view/ffwizard/* $(1)/www/luci-static/resources/view/ffwizard
@@ -153,18 +169,36 @@ define Package/luci-app-ffwizard/install
 	$(INSTALL_DATA) files/usr/share/rpcd/acl.d/luci-app-ffwizard.json $(1)/usr/share/rpcd/acl.d
 endef
 
+define Package/$(PKG_NAME)-fw/postinst
+#!/bin/sh
+if [ -z $${IPKG_INSTROOT} ] && [ -f /etc/uci-defaults/60_ffwizard_fw ] ; then
+	(. /etc/uci-defaults/60_ffwizard_fw) && rm -f /etc/uci-defaults/60_ffwizard_fw
+fi
+endef
 define Package/$(PKG_NAME)-fw/install
 	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/uci-defaults/60_ffwizard_fw $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/ffwizard.d/40-firewall.sh $(1)/etc/ffwizard.d/
 endef
 
+define Package/$(PKG_NAME)-olsrd-ipv4/postinst
+#!/bin/sh
+if [ -z $${IPKG_INSTROOT} ] && [ -f /etc/uci-defaults/30_ffwizard_olsrd.ipv4 ] ; then
+	(. /etc/uci-defaults/30_ffwizard_olsrd.ipv4) && rm -f /etc/uci-defaults/30_ffwizard_olsrd.ipv4
+fi
+endef
 define Package/$(PKG_NAME)-olsrd-ipv4/install
 	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/ffwizard.d/30-olsrd.ipv4.sh $(1)/etc/ffwizard.d/
 	$(INSTALL_BIN) files/etc/uci-defaults/30_ffwizard_olsrd.ipv4 $(1)/etc/uci-defaults/
 endef
 
+define Package/$(PKG_NAME)-olsrd-ipv4-ub/postinst
+#!/bin/sh
+if [ -z $${IPKG_INSTROOT} ] && [ -f /etc/uci-defaults/63_unbound_olsr ] ; then
+	(. /etc/uci-defaults/63_unbound_olsr) && rm -f /etc/uci-defaults/63_unbound_olsr
+fi
+endef
 define Package/$(PKG_NAME)-olsrd-ipv4-ub/install
 	$(INSTALL_DIR) $(1)/usr/lib/unbound $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/uci-defaults/63_unbound_olsr $(1)/etc/uci-defaults/
@@ -172,6 +206,12 @@ define Package/$(PKG_NAME)-olsrd-ipv4-ub/install
 	$(INSTALL_BIN) files/usr/lib/unbound/olsr.awk $(1)/usr/lib/unbound
 endef
 
+define Package/$(PKG_NAME)-olsrd-ipv6/postinst
+#!/bin/sh
+if [ -z $${IPKG_INSTROOT} ] && [ -f /etc/uci-defaults/30_ffwizard_olsrd.ipv6 ] ; then
+	(. /etc/uci-defaults/30_ffwizard_olsrd.ipv6) && rm -f /etc/uci-defaults/30_ffwizard_olsrd.ipv6
+fi
+endef
 define Package/$(PKG_NAME)-olsrd-ipv6/install
 	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/usr/sbin $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/ffwizard.d/30-olsrd.ipv6.sh $(1)/etc/ffwizard.d/
@@ -180,6 +220,12 @@ define Package/$(PKG_NAME)-olsrd-ipv6/install
 	$(INSTALL_BIN) files/usr/sbin/olsrd-dyn-addr.sh $(1)/usr/sbin/
 endef
 
+define Package/$(PKG_NAME)-olsrv2-ipv6/postinst
+#!/bin/sh
+if [ -z $${IPKG_INSTROOT} ] && [ -f /etc/uci-defaults/31_ffwizard_olsrd2.ipv6 ] ; then
+	(. /etc/uci-defaults/31_ffwizard_olsrd2.ipv6) && rm -f /etc/uci-defaults/31_ffwizard_olsrd2.ipv6
+fi
+endef
 define Package/$(PKG_NAME)-olsrv2-ipv6/install
 	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/usr/sbin $(1)/etc/odhcp6c.user.d $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/ffwizard.d/31-olsrd2.ipv6.sh $(1)/etc/ffwizard.d/
@@ -190,6 +236,12 @@ define Package/$(PKG_NAME)-olsrv2-ipv6/install
 	$(INSTALL_BIN) files/usr/sbin/olsrnode2hosts.sh $(1)/usr/sbin/
 endef
 
+define Package/$(PKG_NAME)-olsrv2-ipv6-ub/postinst
+#!/bin/sh
+if [ -z $${IPKG_INSTROOT} ] && [ -f /etc/uci-defaults/64_unbound_olsrv2 ] ; then
+	(. /etc/uci-defaults/64_unbound_olsrv2) && rm -f /etc/uci-defaults/64_unbound_olsrv2
+fi
+endef
 define Package/$(PKG_NAME)-olsrv2-ipv6-ub/install
 	$(INSTALL_DIR) $(1)/usr/lib/unbound $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/uci-defaults/64_unbound_olsrv2 $(1)/etc/uci-defaults/
@@ -203,6 +255,12 @@ define Package/$(PKG_NAME)-batadv/install
 	$(INSTALL_BIN) files/etc/ffwizard.d/30-batadv.sh $(1)/etc/ffwizard.d/
 endef
 
+define Package/$(PKG_NAME)-babel/postinst
+#!/bin/sh
+if [ -z $${IPKG_INSTROOT} ] && [ -f /etc/uci-defaults/32_ffwizard_babel ] ; then
+	(. /etc/uci-defaults/32_ffwizard_babel) && rm -f /etc/uci-defaults/32_ffwizard_babel
+fi
+endef
 define Package/$(PKG_NAME)-babel/install
 	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/usr/sbin/ $(1)/etc/uci-defaults
 	$(INSTALL_BIN) files/etc/ffwizard.d/32-babel.sh $(1)/etc/ffwizard.d/
@@ -213,6 +271,12 @@ define Package/$(PKG_NAME)-babel/install
 	$(INSTALL_BIN) files/etc/uci-defaults/32_ffwizard_babel $(1)/etc/uci-defaults/
 endef
 
+define Package/$(PKG_NAME)-babel-ub/postinst
+#!/bin/sh
+if [ -z $${IPKG_INSTROOT} ] && [ -f /etc/uci-defaults/65_unbound_babel ] ; then
+	(. /etc/uci-defaults/65_unbound_babel) && rm -f /etc/uci-defaults/65_unbound_babel
+fi
+endef
 define Package/$(PKG_NAME)-babel-ub/install
 	$(INSTALL_DIR) $(1)/usr/lib/unbound $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/uci-defaults/65_unbound_babel $(1)/etc/uci-defaults/
@@ -221,12 +285,24 @@ define Package/$(PKG_NAME)-babel-ub/install
 	$(INSTALL_BIN) files/usr/lib/unbound/babel.awk $(1)/usr/lib/unbound
 endef
 
+define Package/$(PKG_NAME)-kadnode/postinst
+#!/bin/sh
+if [ -z $${IPKG_INSTROOT} ] && [ -f /etc/uci-defaults/60-kadnode.sh ] ; then
+	(. /etc/uci-defaults/60-kadnode.sh) && rm -f /etc/uci-defaults/60-kadnode.sh
+fi
+endef
 define Package/$(PKG_NAME)-kadnode/install
 	$(INSTALL_DIR) $(1)/etc/ffwizard.d $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/ffwizard.d/60-kadnode.sh $(1)/etc/ffwizard.d/
 	$(INSTALL_BIN) files/etc/uci-defaults/62_ffwizard_kadnode $(1)/etc/uci-defaults/
 endef
 
+define Package/unbound-dnsmasq-dhcp/postinst
+#!/bin/sh
+if [ -z $${IPKG_INSTROOT} ] && [ -f /etc/uci-defaults/62_unbound_dnsmasq_dhcp ] ; then
+	(. /etc/uci-defaults/62_unbound_dnsmasq_dhcp) && rm -f /etc/uci-defaults/62_unbound_dnsmasq_dhcp
+fi
+endef
 define Package/unbound-dnsmasq-dhcp/install
 	$(INSTALL_DIR) $(1)/usr/lib/unbound $(1)/etc/uci-defaults/
 	$(INSTALL_BIN) files/etc/uci-defaults/62_unbound_dnsmasq_dhcp $(1)/etc/uci-defaults/

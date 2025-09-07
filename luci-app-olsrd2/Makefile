@@ -38,6 +38,9 @@ if [ -z $${IPKG_INSTROOT} ] ; then
 	rm -rf /tmp/luci-modulecache/
 	killall -HUP rpcd 2>/dev/null
 fi
+if [ -z $${IPKG_INSTROOT} ] && [ -f /etc/uci-defaults/41_luci-olsrd2 ] ; then
+	( . /etc/uci-defaults/41_luci-olsrd2 ) && rm -f /etc/uci-defaults/41_luci-olsrd2
+fi
 endef
 
 define Package/$(PKG_NAME)/install
@@ -47,7 +50,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DATA) ./root/etc/config/* $(1)/etc/config
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
-	$(INSTALL_DATA) ./root/etc/uci-defaults/* $(1)/etc/uci-defaults
+	$(INSTALL_DATA) ./root/etc/uci-defaults/41_luci-olsrd2 $(1)/etc/uci-defaults
 	$(INSTALL_DIR) $(1)/usr/libexec/rpcd
 	$(INSTALL_BIN) ./root/usr/libexec/rpcd/status.olsrd2 $(1)/usr/libexec/rpcd/status.olsrd2
 	$(INSTALL_DIR) $(1)/usr/share/luci/menu.d

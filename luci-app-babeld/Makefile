@@ -29,7 +29,12 @@ endef
 define Package/$(PKG_NAME)/postinst
 #!/bin/sh
 if [ -z $${IPKG_INSTROOT} ] ; then
+	rm -f /tmp/luci-indexcache
+	rm -rf /tmp/luci-modulecache/
 	killall -HUP rpcd 2>/dev/null
+fi
+if [ -z $${IPKG_INSTROOT} ] && [ -f /etc/uci-defaults/40_luci-babeld ] ; then
+	( . /etc/uci-defaults/40_luci-babeld ) && rm -f /etc/uci-defaults/40_luci-babeld
 fi
 endef
 

@@ -54,9 +54,12 @@ endef
 
 define Package/$(PKG_NAME)-cmd/postinst
 #!/bin/sh
+if [ -z $${IPKG_INSTROOT} ] ; then
+	rm -f /tmp/luci-indexcache
+	rm -rf /tmp/luci-modulecache/
+fi
 if [ -z $${IPKG_INSTROOT} ] && [ -f /etc/uci-defaults/owm ] ; then
 	( . /etc/uci-defaults/owm ) && rm -f /etc/uci-defaults/owm
-	rm -f /tmp/luci-indexcache
 fi
 endef
 
