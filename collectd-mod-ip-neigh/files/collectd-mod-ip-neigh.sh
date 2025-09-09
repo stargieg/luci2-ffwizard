@@ -60,12 +60,12 @@ while true
 do
 	read_dhcpleases "$iface_list"
 
-	for iface in $iface_list ; do
-		iface_l2="$iface"
-		read_neigh "$iface" "combined" "$iface_l2"
-		read_neigh "$iface" "ipv4" "$iface_l2"
-		read_neigh "$iface" "ipv6" "$iface_l2"
-	done
+	# for iface in $iface_list ; do
+	# 	iface_l2="$iface"
+	# 	read_neigh "$iface" "combined" "$iface_l2"
+	# 	read_neigh "$iface" "ipv4" "$iface_l2"
+	# 	read_neigh "$iface" "ipv6" "$iface_l2"
+	# done
 
 	sleep "$INTERVAL"
 done
