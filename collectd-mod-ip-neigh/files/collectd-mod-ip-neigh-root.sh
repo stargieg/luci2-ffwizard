@@ -17,8 +17,8 @@ function read_dhcpleases() {
 	local iface_list="$1"
 	local ret_sum
 	local ident="$HOSTNAME/$plugin/$type"
-	for iface in $iface_list ; do                                           
-        network_get_physdev iface_l2 "$iface"
+	for iface in $iface_list ; do
+		network_get_physdev iface_l2 "$iface"
 		ret=$(ip neigh show dev "$iface_l2" | grep REACHABLE | cut -d ' ' -f 3 | sort | uniq | wc -w)
 		ret_sum=$((ret_sum+ret))
 	done
@@ -26,32 +26,32 @@ function read_dhcpleases() {
 }
 
 function read_neigh() {
-  local plugin=dhcpleases
-  #local plugin=neigh
-  local plugin_instance="$1"
-  local type="count"
-  local type_instance="$2"
-  local iface="$3"
-  
-  local ident="$HOSTNAME/$plugin-$plugin_instance/$type"
-  
-  local ret
+	local plugin=dhcpleases
+	#local plugin=neigh
+	local plugin_instance="$1"
+	local type="count"
+	local type_instance="$2"
+	local iface="$3"
+	
+	local ident="$HOSTNAME/$plugin-$plugin_instance/$type"
+	
+	local ret
 
-  case $type_instance in
-    combined)
-      ident="$ident-${type_instance}"
-      ret=$(ip neigh show dev "$iface" | grep REACHABLE | cut -d ' ' -f 3 | sort | uniq | wc -w)
-      ;;
-    ipv4)
-      ident="$ident-${type_instance}"
-      ret=$(ip -4 neigh show dev "$iface" | grep REACHABLE | cut -d ' ' -f 3 | sort | uniq | wc -w)
-      ;;
-    ipv6)
-      ident="$ident-${type_instance}"
-      ret=$(ip -6 neigh show dev "$iface" | grep REACHABLE | cut -d ' ' -f 3 | sort | uniq | wc -w)
-      ;;
-  esac
-  echo "PUTVAL \"$ident\" interval=$INTERVAL N:$ret"
+	case $type_instance in
+		combined)
+		ident="$ident-${type_instance}"
+		ret=$(ip neigh show dev "$iface" | grep REACHABLE | cut -d ' ' -f 3 | sort | uniq | wc -w)
+		;;
+		ipv4)
+		ident="$ident-${type_instance}"
+		ret=$(ip -4 neigh show dev "$iface" | grep REACHABLE | cut -d ' ' -f 3 | sort | uniq | wc -w)
+		;;
+		ipv6)
+		ident="$ident-${type_instance}"
+		ret=$(ip -6 neigh show dev "$iface" | grep REACHABLE | cut -d ' ' -f 3 | sort | uniq | wc -w)
+		;;
+	esac
+	echo "PUTVAL \"$ident\" interval=$INTERVAL N:$ret"
 
 }
 
