@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=collectd-mod-ip-neigh
 PKG_VERSION:=2025.09.09
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
@@ -20,6 +20,7 @@ define Package/$(PKG_NAME)/default
   CATEGORY:=Utilities
   TITLE:=collectd-mod-ip-neigh
   PKGARCH:=all
+  EXTRA_DEPENDS:=collectd-mod-exec
 endef
 
 define Package/$(PKG_NAME)/description
