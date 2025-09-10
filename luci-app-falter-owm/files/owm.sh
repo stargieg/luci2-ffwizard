@@ -374,7 +374,7 @@ json_add_array links
 		set -- $i
 		json_add_object
 		#json_add_string sourceAddr6 "$1"
-		json_add_string destAddr6 "$2"
+		#json_add_string destAddr6 "$2"
 		json_add_string sourceAddr4 "$my_id"
 		json_add_string destAddr4 "$2"
 		json_add_string id "$3"
