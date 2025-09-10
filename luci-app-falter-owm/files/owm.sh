@@ -423,7 +423,12 @@ json_close_array
 # but they disappear, if we send stuff to the server
 json_add_double latitude $latitude
 json_add_double longitude $longitude
-json_add_string hostname "$hostname""$domain"
+#Workaraund for broken luci-app-falter-owm/files/owm2meshviewer.py
+#after https://github.com/freifunk-berlin/hopglass.berlin.freifunk.net/commit/df6545e0ea98e248cf99637b52c8f2e847e1166a
+#last gift, modern python compatibility; and archive it
+#Links import broke with hostname and domain
+#json_add_string hostname "$hostname""$domain"
+json_add_string hostname "$hostname"
 json_add_int updateInterval 3600
 json_add_string hardware "$system"
 json_add_object firmware
