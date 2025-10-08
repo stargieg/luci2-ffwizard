@@ -19,7 +19,7 @@ function read_dhcpleases() {
 	local ident="$HOSTNAME/$plugin/$type"
 	for iface in $iface_list ; do
 		network_get_physdev iface_l2 "$iface"
-		ret=$(ip neigh show dev "$iface_l2" | grep REACHABLE | cut -d ' ' -f 3 | sort | uniq | wc -w)
+		ret=$(ip neigh show dev "$iface_l2" | grep -e "STALE" -e "REACHABLE" | cut -d ' ' -f 3 | sort | uniq | wc -w)
 		ret_sum=$((ret_sum+ret))
 	done
 	echo "PUTVAL \"$ident\" interval=$INTERVAL N:$ret_sum"
@@ -40,15 +40,15 @@ function read_neigh() {
 	case $type_instance in
 		combined)
 		ident="$ident-${type_instance}"
-		ret=$(ip neigh show dev "$iface" | grep REACHABLE | cut -d ' ' -f 3 | sort | uniq | wc -w)
+		ret=$(ip neigh show dev "$iface" | grep -e "STALE" -e "REACHABLE" | cut -d ' ' -f 3 | sort | uniq | wc -w)
 		;;
 		ipv4)
 		ident="$ident-${type_instance}"
-		ret=$(ip -4 neigh show dev "$iface" | grep REACHABLE | cut -d ' ' -f 3 | sort | uniq | wc -w)
+		ret=$(ip -4 neigh show dev "$iface" | grep -e "STALE" -e "REACHABLE" | cut -d ' ' -f 3 | sort | uniq | wc -w)
 		;;
 		ipv6)
 		ident="$ident-${type_instance}"
-		ret=$(ip -6 neigh show dev "$iface" | grep REACHABLE | cut -d ' ' -f 3 | sort | uniq | wc -w)
+		ret=$(ip -6 neigh show dev "$iface" | grep -e "STALE" -e "REACHABLE" | cut -d ' ' -f 3 | sort | uniq | wc -w)
 		;;
 	esac
 	echo "PUTVAL \"$ident\" interval=$INTERVAL N:$ret"
@@ -57,7 +57,6 @@ function read_neigh() {
 
 
 get_dhcp_iface() {
-	log "iface_list()"
 	local cfg=$1
 	config_get ignore $cfg ignore
 	[ "$ignore" == "1" ] && return

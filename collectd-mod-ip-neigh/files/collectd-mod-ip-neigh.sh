@@ -18,7 +18,7 @@ function read_dhcpleases() {
 	local ident="$HOSTNAME/$plugin/$type"
 	for iface in $iface_list ; do
 		iface_l2="$iface"
-		ret=$(ip neigh show dev "$iface_l2" | grep REACHABLE | cut -d ' ' -f 3 | sort | uniq | wc -w)
+		ret=$(ip neigh show dev "$iface_l2" | grep -e "STALE" -e "REACHABLE" | cut -d ' ' -f 3 | sort | uniq | wc -w)
 		ret_sum=$((ret_sum+ret))
 	done
 	echo "PUTVAL \"$ident\" interval=$INTERVAL N:$ret_sum"
