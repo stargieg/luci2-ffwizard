@@ -20,17 +20,17 @@ setup_filter_redistribute() {
 	uci_add babeld filter ; cfg="$CONFIG_SECTION"
 	uci_set babeld $cfg type "redistribute"
 	uci_set babeld $cfg ip "fd00::/8"
-	uci_set babeld $cfg ge "64"
+	#uci_set babeld $cfg ge "64"
 	uci_set babeld $cfg action "deny"
 
 	uci_add babeld filter ; cfg="$CONFIG_SECTION"
 	uci_set babeld $cfg type "redistribute"
 	#uci_set babeld $cfg ip "$ip"
 	#uci_set babeld $cfg eq "$eq"
-	uci_set babeld $cfg le "64"
+	#uci_set babeld $cfg le "64"
 	#uci_set babeld $cfg proto '4'
 	#uci_set babeld $cfg action 'metric 128'
-	uci_set babeld $cfg action "allow"
+	#uci_set babeld $cfg action "allow"
 	#uci_set babeld $cfg if "$iface"
 }
 
@@ -39,12 +39,7 @@ setup_filter_redistribute_local() {
 	uci_add babeld filter ; cfg="$CONFIG_SECTION"
 	uci_set babeld $cfg type "redistribute"
 	uci_set babeld $cfg local "true"
-	uci_set babeld $cfg eq "128"
 	uci_set babeld $cfg action "deny"
-	#uci_add babeld filter ; cfg="$CONFIG_SECTION"
-	#uci_set babeld $cfg type "redistribute"
-	#uci_set babeld $cfg local "true"
-	#uci_set babeld $cfg action "allow"
 }
 
 setup_babel() {

@@ -78,9 +78,11 @@ while read line; do
 			ret=""
 			for j in $neighborips ; do
 				[ -z $ret ] || continue
+				#check if "Non-authoritative answer: with grep dosent work with any version"
 				nodenames=$(nslookup $node $j 2>/dev/null | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
 				if ! [ -z "$nodenames" ] ; then
 					for nodename in $nodenames ; do
+						#check if "Non-authoritative answer: with grep dosent work with any version"
 						nodeips=$(nslookup $nodename $j 2>/dev/null | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 						if [ -z "$nodeips" ] ; then
 							nodeips=$node
@@ -92,6 +94,15 @@ while read line; do
 							if echo $k | grep -q ^fd ; then
 								#log "ret from neighb $j for ip $k : $nodename.$domain"
 								echo "$k $nodename.$domain" >>/tmp/babelnode2hosts.tmp
+							# the freifunk pref 2001:bf7 is not reachable from inet
+							elif echo $k | grep -q ^2001:bf7 ; then 
+								if [ -z "$domain_custom" ] ; then
+									#log "ret from neighb $j for ip $k : $nodename.$domain"
+									echo "$k $nodename.$domain" >>/tmp/babelnode2hosts.tmp
+								else
+									#log "ret from neighb $j for ip $k : $nodename.$domain_custom $nodename.$domain"
+									echo "$k $nodename.$domain.$domain_custom $nodename.$domain" >>/tmp/babelnode2hosts.tmp
+								fi
 							else
 								if [ -z "$domain_custom" ] ; then
 									#log "ret from neighb $j for ip $k : $nodename.$domain"
@@ -147,6 +158,15 @@ while read line; do
 							if echo $k | grep -q ^fd ; then
 								#log "ns $k $nodename.$domain"
 								echo "$k $nodename.$domain" >>/tmp/babelnode2hosts.tmp
+							# the freifunk pref 2001:bf7 is not reachable from inet
+							elif echo $k | grep -q ^2001:bf7 ; then
+								if [ -z "$domain_custom" ] ; then
+									#log "ret from node $node $j : $nodename.$domain"
+									echo "$k $nodename.$domain" >>/tmp/babelnode2hosts.tmp
+								else
+									#log "ret from node $node $j : $nodename.$domain_custom $nodename.$domain"
+									echo "$k $nodename.$domain.$domain_custom $nodename.$domain" >>/tmp/babelnode2hosts.tmp
+								fi
 							else
 								if [ -z "$domain_custom" ] ; then
 									#log "ns $k $nodename.$domain"

@@ -22,8 +22,18 @@ print_interface() {
 		if echo "$i" | grep -q ^fd53 ; then
 			continue
 		fi
+		if echo "$i" | grep -q :$ ; then
+			continue
+		fi
 		if echo $i | grep -q ^fd ; then
 			echo "$i $hostname.$domain $hostname" >> "$out"
+		# the freifunk pref 2001:bf7 is not reachable from inet
+		elif echo $i | grep -q ^2001:bf7 ; then
+			if [ -z "$domain_custom" ] ; then
+				echo "$i $hostname.$domain" >> "$out"
+			else
+				echo "$i $hostname.$domain.$domain_custom $hostname.$domain" >> "$out"
+			fi
 		else
 			if [ -z "$domain_custom" ] ; then
 				echo "$i $hostname.$domain $hostname" >> "$out"
@@ -76,7 +86,7 @@ while read line; do
 				log "neighborip ping fail $neighborip via $via id $id"
 				continue
 			fi
-			#log "neighborip $neighborip"
+			log "neighborip $neighborip"
 			neighbornames=$(nslookup $neighborip $neighborip 2>/dev/null | grep 'name =' | cut -d ' ' -f 3 | cut -d '.' -f -1)
 			if [ -z "$neighbornames" ] ; then
 				neighborname=$(wget -q -T 2 -O - --no-check-certificate https://[$neighborip]/cgi-bin/luci/ 2>/dev/null | \
@@ -90,17 +100,28 @@ while read line; do
 				if [ -z $neighborname ] ; then
 					log "neighbor $neighborip no dns,https,http service"
 				else
-					if [ -z "$domain_custom" ] ; then
-						#log "https $neighborip $neighborname.$domain"
+					if echo $neighborip | grep -q ^fd ; then
 						echo "$neighborip $neighborname.$domain" >>/tmp/babelneighbor2hosts.tmp
+					# the freifunk pref 2001:bf7 is not reachable from inet
+					elif echo $neighborip | grep -q ^2001:bf7 ; then
+						if [ -z "$domain_custom" ] ; then
+							log "https ret from neighb $neighborname $neighborip : $nodename.$domain"
+							echo "$neighborip $nodename.$domain" >>/tmp/babelneighbor2hosts.tmp
+						else
+							log "https ret from neighb $neighborname $neighborip : $nodename.$domain_custom $nodename.$domain"
+							echo "$neighborip $nodename.$domain.$domain_custom $nodename.$domain" >>/tmp/babelneighbor2hosts.tmp
+						fi
 					else
-						#log "https $neighborip $neighborname.$domain_custom $neighborname.$domain"
-						echo "$neighborip $neighborname.$domain_custom $neighborname.$domain" >>/tmp/babelneighbor2hosts.tmp
+						if [ -z "$domain_custom" ] ; then
+							echo "$neighborip $neighborname.$domain" >>/tmp/babelneighbor2hosts.tmp
+						else
+							echo "$neighborip $neighborname.$domain_custom $neighborname.$domain" >>/tmp/babelneighbor2hosts.tmp
+						fi
 					fi
 				fi
 			else
 				for neighborname in $neighbornames ; do
-					neighborips=$(nslookup $neighborname $neighborip | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
+					neighborips=$(nslookup $neighborname $neighborip  2>/dev/null | grep 'Address.*: [1-9a-f][0-9a-f]\{0,3\}:' | cut -d ':' -f 2-)
 					if [ -z "$neighborips" ] ; then
 						neighborips=$neighborip
 					fi
@@ -108,6 +129,15 @@ while read line; do
 						if echo $j | grep -q -v ^fe ; then
 							if echo $j | grep -q ^fd ; then
 								echo "$j $neighborname.$domain" >>/tmp/babelneighbor2hosts.tmp
+							# the freifunk pref 2001:bf7 is not reachable from inet
+							elif echo $j | grep -q ^2001:bf7 ; then
+								if [ -z "$domain_custom" ] ; then
+									log "ret from neighb $neighborname $j : $nodename.$domain"
+									echo "$j $nodename.$domain" >>/tmp/babelneighbor2hosts.tmp
+								else
+									log "ret from neighb $neighborname $j : $nodename.$domain_custom $nodename.$domain"
+									echo "$j $nodename.$domain.$domain_custom $nodename.$domain" >>/tmp/babelneighbor2hosts.tmp
+								fi
 							else
 								if [ -z "$domain_custom" ] ; then
 									echo "$j $neighborname.$domain" >>/tmp/babelneighbor2hosts.tmp
